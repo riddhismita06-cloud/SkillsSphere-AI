@@ -136,3 +136,18 @@ If you want to contribute, start by understanding:
 3. Whether the change impacts frontend, backend, AI/ML, or multiple layers
 
 This approach keeps contributions focused, reviewable, and scalable.
+
+---
+
+## Contributor Resources
+
+- Contribution Guide: `CONTRIBUTING.md`
+- Code of Conduct: `CODE_OF_CONDUCT.md`
+- Security Policy: `SECURITY.md`
+- PR Template: `.github/PULL_REQUEST_TEMPLATE.md`
+- Issue Templates: `.github/ISSUE_TEMPLATE/`
+- Detailed Structure Notes: `docs/PROJECT_STRUCTURE.md`
+
+## Current Repository Status
+
+This repository currently includes a scalable folder scaffold for frontend, backend, AI/ML, and docs. Implementation code can now be added module-by-module while preserving clear boundaries.
