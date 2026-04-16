@@ -189,9 +189,77 @@ Automated checks run on pull requests to `main` through:
 
 These checks validate docs/workflows and, once app code is added, automatically run lint/test/build for `client`, `server`, and `ai-ml` when their dependency manifests exist.
 
-## Current Repository Status
+## Project Progress
 
-This repository currently includes a scalable folder scaffold for frontend, backend, AI/ML, and docs. Implementation code can now be added module-by-module while preserving clear boundaries.
+The repository is organized as a modular full-stack platform for learning, skill evaluation, and career readiness.
+
+Current progress:
+
+- Frontend scaffold is available in `client/`
+- Backend scaffold is available in `server/`
+- MongoDB connection handling is configured in the backend
+- Resume upload and analysis endpoints are available
+- User registration with JWT authentication is implemented
+- Documentation is maintained in `README.md` and `docs/`
+
+## Available Endpoints
+
+Base backend URL:
+
+- `http://localhost:5000`
+
+Health:
+
+- `GET /health`
+
+Authentication:
+
+- `POST /api/auth/register`
+
+Resume APIs:
+
+- `POST /api/resume/upload`
+- `POST /api/resume/analyze`
+- `GET /api/resume/result/:id`
+
+### Authentication Endpoint Details
+
+`POST /api/auth/register`
+
+Request body:
+
+```json
+{
+   "name": "Jane Doe",
+   "email": "jane@example.com",
+   "password": "securePass123",
+   "role": "student"
+}
+```
+
+Expected behavior:
+
+- Validates `name`, `email`, `password`, and `role`
+- Prevents duplicate email registration
+- Hashes the password before storage
+- Returns a signed JWT containing `userId` and `role`
+- Returns basic user information
+
+### Resume Endpoint Details
+
+`POST /api/resume/upload`
+
+- Accepts PDF, DOC, and DOCX files
+- Uses the `resume` form-data field
+
+`POST /api/resume/analyze`
+
+- Accepts resume files through the `resume` form-data field
+- Returns parsed resume data for supported PDF input
+
+`GET /api/resume/result/:id`
+
+- Returns the stored result for a given resume identifier
 
 ## 🚀 Running the Project
 
@@ -214,9 +282,14 @@ npm run dev
 Server environment variables (create `server/.env` from `server/example.env`):
 
 - `MONGO_URI` or `MONGODB_URI`
-- `PORT`
-- `JWT_SECRET`
+- `PORT` (backend default: `5000`)
+- `JWT_SECRET` (required for JWT registration)
 - `JWT_EXPIRES_IN` (optional, default is `7d`)
+
+Example local development values:
+
+- `JWT_SECRET=skillsphere_dev_jwt_secret_1234567890abcdef`
+- `JWT_EXPIRES_IN=7d`
 
 ### Health Check
 
@@ -227,51 +300,80 @@ Expected response:
 { "status": "OK" }
 ```
 
-## Authentication: Registration with JWT
+## Postman Verification
 
-The backend now supports user registration with immediate JWT authentication.
+Use Postman to verify the backend endpoints with the following requests:
 
-Endpoint:
+### 1. Health Check
 
-- `POST /api/auth/register`
+- Method: `GET`
+- URL: `http://localhost:5000/health`
 
-What happens on register:
+Expected response:
 
-- Validates `name`, `email`, `password`, `role`
-- Prevents duplicate email registration
-- Hashes password before storing in MongoDB
-- Creates user record
-- Returns JWT token and basic user information
-
-Token payload includes:
-
-- `userId`
-- `role`
-
-Example request:
-
-```bash
-curl -X POST http://localhost:5000/api/auth/register \
-   -H "Content-Type: application/json" \
-   -d '{
-      "name": "Jane Doe",
-      "email": "jane@example.com",
-      "password": "securePass123",
-      "role": "student"
-   }'
+```json
+{ "status": "OK" }
 ```
 
-For full request/response details, see `docs/api/auth.md`.
+### 2. Register User
 
-## Registration Feature File Map
+- Method: `POST`
+- URL: `http://localhost:5000/api/auth/register`
+- Body type: `raw` `JSON`
 
-Implementation added for issue #27:
+Request body:
 
-- `server/src/modules/auth/routes.js`: Auth routes
-- `server/src/modules/auth/controller.js`: Registration controller and error handling
-- `server/src/modules/auth/service.js`: Business logic for duplicate checks, hashing, persistence, and JWT generation
-- `server/src/validations/authValidation.js`: zod-based validation functions
-- `server/index.js`: mounted `/api/auth` routes
-- `server/example.env`: JWT environment variable template
-- `docs/api/auth.md`: API documentation for registration endpoint
+```json
+{
+  "name": "Jane Doe",
+  "email": "jane@example.com",
+  "password": "securePass123",
+  "role": "student"
+}
+```
+
+Expected response:
+
+- `201 Created`
+- JWT token in the response body
+- user information in the response body
+
+### 3. Upload Resume
+
+- Method: `POST`
+- URL: `http://localhost:5000/api/resume/upload`
+- Body type: `form-data`
+- File field name: `resume`
+
+### 4. Analyze Resume
+
+- Method: `POST`
+- URL: `http://localhost:5000/api/resume/analyze`
+- Body type: `form-data`
+- File field name: `resume`
+
+### 5. Fetch Resume Result
+
+- Method: `GET`
+- URL: `http://localhost:5000/api/resume/result/:id`
+
+## Stop Running Instances
+
+Use these commands to stop the local frontend and backend servers when needed:
+
+```bash
+lsof -ti tcp:5000 | xargs -r kill
+lsof -ti tcp:5173 | xargs -r kill
+```
+
+If a process does not stop cleanly, use the force option:
+
+```bash
+lsof -ti tcp:5000 | xargs -r kill -9
+lsof -ti tcp:5173 | xargs -r kill -9
+```
+
+## Documentation Scope
+
+The project documentation is maintained in this README and the supporting project files under `docs/`. No separate auth API document is required for the current documentation set.
 
