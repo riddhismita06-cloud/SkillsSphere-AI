@@ -211,12 +211,67 @@ npm install
 npm run dev
 ```
 
+Server environment variables (create `server/.env` from `server/example.env`):
+
+- `MONGO_URI` or `MONGODB_URI`
+- `PORT`
+- `JWT_SECRET`
+- `JWT_EXPIRES_IN` (optional, default is `7d`)
+
 ### Health Check
 
-Open: http://localhost:5000/health
+Open: http://localhost:<PORT>/health (for example `http://localhost:5000/health`)
 Expected response:
 
 ```json
 { "status": "OK" }
 ```
+
+## Authentication: Registration with JWT
+
+The backend now supports user registration with immediate JWT authentication.
+
+Endpoint:
+
+- `POST /api/auth/register`
+
+What happens on register:
+
+- Validates `name`, `email`, `password`, `role`
+- Prevents duplicate email registration
+- Hashes password before storing in MongoDB
+- Creates user record
+- Returns JWT token and basic user information
+
+Token payload includes:
+
+- `userId`
+- `role`
+
+Example request:
+
+```bash
+curl -X POST http://localhost:5000/api/auth/register \
+   -H "Content-Type: application/json" \
+   -d '{
+      "name": "Jane Doe",
+      "email": "jane@example.com",
+      "password": "securePass123",
+      "role": "student"
+   }'
+```
+
+For full request/response details, see `docs/api/auth.md`.
+
+## Registration Feature File Map
+
+Implementation added for issue #27:
+
+- `server/src/modules/auth/routes.js`: Auth routes
+- `server/src/modules/auth/controller.js`: Registration controller and error handling
+- `server/src/modules/auth/service.js`: Business logic for duplicate checks, hashing, persistence, and JWT generation
+- `server/src/validations/authValidation.js`: zod-based validation functions
+- `server/index.js`: mounted `/api/auth` routes
+- `server/example.env`: JWT environment variable template
+- `docs/api/auth.md`: API documentation for registration endpoint
 
