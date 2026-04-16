@@ -45,7 +45,7 @@ const ResumeAnalyzerPage = () => {
         </div>
 
         {/* Main Content Area */}
-        <div className="mt-12 bg-dark-bg/30 border border-gray-800 rounded-3xl p-8 backdrop-blur-sm shadow-2xl relative">
+        <div className="mt-12 bg-dark-bg/30 border border-gray-800 rounded-3xl p-8 backdrop-blur-sm shadow-2xl relative overflow-hidden">
           {/* Background Decorative Element */}
           <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/10 rounded-full blur-[100px] pointer-events-none"></div>
           
