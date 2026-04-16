@@ -1,3 +1,12 @@
+<a name="top"></a>
+![----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png)
+
+![NSOC'26](https://img.shields.io/badge/NSOC-2026-orange?style=for-the-badge)
+
+**This project is officially registered under nexus spring of code 2026.**
+
+![----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png)
+
 # SkillSphere AI
 
 SkillSphere AI is an AI-powered full-stack platform that connects **learning**, **skill evaluation**, and **career readiness** in one ecosystem.
@@ -72,25 +81,39 @@ SkillSphere AI aims to simplify the path from learning to hiring by giving users
 
 The following structure keeps the project modular and easy to scale for new contributors:
 
+
 ```text
 SkillSphere-AI/
 ├── client/                          # React frontend application
 │   ├── public/                      # Static public assets
 │   └── src/
 │       ├── app/                     # App-level providers, routes, layouts
+│       │   ├── App.jsx              # Root router (BrowserRouter + Routes)
+│       │   └── Home.jsx             # Placeholder home / landing page
 │       ├── modules/                 # Feature-based modules
 │       │   ├── auth/                # Login, registration, user session flows
+│       │   │   └── components/
+│       │   │       └── ComponentDemo.jsx  # Form component showcase (route: /demo)
 │       │   ├── classrooms/          # Live class UI, chat, collaboration
 │       │   ├── resume-analyzer/     # Resume upload, scoring, suggestions
 │       │   ├── job-matcher/         # Resume-to-JD matching UI and results
 │       │   ├── mock-interview/      # Interview sessions and feedback views
 │       │   └── dashboard/           # Skill/performance analytics UI
 │       ├── shared/                  # Reusable UI components and hooks
+│       │   ├── components/          # Reusable form & UI primitives
+│       │   │   ├── Input.jsx        # Text input with label, error, icons, disabled
+│       │   │   ├── Button.jsx       # Button with variants, sizes, loading state
+│       │   │   ├── Select.jsx       # Dropdown with label, error, disabled
+│       │   │   └── index.js         # Barrel export for all shared components
+│       │   └── ui/                  # Reserved for layout/compound components
 │       ├── services/                # API communication layer
 │       ├── utils/                   # Frontend helper utilities
 │       └── assets/                  # Images, icons, static resources
 │
 ├── server/                          # Node.js + Express backend
+│   ├── index.js                     # Main server entry point
+│   ├── example.env                  # Example environment variables
+│   ├── package.json                 # Backend dependencies and scripts
 │   └── src/
 │       ├── config/                  # Environment and app configuration
 │       ├── modules/                 # Domain-based backend modules
@@ -98,13 +121,19 @@ SkillSphere-AI/
 │       │   ├── users/               # Student, tutor, recruiter profiles
 │       │   ├── classrooms/          # Live class/session management
 │       │   ├── resumes/             # Resume parsing and storage handling
+│       │   │   ├── controller.js    # Resume upload, analyze, result endpoints
+│       │   │   └── routes.js        # Resume-related API routes
 │       │   ├── matching/            # Resume vs JD matching logic
 │       │   ├── interviews/          # Mock interview orchestration
 │       │   └── analytics/           # Skill tracking and reporting
 │       ├── middleware/              # Request validation, auth guards, etc.
+│       │   └── uploadResume.js      # Multer middleware for resume uploads
 │       ├── integrations/            # Third-party services (AI providers, etc.)
 │       ├── database/                # Database models/schemas and repositories
+│       │   └── db.js                # MongoDB connection setup
+│       ├── uploads/                 # Uploaded resume files
 │       ├── utils/                   # Backend helper utilities
+│       │   └── parseResume.js       # PDF parsing and candidate data extraction
 │       └── app/                     # App bootstrap, routes, and server entry
 │
 ├── ai-ml/                           # AI/ML workflows and model-related logic
