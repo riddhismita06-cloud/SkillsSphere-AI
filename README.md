@@ -1,3 +1,12 @@
+<a name="top"></a>
+![----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png)
+
+![NSOC'26](https://img.shields.io/badge/NSOC-2026-orange?style=for-the-badge)
+
+**This project is officially registered under nexus spring of code 2026.**
+
+![----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png)
+
 # SkillSphere AI
 
 SkillSphere AI is an AI-powered full-stack platform that connects **learning**, **skill evaluation**, and **career readiness** in one ecosystem.
@@ -72,6 +81,7 @@ SkillSphere AI aims to simplify the path from learning to hiring by giving users
 
 The following structure keeps the project modular and easy to scale for new contributors:
 
+
 ```text
 SkillSphere-AI/
 ├── client/                          # React frontend application
@@ -101,6 +111,9 @@ SkillSphere-AI/
 │       └── assets/                  # Images, icons, static resources
 │
 ├── server/                          # Node.js + Express backend
+│   ├── index.js                     # Main server entry point
+│   ├── example.env                  # Example environment variables
+│   ├── package.json                 # Backend dependencies and scripts
 │   └── src/
 │       ├── config/                  # Environment and app configuration
 │       ├── modules/                 # Domain-based backend modules
@@ -108,13 +121,19 @@ SkillSphere-AI/
 │       │   ├── users/               # Student, tutor, recruiter profiles
 │       │   ├── classrooms/          # Live class/session management
 │       │   ├── resumes/             # Resume parsing and storage handling
+│       │   │   ├── controller.js    # Resume upload, analyze, result endpoints
+│       │   │   └── routes.js        # Resume-related API routes
 │       │   ├── matching/            # Resume vs JD matching logic
 │       │   ├── interviews/          # Mock interview orchestration
 │       │   └── analytics/           # Skill tracking and reporting
 │       ├── middleware/              # Request validation, auth guards, etc.
+│       │   └── uploadResume.js      # Multer middleware for resume uploads
 │       ├── integrations/            # Third-party services (AI providers, etc.)
 │       ├── database/                # Database models/schemas and repositories
+│       │   └── db.js                # MongoDB connection setup
+│       ├── uploads/                 # Uploaded resume files
 │       ├── utils/                   # Backend helper utilities
+│       │   └── parseResume.js       # PDF parsing and candidate data extraction
 │       └── app/                     # App bootstrap, routes, and server entry
 │
 ├── ai-ml/                           # AI/ML workflows and model-related logic
