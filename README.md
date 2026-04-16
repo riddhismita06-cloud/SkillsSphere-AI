@@ -78,14 +78,24 @@ SkillSphere-AI/
 │   ├── public/                      # Static public assets
 │   └── src/
 │       ├── app/                     # App-level providers, routes, layouts
+│       │   ├── App.jsx              # Root router (BrowserRouter + Routes)
+│       │   └── Home.jsx             # Placeholder home / landing page
 │       ├── modules/                 # Feature-based modules
 │       │   ├── auth/                # Login, registration, user session flows
+│       │   │   └── components/
+│       │   │       └── ComponentDemo.jsx  # Form component showcase (route: /demo)
 │       │   ├── classrooms/          # Live class UI, chat, collaboration
 │       │   ├── resume-analyzer/     # Resume upload, scoring, suggestions
 │       │   ├── job-matcher/         # Resume-to-JD matching UI and results
 │       │   ├── mock-interview/      # Interview sessions and feedback views
 │       │   └── dashboard/           # Skill/performance analytics UI
 │       ├── shared/                  # Reusable UI components and hooks
+│       │   ├── components/          # Reusable form & UI primitives
+│       │   │   ├── Input.jsx        # Text input with label, error, icons, disabled
+│       │   │   ├── Button.jsx       # Button with variants, sizes, loading state
+│       │   │   ├── Select.jsx       # Dropdown with label, error, disabled
+│       │   │   └── index.js         # Barrel export for all shared components
+│       │   └── ui/                  # Reserved for layout/compound components
 │       ├── services/                # API communication layer
 │       ├── utils/                   # Frontend helper utilities
 │       └── assets/                  # Images, icons, static resources
