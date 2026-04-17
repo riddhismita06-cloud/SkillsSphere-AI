@@ -34,24 +34,24 @@ SkillSphere AI aims to simplify the path from learning to hiring by giving users
 
 ## Core Features
 
-1. **AI-Powered Career Hub**  
-   A centralized dashboard for students and recruiters, featuring a modern, dark-themed interactive UI.
+1. **Live Interactive Classrooms**  
+   Real-time learning sessions with video, chat, and collaboration.
 
 2. **AI Resume Analyzer**  
-   Professional resume scoring with improvement suggestions. (Route: `/resume-analyzer`)
-   - **Intelligent Upload:** Drag & Drop or paste resumes via clipboard.
-   - **Global Insight Analysis:** Detailed scoring against industry standards.
-   - **Keyword Intelligence:** Identification of missing industry-standard tags for better ATS visibility.
-   - **Live Preview:** Document viewer with instant feedback for PDF files.
+   Resume scoring with improvement suggestions. (Route: `/resume-analyzer`)
+   - Drag & Drop / clipboard paste upload
+   - ATS score with detailed analysis dashboard
+   - Missing keyword identification
+   - Live PDF document preview
 
-3. **Live Interactive Classrooms**  
-   Real-time learning sessions with video, chat, and collaboration tools.
-
-4. **Resume vs Job Description Matcher**  
+3. **Resume vs Job Description Matcher**  
    ML-assisted comparison between candidate profile and role requirements.
 
-5. **AI Mock Interview System**  
+4. **AI Mock Interview System**  
    Interview practice with structured feedback for improvement.
+
+5. **Skill Tracking Dashboard**  
+   Performance insights to help students and tutors track growth.
 
 ---
 
@@ -74,7 +74,7 @@ SkillSphere AI aims to simplify the path from learning to hiring by giving users
 
 ## Tech Stack
 
-- **Frontend:** React.js, Tailwind CSS, Lucide Icons
+- **Frontend:** React.js
 - **Backend:** Node.js + Express.js
 - **Database:** MongoDB
 - **Intelligence Layer:** AI/ML for resume analysis, matching, and recommendations
@@ -91,23 +91,28 @@ SkillSphere-AI/
 ├── client/                          # React frontend application
 │   ├── public/                      # Static public assets
 │   └── src/
-│       ├── app/                     # App-level entry points and routing
-│       │   ├── main.jsx             # Entry point (ReactDOM.render)
-│       │   ├── App.jsx              # Centralized routing configuration
-│       │   └── index.css            # Global theme variables and base styles
+│       ├── app/                     # App-level providers, routes, layouts
+│       │   ├── App.jsx              # Root router (BrowserRouter + Routes)
+│       │   └── Home.jsx             # Placeholder home / landing page
 │       ├── modules/                 # Feature-based modules
-│       │   ├── landing/             # Integrated Landing Page module
-│       │   ├── resume-analyzer/     # AI Upload, scoring, and insight views
-│       │   ├── auth/                # Identity and session management
-│       │   ├── classrooms/          # Live collaboration and management
-│       │   ├── dashboard/           # User performance analytics
-│       │   └── job-matcher/         # Career matching logic and UI
-│       ├── shared/                  # Reusable UI primitives and components
-│       │   ├── landing_components/  # Theme-consistent components (Navbar, Button, etc.)
-│       │   └── components/          # Standard form and UI elements
-│       ├── services/                # API communication layers
+│       │   ├── auth/                # Login, registration, user session flows
+│       │   │   └── components/
+│       │   │       └── ComponentDemo.jsx  # Form component showcase (route: /demo)
+│       │   ├── classrooms/          # Live class UI, chat, collaboration
+│       │   ├── resume-analyzer/     # Resume upload, scoring, suggestions
+│       │   ├── job-matcher/         # Resume-to-JD matching UI and results
+│       │   ├── mock-interview/      # Interview sessions and feedback views
+│       │   └── dashboard/           # Skill/performance analytics UI
+│       ├── shared/                  # Reusable UI components and hooks
+│       │   ├── components/          # Reusable form & UI primitives
+│       │   │   ├── Input.jsx        # Text input with label, error, icons, disabled
+│       │   │   ├── Button.jsx       # Button with variants, sizes, loading state
+│       │   │   ├── Select.jsx       # Dropdown with label, error, disabled
+│       │   │   └── index.js         # Barrel export for all shared components
+│       │   └── ui/                  # Reserved for layout/compound components
+│       ├── services/                # API communication layer
 │       ├── utils/                   # Frontend helper utilities
-│       └── assets/                  # Shared static resources
+│       └── assets/                  # Images, icons, static resources
 │
 ├── server/                          # Node.js + Express backend
 │   ├── index.js                     # Main server entry point
