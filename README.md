@@ -96,6 +96,8 @@ SkillSphere-AI/
 │       │   └── Home.jsx             # Placeholder home / landing page
 │       ├── modules/                 # Feature-based modules
 │       │   ├── auth/                # Login, registration, user session flows
+│       │   │   ├── Login.jsx        # Login UI (route: /login)
+│       │   │   ├── Register.jsx     # Registration UI (route: /register)
 │       │   │   └── components/
 │       │   │       └── ComponentDemo.jsx  # Form component showcase (route: /demo)
 │       │   ├── classrooms/          # Live class UI, chat, collaboration
