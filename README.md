@@ -38,7 +38,11 @@ SkillSphere AI aims to simplify the path from learning to hiring by giving users
    Real-time learning sessions with video, chat, and collaboration.
 
 2. **AI Resume Analyzer**  
-   Resume scoring with improvement suggestions.
+   Resume scoring with improvement suggestions. (Route: `/resume-analyzer`)
+   - Drag & Drop / clipboard paste upload
+   - ATS score with detailed analysis dashboard
+   - Missing keyword identification
+   - Live PDF document preview
 
 3. **Resume vs Job Description Matcher**  
    ML-assisted comparison between candidate profile and role requirements.
