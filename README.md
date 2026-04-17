@@ -87,13 +87,72 @@ The following structure keeps the project modular and easy to scale for new cont
 
 ```text
 SkillSphere-AI/
-├── .github/
-│   ├── ISSUE_TEMPLATE/
-│   ├── workflows/
-│   │   └── pr-quality-checks.yml
-│   ├── CODEOWNERS
-│   └── PULL_REQUEST_TEMPLATE.md
+├── client/                          # React frontend application
+│   ├── public/                      # Static public assets
+│   └── src/
+│       ├── app/                     # App-level providers, routes, layouts
+│       │   ├── App.jsx              # Root router (BrowserRouter + Routes)
+│       │   └── Home.jsx             # Placeholder home / landing page
+│       ├── modules/                 # Feature-based modules
+│       │   ├── auth/                # Login, registration, user session flows
+│       │   │   └── components/
+│       │   │       └── ComponentDemo.jsx  # Form component showcase (route: /demo)
+│       │   ├── classrooms/          # Live class UI, chat, collaboration
+│       │   ├── resume-analyzer/     # Resume upload, scoring, suggestions
+│       │   ├── job-matcher/         # Resume-to-JD matching UI and results
+│       │   ├── mock-interview/      # Interview sessions and feedback views
+│       │   └── dashboard/           # Skill/performance analytics UI
+│       ├── shared/                  # Reusable UI components and hooks
+│       │   ├── components/          # Reusable form & UI primitives
+│       │   │   ├── Input.jsx        # Text input with label, error, icons, disabled
+│       │   │   ├── Button.jsx       # Button with variants, sizes, loading state
+│       │   │   ├── Select.jsx       # Dropdown with label, error, disabled
+│       │   │   └── index.js         # Barrel export for all shared components
+│       │   └── ui/                  # Reserved for layout/compound components
+│       ├── services/                # API communication layer
+│       ├── utils/                   # Frontend helper utilities
+│       └── assets/                  # Images, icons, static resources
+│
+├── server/                          # Node.js + Express backend
+│   ├── index.js                     # Main server entry point
+│   ├── example.env                  # Example environment variables
+│   ├── package.json                 # Backend dependencies and scripts
+│   └── src/
+│       ├── config/                  # Environment and app configuration
+│       ├── modules/                 # Domain-based backend modules
+│       │   ├── auth/                # Authentication and authorization
+│       │   ├── users/               # Student, tutor, recruiter profiles
+│       │   ├── classrooms/          # Live class/session management
+│       │   ├── resumes/             # Resume parsing and storage handling
+│       │   │   ├── controller.js    # Resume upload, analyze, result endpoints
+│       │   │   └── routes.js        # Resume-related API routes
+│       │   ├── matching/            # Resume vs JD matching logic
+│       │   ├── interviews/          # Mock interview orchestration
+│       │   └── analytics/           # Skill tracking and reporting
+│       ├── middleware/              # Request validation, auth guards, etc.
+│       │   └── uploadResume.js      # Multer middleware for resume uploads
+│       ├── integrations/            # Third-party services (AI providers, etc.)
+│       ├── database/                # Database models/schemas and repositories
+│       │   └── db.js                # MongoDB connection setup
+│       ├── uploads/                 # Uploaded resume files
+│       ├── utils/                   # Backend helper utilities
+│       │   └── parseResume.js       # PDF parsing and candidate data extraction
+│       └── app/                     # App bootstrap, routes, and server entry
+│
 ├── ai-ml/
+│   ├── evaluators/                  # AI/ML evaluation logic for resumes, matching, interviews
+│   ├       └── skillEvaluator.js    # Resume vs job skill comparison logic                    
+│   ├── resume-analysis/             # Resume scoring and feedback pipelines
+│   ├── jd-matching/                 # Similarity/matching workflows
+│   ├── interview-feedback/          # Interview evaluation logic
+│   └── shared/                      # Common data processing utilities
+│
+├── docs/                            # Product and contributor documentation
+│   ├── architecture/                # System architecture explanations
+│   ├── api/                         # API behavior and endpoint documentation
+│   └── features/                    # Feature-level functional documentation
+│
+└── README.md                        # Project overview for contributors
 │   ├── evaluators/
 │   │   └── __tests__/
 │   │       └── skillEvaluator.test.js
@@ -166,6 +225,7 @@ SkillSphere-AI/
 │   │   ├── database/
 │   │   │   ├── db.js
 │   │   │   └── models/
+│   │   │       ├── Resume.js    
 │   │   │       └── User.js
 │   │   ├── integrations/
 │   │   ├── middleware/
@@ -228,6 +288,9 @@ Implemented:
 - Weighted skill score generation
 - Detection of matched skills, missing skills, and extra skills
 - Explainable feedback for resume vs JD matching
+- MongoDB persistence for parsed resume data and skill match results
+- Resume schema for storing uploaded file metadata and parsed candidate information
+- GET /api/resume/result/:id endpoint to fetch stored resume records
 ```
 
 ## For Open-Source Contributors

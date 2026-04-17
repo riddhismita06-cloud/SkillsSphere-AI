@@ -1,6 +1,7 @@
 import path from "path";
 import { parseResume } from "../../utils/parseResume.js";
 import { skillEvaluator } from "../../../../ai-ml/evaluators/skillEvaluator.js";
+import Resume from "../../database/models/Resume.js";
 
 const parseSkillArrayString = (input) => {
   try {
@@ -94,23 +95,43 @@ export const analyzeResume = async (req, res) => {
         })
       : null;
 
-    return res.status(200).json({
-      success: true,
-      message: invalidJson
-        ? "Resume parsed, but jobSkills JSON format is invalid"
-        : skillMatch
-          ? "Resume parsed and skill match evaluated successfully"
-          : "Resume parsed successfully",
-      data: parsedData,
-      skillMatch,
-      file: {
-        originalName: req.file.originalname,
-        storedName: req.file.filename,
-        path: `/uploads/${req.file.filename}`,
-        size: `${(req.file.size / 1024).toFixed(2)} KB`,
-        mimeType: req.file.mimetype,
-      },
-    });
+    const finalSkillMatch = skillMatch || {};
+    const fileData = {
+      originalName: req.file.originalname,
+      storedName: req.file.filename,
+      path: `/uploads/${req.file.filename}`,
+      size: `${(req.file.size / 1024).toFixed(2)} KB`,
+      mimeType: req.file.mimetype,
+    };
+
+    try {
+      const savedResume = await Resume.create({
+        ...parsedData,
+        jobSkills,
+        skillMatch: finalSkillMatch,
+        file: fileData,
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: invalidJson
+          ? "Resume parsed and saved, but jobSkills JSON format is invalid"
+          : Object.keys(finalSkillMatch).length > 0
+            ? "Resume parsed, skill match evaluated, and saved successfully"
+            : "Resume parsed and saved successfully",
+        resumeId: savedResume._id,
+        data: parsedData,
+        skillMatch: finalSkillMatch,
+        file: fileData,
+      });
+    } catch (saveError) {
+      console.error("Failed to save resume:", saveError);
+      return res.status(500).json({
+        success: false,
+        message: "Resume parsed but failed to save to database",
+        error: saveError.message,
+      });
+    }
   } catch (error) {
     const knownMessages = new Set([
       "Only PDF parsing is supported on /analyze right now",
@@ -126,12 +147,36 @@ export const analyzeResume = async (req, res) => {
   }
 };
 
-export const getResumeResult = (req, res) => {
-  const { id } = req.params;
+export const getResumeResult = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const resume = await Resume.findById(id).lean();
 
-  res.status(200).json({
-    success: true,
-    message: `Fetching resume result for ID: ${id}`
-  });
+    if (!resume) {
+      return res.status(404).json({
+        success: false,
+        message: "Resume not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Resume fetched successfully",
+      data: resume,
+    });
+  } catch (error) {
+    if (error.name === 'CastError') {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid resume ID format",
+      });
+    }
+    console.error("Error fetching resume:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch resume",
+      error: error.message,
+    });
+  }
 };
 
