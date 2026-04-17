@@ -39,8 +39,8 @@ const Input = ({
   const hasError = Boolean(error);
 
   const baseInput = [
-    "w-full rounded-lg border bg-white px-3.5 py-2.5 text-sm text-slate-800",
-    "placeholder:text-slate-400 transition-all duration-150",
+    "w-full rounded-lg border bg-gray-800 px-3.5 py-2.5 text-sm text-white",
+    "placeholder:text-gray-500 transition-all duration-150",
     "focus:outline-none focus:ring-2 focus:ring-offset-0",
     leftIcon ? "pl-10" : "",
     rightIcon ? "pr-10" : "",
@@ -49,7 +49,7 @@ const Input = ({
       : "border-slate-300 focus:ring-brand-500 focus:border-brand-500",
     disabled
       ? "cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200"
-      : "hover:border-slate-400",
+      : "hover:border-gray-500",
   ]
     .filter(Boolean)
     .join(" ");
@@ -59,7 +59,7 @@ const Input = ({
       {label && (
         <label
           htmlFor={id}
-          className="text-sm font-medium text-slate-700 select-none"
+          className="text-sm font-medium text-gray-300 select-none"
         >
           {label}
           {required && (
