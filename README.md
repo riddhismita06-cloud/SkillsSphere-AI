@@ -191,7 +191,13 @@ These checks validate docs/workflows and, once app code is added, automatically 
 
 ## Current Repository Status
 
-This repository currently includes a scalable folder scaffold for frontend, backend, AI/ML, and docs. Implementation code can now be added module-by-module while preserving clear boundaries.
+This repository includes a scalable folder scaffold and now has Issue #40 implemented: a reusable `ai-ml/evaluators/skillEvaluator.js` with tests, integrated into `POST /resumes/analyze` to compare resume skills vs job skills and return a transparent `skillMatch` result.
+```md
+- Added reusable `ai-ml/evaluators/skillEvaluator.js`
+- Added skill comparison between resume skills and job description skills
+- Added matched skills, missing skills, extra skills, and weighted score output
+- Integrated `skillMatch` response into `POST /api/resume/analyze`
+```
 
 ## 🚀 Running the Project
 
