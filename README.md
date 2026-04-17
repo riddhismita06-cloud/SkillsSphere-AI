@@ -138,7 +138,7 @@ SkillSphere-AI/
 │
 ├── ai-ml/    
 │   ├── evaluators/                  # AI/ML evaluation logic for resumes, matching, interviews
-│   ├       └── skillEvaluator.js    # Resume vs job skill comparison logic                       # AI/ML workflows and model-related logic
+│   ├       └── skillEvaluator.js    # Resume vs job skill comparison logic                    
 │   ├── resume-analysis/             # Resume scoring and feedback pipelines
 │   ├── jd-matching/                 # Similarity/matching workflows
 │   ├── interview-feedback/          # Interview evaluation logic
