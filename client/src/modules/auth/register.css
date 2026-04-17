@@ -1,0 +1,172 @@
+/* REGISTER PAGE WRAPPER */
+.register-page {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at top left, #0f172a, #020617);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Glow circles */
+.register-page .circle {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  animation: floatRegister 6s infinite ease-in-out;
+}
+
+.register-page .circle.blue {
+  width: 500px;
+  height: 500px;
+  background: rgba(59, 130, 246, 0.4);
+  top: -150px;
+  left: -150px;
+}
+
+.register-page .circle.purple {
+  width: 400px;
+  height: 400px;
+  background: rgba(168, 85, 247, 0.4);
+  bottom: -120px;
+  right: -120px;
+}
+
+/* Animation */
+@keyframes floatRegister {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(50px); }
+  100% { transform: translateY(0px); }
+}
+
+/* Card */
+.register-page .card {
+  width: 380px;
+  padding: 30px;
+  border-radius: 20px;
+  backdrop-filter: blur(20px);
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 0 40px rgba(0,0,0,0.6);
+  animation: fadeInRegister 0.8s ease;
+}
+
+/* Fade animation */
+@keyframes fadeInRegister {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.register-page .title {
+  text-align: center;
+  color: white;
+  margin-bottom: 24px;
+  font-size: 1.5rem;
+}
+
+/* Input */
+.register-page .inputBox {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.register-page .inputBox input,
+.register-page .inputBox select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: white;
+  outline: none;
+  font-size: 14px;
+  transition: border-color 0.3s;
+}
+
+.register-page .inputBox input:focus,
+.register-page .inputBox select:focus {
+  border-color: #60a5fa;
+}
+
+.register-page .inputBox select option {
+  background: #0f172a;
+  color: white;
+}
+
+.register-page .inputBox label {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  color: gray;
+  transform: translateY(-50%);
+  transition: 0.3s;
+  pointer-events: none;
+  font-size: 14px;
+}
+
+/* Floating label */
+.register-page .inputBox input:focus + label,
+.register-page .inputBox input:not(:placeholder-shown) + label {
+  top: -8px;
+  font-size: 12px;
+  color: #60a5fa;
+}
+
+/* Select label - always floated since select always has a value */
+.register-page .inputBox .select-label {
+  top: -8px;
+  font-size: 12px;
+  color: #60a5fa;
+}
+
+/* Error */
+.register-page .error {
+  color: #f87171;
+  font-size: 12px;
+  margin-top: -12px;
+  margin-bottom: 10px;
+}
+
+/* Button */
+.register-page .btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(90deg, #3b82f6, #6366f1);
+  color: white;
+  font-weight: bold;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.register-page .btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(59,130,246,0.6);
+}
+
+/* Footer */
+.register-page .footer {
+  text-align: center;
+  margin-top: 15px;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.register-page .footer span {
+  color: #60a5fa;
+  cursor: pointer;
+}
+
+.register-page .footer span:hover {
+  text-decoration: underline;
+}
