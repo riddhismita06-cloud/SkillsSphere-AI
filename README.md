@@ -85,78 +85,129 @@ SkillSphere AI aims to simplify the path from learning to hiring by giving users
 
 The following structure keeps the project modular and easy to scale for new contributors:
 
-
 ```text
 SkillSphere-AI/
-├── client/                          # React frontend application
-│   ├── public/                      # Static public assets
-│   └── src/
-│       ├── app/                     # App-level providers, routes, layouts
-│       │   ├── App.jsx              # Root router (BrowserRouter + Routes)
-│       │   └── Home.jsx             # Placeholder home / landing page
-│       ├── modules/                 # Feature-based modules
-│       │   ├── auth/                # Login, registration, user session flows
-│       │   │   ├── Login.jsx        # Login UI (route: /login)
-│       │   │   ├── Register.jsx     # Registration UI (route: /register)
-│       │   │   └── components/
-│       │   │       └── ComponentDemo.jsx  # Form component showcase (route: /demo)
-│       │   ├── classrooms/          # Live class UI, chat, collaboration
-│       │   ├── resume-analyzer/     # Resume upload, scoring, suggestions
-│       │   ├── job-matcher/         # Resume-to-JD matching UI and results
-│       │   ├── mock-interview/      # Interview sessions and feedback views
-│       │   └── dashboard/           # Skill/performance analytics UI
-│       ├── shared/                  # Reusable UI components and hooks
-│       │   ├── components/          # Reusable form & UI primitives
-│       │   │   ├── Input.jsx        # Text input with label, error, icons, disabled
-│       │   │   ├── Button.jsx       # Button with variants, sizes, loading state
-│       │   │   ├── Select.jsx       # Dropdown with label, error, disabled
-│       │   │   └── index.js         # Barrel export for all shared components
-│       │   └── ui/                  # Reserved for layout/compound components
-│       ├── services/                # API communication layer
-│       ├── utils/                   # Frontend helper utilities
-│       └── assets/                  # Images, icons, static resources
-│
-├── server/                          # Node.js + Express backend
-│   ├── index.js                     # Main server entry point
-│   ├── example.env                  # Example environment variables
-│   ├── package.json                 # Backend dependencies and scripts
-│   └── src/
-│       ├── config/                  # Environment and app configuration
-│       ├── modules/                 # Domain-based backend modules
-│       │   ├── auth/                # Authentication and authorization
-│       │   ├── users/               # Student, tutor, recruiter profiles
-│       │   ├── classrooms/          # Live class/session management
-│       │   ├── resumes/             # Resume parsing and storage handling
-│       │   │   ├── controller.js    # Resume upload, analyze, result endpoints
-│       │   │   └── routes.js        # Resume-related API routes
-│       │   ├── matching/            # Resume vs JD matching logic
-│       │   ├── interviews/          # Mock interview orchestration
-│       │   └── analytics/           # Skill tracking and reporting
-│       ├── middleware/              # Request validation, auth guards, etc.
-│       │   └── uploadResume.js      # Multer middleware for resume uploads
-│       ├── integrations/            # Third-party services (AI providers, etc.)
-│       ├── database/                # Database models/schemas and repositories
-│       │   └── db.js                # MongoDB connection setup
-│       ├── uploads/                 # Uploaded resume files
-│       ├── utils/                   # Backend helper utilities
-│       │   └── parseResume.js       # PDF parsing and candidate data extraction
-│       └── app/                     # App bootstrap, routes, and server entry
-│
-├── ai-ml/    
-│   ├── evaluators/                  # AI/ML evaluation logic for resumes, matching, interviews
-│   ├       └── skillEvaluator.js    # Resume vs job skill comparison logic                    
-│   ├── resume-analysis/             # Resume scoring and feedback pipelines
-│   ├── jd-matching/                 # Similarity/matching workflows
-│   ├── interview-feedback/          # Interview evaluation logic
-│   └── shared/                      # Common data processing utilities
-│
-├── docs/                            # Product and contributor documentation
-│   ├── architecture/                # System architecture explanations
-│   ├── api/                         # API behavior and endpoint documentation
-│   └── features/                    # Feature-level functional documentation
-│
-└── README.md                        # Project overview for contributors
+├── .github/
+│   ├── ISSUE_TEMPLATE/
+│   ├── workflows/
+│   │   └── pr-quality-checks.yml
+│   ├── CODEOWNERS
+│   └── PULL_REQUEST_TEMPLATE.md
+├── ai-ml/
+│   ├── evaluators/
+│   │   └── __tests__/
+│   │       └── skillEvaluator.test.js
+│   ├── interview-feedback/
+│   ├── jd-matching/
+│   ├── resume-analysis/
+│   └── shared/
+├── client/
+│   ├── public/
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── App.css
+│   │   │   ├── App.jsx
+│   │   │   ├── index.css
+│   │   │   └── main.jsx
+│   │   ├── assets/
+│   │   ├── modules/
+│   │   │   ├── auth/
+│   │   │   │   ├── components/
+│   │   │   │   │   └── ComponentDemo.jsx
+│   │   │   │   ├── Login.jsx
+│   │   │   │   ├── login.css
+│   │   │   │   ├── Register.jsx
+│   │   │   │   └── register.css
+│   │   │   ├── classrooms/
+│   │   │   ├── dashboard/
+│   │   │   ├── job-matcher/
+│   │   │   ├── landing/
+│   │   │   │   ├── LandingPage.jsx
+│   │   │   │   └── components/
+│   │   │   │       ├── css/
+│   │   │   │       └── jsx/
+│   │   │   ├── mock-interview/
+│   │   │   └── resume-analyzer/
+│   │   │       ├── components/
+│   │   │       │   ├── AnalysisResult.jsx
+│   │   │       │   └── DragDropUpload.jsx
+│   │   │       ├── pages/
+│   │   │       │   └── ResumeAnalyzerPage.jsx
+│   │   │       └── services/
+│   │   │           └── resumeService.js
+│   │   ├── services/
+│   │   ├── shared/
+│   │   │   ├── components/
+│   │   │   │   ├── Button.jsx
+│   │   │   │   ├── Input.jsx
+│   │   │   │   ├── Select.jsx
+│   │   │   │   └── index.js
+│   │   │   └── landing_components/
+│   │   │       ├── Button.css
+│   │   │       ├── Button.jsx
+│   │   │       ├── Card.css
+│   │   │       ├── Card.jsx
+│   │   │       ├── Navbar.css
+│   │   │       └── Navbar.jsx
+│   │   └── utils/
+│   ├── index.html
+│   ├── package.json
+│   ├── postcss.config.cjs
+│   ├── tailwind.config.cjs
+│   └── vite.config.js
+├── docs/
+│   ├── api/
+│   ├── architecture/
+│   ├── features/
+│   ├── PROJECT_STRUCTURE.md
+│   └── QUALITY_GATES.md
+├── server/
+│   ├── src/
+│   │   ├── app/
+│   │   ├── config/
+│   │   ├── database/
+│   │   │   ├── db.js
+│   │   │   └── models/
+│   │   │       └── User.js
+│   │   ├── integrations/
+│   │   ├── middleware/
+│   │   │   └── uploadResume.js
+│   │   ├── modules/
+│   │   │   ├── analytics/
+│   │   │   ├── auth/
+│   │   │   │   ├── controller.js
+│   │   │   │   ├── routes.js
+│   │   │   │   └── service.js
+│   │   │   ├── classrooms/
+│   │   │   ├── interviews/
+│   │   │   ├── matching/
+│   │   │   ├── resumes/
+│   │   │   │   ├── controller.js
+│   │   │   │   └── routes.js
+│   │   │   └── users/
+│   │   ├── uploads/
+│   │   ├── utils/
+│   │   │   └── parseResume.js
+│   │   └── validations/
+│   │       └── authValidation.js
+│   ├── example.env
+│   ├── index.js
+│   └── package.json
+├── CODE_OF_CONDUCT.md
+├── CONTRIBUTING.md
+├── LICENSE
+├── README.md
+└── SECURITY.md
 ```
+
+## API Endpoints (Implemented)
+
+- `GET /health`
+- `POST /api/auth/register`
+- `POST /api/resume/upload`
+- `POST /api/resume/analyze`
+- `GET /api/resume/result/:id`
+- `GET /uploads/:filename`
 
 ### Why this structure works
 
@@ -171,6 +222,7 @@ SkillSphere-AI/
 ### Resume Analyzer Backend Progress
 
 Implemented:
+
 - Resume upload support using multer
 - Resume parsing using pdf-parse
 - Candidate information extraction from uploaded resumes
@@ -179,7 +231,6 @@ Implemented:
 - Detection of matched skills, missing skills, and extra skills
 - Explainable feedback for resume vs JD matching
 ```
-
 
 ## For Open-Source Contributors
 
@@ -241,7 +292,6 @@ Example local development values:
 - `JWT_SECRET=skillsphere_dev_jwt_secret_1234567890abcdef`
 - `JWT_EXPIRES_IN=7d`
 
-
 ```
 
 
@@ -249,3 +299,4 @@ Example local development values:
 
 
 
+```
