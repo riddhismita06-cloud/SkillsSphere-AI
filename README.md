@@ -143,6 +143,8 @@ SkillSphere-AI/
 │   ├── evaluators/                  # AI/ML evaluation logic for resumes, matching, interviews
 │   │   ├── skillEvaluator.js        # Resume vs job skill comparison logic
 │   │   └── keywordEvaluator.js      # JD keyword relevance vs resume text
+│   │   ├── experienceEvaluator.js   # Candidate vs JD experience-level evaluation
+│   │       
 │   ├── resume-analysis/             # Resume scoring and feedback pipelines
 │   ├── jd-matching/                 # Similarity/matching workflows
 │   ├── interview-feedback/          # Interview evaluation logic
@@ -295,6 +297,11 @@ Implemented:
 - Reusable `ai-ml/evaluators/keywordEvaluator.js` for resume vs job description text
 - Keyword relevance analysis with matched keywords, missing keywords, and weighted keyword score (`weight` default `0.2`)
 - Optional `jobDescription` form field on `POST /api/resume/analyze` to run keyword evaluation alongside parsing
+- Reusable `ai-ml/evaluators/experienceEvaluator.js` for resume vs job description experience matching
+- Experience extraction supports years and months (examples: `18 months`, `1 year 6 months`, `2+ years`)
+- Weighted experience scoring with explainable feedback (`score`, `weight`, `candidateExperience`, `requiredExperience`, `experienceGap`)
+- Unit tests for experience evaluator at `ai-ml/evaluators/__tests__/experienceEvaluator.test.js`
+- `/api/resume/analyze` now includes `experienceMatch` in response and MongoDB resume records
 ```
 
 ## For Open-Source Contributors
