@@ -104,7 +104,7 @@ const Input = ({
             type="button"
             className="absolute right-3 flex items-center text-slate-400 hover:text-slate-200 transition-colors bg-transparent border-none p-0 cursor-pointer"
             onClick={() => setShowPassword(!showPassword)}
-            tabIndex="-1"
+            aria-label={showPassword ? "Hide password" : "Show password"}
           >
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
