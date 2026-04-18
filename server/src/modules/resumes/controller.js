@@ -2,6 +2,7 @@ import path from "path";
 import { parseResume } from "../../utils/parseResume.js";
 import { skillEvaluator } from "../../../../ai-ml/evaluators/skillEvaluator.js";
 import { keywordEvaluator } from "../../../../ai-ml/evaluators/keywordEvaluator.js";
+import { experienceEvaluator } from "../../../../ai-ml/evaluators/experienceEvaluator.js";
 import Resume from "../../database/models/Resume.js";
 
 const parseSkillArrayString = (input) => {
@@ -105,9 +106,18 @@ export const analyzeResume = async (req, res) => {
           jobDescription: trimmedJobDescription,
         })
       : null;
+    const candidateExperienceText =
+      Array.isArray(parsedData.experience) && parsedData.experience.length > 0
+        ? parsedData.experience.join(" ")
+        : parsedData.resumeText || "";
+    const experienceMatch = experienceEvaluator({
+      candidateExperienceText,
+      jobDescription: trimmedJobDescription,
+    });
 
     const finalSkillMatch = skillMatch || {};
     const finalKeywordMatch = keywordMatch || {};
+    const finalExperienceMatch = experienceMatch || {};
     const fileData = {
       originalName: req.file.originalname,
       storedName: req.file.filename,
@@ -125,14 +135,17 @@ export const analyzeResume = async (req, res) => {
         jobDescription: trimmedJobDescription || null,
         skillMatch: finalSkillMatch,
         keywordMatch: finalKeywordMatch,
+        experienceMatch: finalExperienceMatch,
         file: fileData,
       });
 
       const hasSkillEval = Object.keys(finalSkillMatch).length > 0;
       const hasKeywordEval = Object.keys(finalKeywordMatch).length > 0;
+      const hasExperienceEval = Object.keys(finalExperienceMatch).length > 0;
       const successParts = [];
       if (hasSkillEval) successParts.push("skill match");
       if (hasKeywordEval) successParts.push("keyword relevance");
+      if (hasExperienceEval) successParts.push("experience fit");
       const evalSummary =
         successParts.length > 0
           ? `Resume parsed, ${successParts.join(" and ")} evaluated, and saved successfully`
@@ -147,6 +160,7 @@ export const analyzeResume = async (req, res) => {
         data: resumeFields,
         skillMatch: finalSkillMatch,
         keywordMatch: finalKeywordMatch,
+        experienceMatch: finalExperienceMatch,
         file: fileData,
       });
     } catch (saveError) {

@@ -84,6 +84,14 @@ const resumeSchema = new mongoose.Schema(
       matchedKeywords: [String],
       missingKeywords: [String],
     },
+    experienceMatch: {
+      score: Number,
+      weight: Number,
+      feedback: [String],
+      candidateExperience: Number,
+      requiredExperience: Number,
+      experienceGap: Number,
+    },
   },
   {
     timestamps: true,
