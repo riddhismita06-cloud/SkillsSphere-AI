@@ -53,6 +53,13 @@ SkillSphere AI aims to simplify the path from learning to hiring by giving users
 5. **Skill Tracking Dashboard**  
    Performance insights to help students and tutors track growth.
 
+6. **Secure Authentication & Email Verification**  
+   OTP-based registration and password recovery system.
+   - 6-digit email OTP verification
+   - Secure Password Reset (Forgot Password) flow
+   - Protection against user enumeration
+   - OTP attempt limiting for security
+
 ---
 
 ## Target Users
@@ -264,7 +271,11 @@ SkillSphere-AI/
 ## API Endpoints (Implemented)
 
 - `GET /health`
-- `POST /api/auth/register`
+- `POST /api/auth/register` (v2: now includes OTP verification)
+- `POST /api/auth/verify-email`
+- `POST /api/auth/resend-otp`
+- `POST /api/auth/forgot-password`
+- `POST /api/auth/reset-password`
 - `POST /api/resume/upload`
 - `POST /api/resume/analyze`
 - `GET /api/resume/result/:id`
@@ -302,6 +313,18 @@ Implemented:
 - Weighted experience scoring with explainable feedback (`score`, `weight`, `candidateExperience`, `requiredExperience`, `experienceGap`)
 - Unit tests for experience evaluator at `ai-ml/evaluators/__tests__/experienceEvaluator.test.js`
 - `/api/resume/analyze` now includes `experienceMatch` in response and MongoDB resume records
+
+### Authentication & Security Progress
+
+Implemented:
+
+- OTP-based email verification using Nodemailer
+- Dual-mode email service (Console logging for dev, SMTP for production)
+- Secure password reset flow with enumeration protection
+- 6-digit OTP generation with 5-minute expiry logic
+- Brute-force protection via OTP attempt limiting (max 5 attempts)
+- Reusable `sendEmail` utility for system-wide notifications
+- Input validation using Zod schemas for all auth flows
 ```
 
 ## For Open-Source Contributors
@@ -363,6 +386,11 @@ Example local development values:
 
 - `JWT_SECRET=skillsphere_dev_jwt_secret_1234567890abcdef`
 - `JWT_EXPIRES_IN=7d`
+- `EMAIL_SERVICE_MODE=console` (Use "smtp" for real emails)
+- `EMAIL_HOST=smtp.mailtrap.io`
+- `EMAIL_PORT=2525`
+- `EMAIL_USER=your_smtp_username`
+- `EMAIL_PASS=your_smtp_password`
 
 ```
 
