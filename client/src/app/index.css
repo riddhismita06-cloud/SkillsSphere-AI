@@ -83,6 +83,17 @@ a {
   animation: slideUp 0.6s ease-out forwards;
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Generic Layout */
 .flex-center {
   display: flex;
@@ -92,4 +103,21 @@ a {
 
 .grid {
   display: grid;
+}
+
+/* Custom autofill fixes to retain custom component UI variables */
+.autofill-fix:-webkit-autofill,
+.autofill-fix:-webkit-autofill:hover,
+.autofill-fix:-webkit-autofill:focus,
+.autofill-fix:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px var(--autofill-bg, #1e293b) inset !important;
+  -webkit-text-fill-color: var(--autofill-color, white) !important;
+  caret-color: var(--autofill-color, white) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Remove default browser reveal/eye icons so custom Eye/EyeOff icons remain unobscured */
+input::-ms-reveal,
+input::-webkit-reveal {
+  display: none !important;
 }

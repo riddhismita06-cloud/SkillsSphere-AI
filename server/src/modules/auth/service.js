@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../../database/models/User.js";
 import { sendOTP } from "../../utils/emailService.js";
+import AppError from "../../utils/AppError.js";
 
 const SALT_ROUNDS = 12;
 const OTP_EXPIRY_MINUTES = 5;
@@ -9,7 +10,7 @@ const MAX_OTP_ATTEMPTS = 5;
 
 const buildAuthToken = (user) => {
   if (!process.env.JWT_SECRET) {
-    throw new Error("Missing JWT_SECRET in environment variables");
+    throw new AppError("Missing JWT_SECRET in environment variables", 500);
   }
 
   return jwt.sign(
@@ -26,15 +27,8 @@ const generateOTP = () => {
 export const registerUserAndIssueToken = async ({ name, email, password, role }) => {
   const existingUser = await User.findOne({ email });
 
-  // Security: Handle existing user gracefully (optional based on UX, but usually register tells you)
-  // However, for strict security "do not reveal if email exists", we'd return success even if it exists.
-  // But usually for registration, you MUST know if email is taken. 
-  // The requirement "Do not reveal if email exists" usually applies to Forgot Password/Login.
-  // I will stick to returning error for register as it's standard, but keep Forgot Password generic.
   if (existingUser) {
-    const error = new Error("User already exists");
-    error.code = "USER_ALREADY_EXISTS";
-    throw error;
+    throw new AppError("User already exists with this email", 409);
   }
 
   const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
@@ -64,25 +58,22 @@ export const verifyUserEmail = async (email, otp) => {
   const user = await User.findOne({ email });
 
   if (!user || user.isVerified) {
-    throw new Error("Invalid request");
+    throw new AppError("Invalid request", 400);
   }
 
-  // Check attempts
   if (user.otpAttempts >= MAX_OTP_ATTEMPTS) {
-    throw new Error("Too many attempts. Please request a new OTP.");
+    throw new AppError("Too many attempts. Please request a new OTP.", 429);
   }
 
-  // Check expiry and match
   const isMatch = user.verificationToken === otp;
   const isExpired = user.verificationTokenExpires < Date.now();
 
   if (!isMatch || isExpired) {
     user.otpAttempts += 1;
     await user.save();
-    throw new Error(isExpired ? "OTP expired" : "Invalid OTP");
+    throw new AppError(isExpired ? "OTP expired" : "Invalid OTP", 400);
   }
 
-  // Success
   user.isVerified = true;
   user.verificationToken = undefined;
   user.verificationTokenExpires = undefined;
@@ -95,7 +86,6 @@ export const verifyUserEmail = async (email, otp) => {
 export const forgotPasswordRequest = async (email) => {
   const user = await User.findOne({ email });
 
-  // Security: Do not reveal if email exists
   if (!user) {
     return { success: true, message: "If an account exists, a reset code has been sent." };
   }
@@ -117,11 +107,11 @@ export const resetUserPassword = async (email, otp, newPassword) => {
   const user = await User.findOne({ email });
 
   if (!user || !user.resetPasswordToken) {
-    throw new Error("Invalid request");
+    throw new AppError("Invalid request", 400);
   }
 
   if (user.otpAttempts >= MAX_OTP_ATTEMPTS) {
-    throw new Error("Too many attempts. Please request a new code.");
+    throw new AppError("Too many attempts. Please request a new code.", 429);
   }
 
   const isMatch = user.resetPasswordToken === otp;
@@ -130,7 +120,7 @@ export const resetUserPassword = async (email, otp, newPassword) => {
   if (!isMatch || isExpired) {
     user.otpAttempts += 1;
     await user.save();
-    throw new Error(isExpired ? "Code expired" : "Invalid code");
+    throw new AppError(isExpired ? "Code expired" : "Invalid code", 400);
   }
 
   const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
@@ -152,7 +142,7 @@ export const resendUserOTP = async (email) => {
   }
 
   if (user.isVerified) {
-    throw new Error("User is already verified");
+    throw new AppError("User is already verified", 400);
   }
 
   const otp = generateOTP();

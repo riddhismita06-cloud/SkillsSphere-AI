@@ -12,126 +12,70 @@ import {
   resetUserPassword,
   resendUserOTP 
 } from "./service.js";
+import asyncHandler from "../../utils/asyncHandler.js";
+import AppError from "../../utils/AppError.js";
 
-export const register = async (req, res) => {
+export const register = asyncHandler(async (req, res, next) => {
   const validation = validateRegisterInput(req.body);
 
   if (!validation.isValid) {
-    return res.status(400).json({
-      success: false,
-      message: "Invalid registration payload",
-      errors: validation.errors
-    });
+    return next(new AppError("Invalid registration payload", 400));
   }
 
-  try {
-    const authResult = await registerUserAndIssueToken(validation.data);
+  const authResult = await registerUserAndIssueToken(validation.data);
 
-    return res.status(201).json({
-      success: true,
-      message: "User registered successfully. Please check your email for verification code.",
-      token: authResult.token,
-      user: authResult.user
-    });
-  } catch (error) {
-    if (error.code === "USER_ALREADY_EXISTS" || error?.code === 11000) {
-      return res.status(409).json({
-        success: false,
-        message: "A user with this email already exists"
-      });
-    }
+  return res.status(201).json({
+    success: true,
+    message: "User registered successfully. Please check your email for verification code.",
+    token: authResult.token,
+    user: authResult.user
+  });
+});
 
-    return res.status(500).json({
-      success: false,
-      message: error.message || "Unable to register user right now"
-    });
-  }
-};
-
-export const verifyEmail = async (req, res) => {
+export const verifyEmail = asyncHandler(async (req, res, next) => {
   const validation = validateVerifyEmailInput(req.body);
 
   if (!validation.isValid) {
-    return res.status(400).json({
-      success: false,
-      errors: validation.errors
-    });
+    return next(new AppError("Invalid verification data", 400));
   }
 
-  try {
-    const result = await verifyUserEmail(validation.data.email, validation.data.otp);
-    return res.status(200).json(result);
-  } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message
-    });
-  }
-};
+  const result = await verifyUserEmail(validation.data.email, validation.data.otp);
+  return res.status(200).json(result);
+});
 
-export const forgotPassword = async (req, res) => {
+export const forgotPassword = asyncHandler(async (req, res, next) => {
   const validation = validateForgotPasswordInput(req.body);
 
   if (!validation.isValid) {
-    return res.status(400).json({
-      success: false,
-      errors: validation.errors
-    });
+    return next(new AppError("Invalid email address", 400));
   }
 
-  try {
-    const result = await forgotPasswordRequest(validation.data.email);
-    return res.status(200).json(result);
-  } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message
-    });
-  }
-};
+  const result = await forgotPasswordRequest(validation.data.email);
+  return res.status(200).json(result);
+});
 
-export const resetPassword = async (req, res) => {
+export const resetPassword = asyncHandler(async (req, res, next) => {
   const validation = validateResetPasswordInput(req.body);
 
   if (!validation.isValid) {
-    return res.status(400).json({
-      success: false,
-      errors: validation.errors
-    });
+    return next(new AppError("Invalid reset data", 400));
   }
 
-  try {
-    const result = await resetUserPassword(
-      validation.data.email, 
-      validation.data.otp, 
-      validation.data.newPassword
-    );
-    return res.status(200).json(result);
-  } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message
-    });
-  }
-};
+  const result = await resetUserPassword(
+    validation.data.email, 
+    validation.data.otp, 
+    validation.data.newPassword
+  );
+  return res.status(200).json(result);
+});
 
-export const resendOTP = async (req, res) => {
+export const resendOTP = asyncHandler(async (req, res, next) => {
   const validation = validateResendOTPInput(req.body);
 
   if (!validation.isValid) {
-    return res.status(400).json({
-      success: false,
-      errors: validation.errors
-    });
+    return next(new AppError("Invalid email address", 400));
   }
 
-  try {
-    const result = await resendUserOTP(validation.data.email);
-    return res.status(200).json(result);
-  } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message
-    });
-  }
-};
+  const result = await resendUserOTP(validation.data.email);
+  return res.status(200).json(result);
+});
