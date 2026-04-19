@@ -194,6 +194,10 @@ SkillSphere-AI/
 │   │   │   │       ├── css/
 │   │   │   │       └── jsx/
 │   │   │   ├── mock-interview/
+│   │   │   ├── profile/
+│   │   │   │   ├── ProfilePage.jsx
+│   │   │   │   └── components/
+│   │   │   │       └── ProfileField.jsx
 │   │   │   └── resume-analyzer/
 │   │   │       ├── components/
 │   │   │       │   ├── AnalysisResult.jsx
