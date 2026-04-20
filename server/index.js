@@ -1,11 +1,12 @@
 import express from "express";
 import dotenv from "dotenv";
+dotenv.config();
+
 import path from "path";
 import connectDB from "./src/database/db.js";
 import authRoutes from "./src/modules/auth/routes.js";
 import resumeRoutes from "./src/modules/resumes/routes.js";
-
-dotenv.config();
+import globalErrorHandler from "./src/middleware/errorMiddleware.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -21,6 +22,8 @@ app.get("/health", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/resume", resumeRoutes);
+
+app.use(globalErrorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

@@ -94,6 +94,7 @@ const Register = () => {
         <form
           className="p-6 sm:p-[30px] rounded-[20px] backdrop-blur-[20px] bg-slate-900/70 border border-white/10 shadow-[0_0_40px_rgba(0,0,0,0.6)] animate-[fadeIn_0.8s_ease]"
           onSubmit={handleSubmit}
+          noValidate
         >
           <h2 className="text-center text-white mb-[24px] text-2xl font-semibold">
             Create Account

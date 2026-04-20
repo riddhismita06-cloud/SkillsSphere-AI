@@ -25,6 +25,9 @@ Implemented:
   - `src/modules/resume-analyzer/components/AnalysisResult.jsx`
   - `src/modules/resume-analyzer/pages/ResumeAnalyzerPage.jsx`
   - `src/modules/resume-analyzer/services/resumeService.js`
+- User Profile UI:
+  - `src/modules/profile/ProfilePage.jsx`
+  - `src/modules/profile/components/ProfileField.jsx`
 - Shared UI primitives:
   - `src/shared/components/Button.jsx`
   - `src/shared/components/Input.jsx`

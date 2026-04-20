@@ -53,6 +53,13 @@ SkillSphere AI aims to simplify the path from learning to hiring by giving users
 5. **Skill Tracking Dashboard**  
    Performance insights to help students and tutors track growth.
 
+6. **Secure Authentication & Email Verification**  
+   OTP-based registration and password recovery system.
+   - 6-digit email OTP verification
+   - Secure Password Reset (Forgot Password) flow
+   - Protection against user enumeration
+   - OTP attempt limiting for security
+
 ---
 
 ## Target Users
@@ -187,6 +194,10 @@ SkillSphere-AI/
 │   │   │   │       ├── css/
 │   │   │   │       └── jsx/
 │   │   │   ├── mock-interview/
+│   │   │   ├── profile/
+│   │   │   │   ├── ProfilePage.jsx
+│   │   │   │   └── components/
+│   │   │   │       └── ProfileField.jsx
 │   │   │   └── resume-analyzer/
 │   │   │       ├── components/
 │   │   │       │   ├── AnalysisResult.jsx
@@ -264,7 +275,11 @@ SkillSphere-AI/
 ## API Endpoints (Implemented)
 
 - `GET /health`
-- `POST /api/auth/register`
+- `POST /api/auth/register` (v2: now includes OTP verification)
+- `POST /api/auth/verify-email`
+- `POST /api/auth/resend-otp`
+- `POST /api/auth/forgot-password`
+- `POST /api/auth/reset-password`
 - `POST /api/resume/upload`
 - `POST /api/resume/analyze`
 - `GET /api/resume/result/:id`
@@ -302,6 +317,18 @@ Implemented:
 - Weighted experience scoring with explainable feedback (`score`, `weight`, `candidateExperience`, `requiredExperience`, `experienceGap`)
 - Unit tests for experience evaluator at `ai-ml/evaluators/__tests__/experienceEvaluator.test.js`
 - `/api/resume/analyze` now includes `experienceMatch` in response and MongoDB resume records
+
+### Authentication & Security Progress
+
+Implemented:
+
+- OTP-based email verification using Nodemailer
+- Dual-mode email service (Console logging for dev, SMTP for production)
+- Secure password reset flow with enumeration protection
+- 6-digit OTP generation with 5-minute expiry logic
+- Brute-force protection via OTP attempt limiting (max 5 attempts)
+- Reusable `sendEmail` utility for system-wide notifications
+- Input validation using Zod schemas for all auth flows
 ```
 
 ## For Open-Source Contributors
@@ -351,6 +378,37 @@ cd server
 npm install
 npm run dev
 ```
+## 🔐 Environment Variables Setup
+
+Create a `.env` file inside the `server/` folder and add:
+
+PORT=5000
+MONGO_URI=your_mongodb_uri
+
+JWT_SECRET=your_jwt_secret
+JWT_EXPIRES_IN=7d
+
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback
+
+EMAIL_SERVICE_MODE=console
+EMAIL_HOST=smtp.mailtrap.io
+EMAIL_PORT=2525
+EMAIL_USER=your_smtp_username
+EMAIL_PASS=your_smtp_password
+ ## 🔐 Google OAuth Setup
+
+1. Go to Google Cloud Console  
+2. Create a new project  
+3. Enable OAuth APIs  
+4. Create OAuth credentials  
+5. Add this redirect URI:
+
+http://localhost:5000/api/auth/google/callback
+
+6. Copy Client ID and Client Secret  
+7. Add them to your `.env` file  
 
 Server environment variables (create `server/.env` from `server/example.env`):
 
@@ -363,6 +421,11 @@ Example local development values:
 
 - `JWT_SECRET=skillsphere_dev_jwt_secret_1234567890abcdef`
 - `JWT_EXPIRES_IN=7d`
+- `EMAIL_SERVICE_MODE=console` (Use "smtp" for real emails)
+- `EMAIL_HOST=smtp.mailtrap.io`
+- `EMAIL_PORT=2525`
+- `EMAIL_USER=your_smtp_username`
+- `EMAIL_PASS=your_smtp_password`
 
 ```
 
