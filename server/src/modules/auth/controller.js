@@ -3,14 +3,16 @@ import {
   validateVerifyEmailInput, 
   validateForgotPasswordInput, 
   validateResetPasswordInput,
-  validateResendOTPInput 
+  validateResendOTPInput,
+  validateLoginInput
 } from "../../validations/authValidation.js";
 import { 
   registerUserAndIssueToken, 
   verifyUserEmail, 
   forgotPasswordRequest, 
   resetUserPassword,
-  resendUserOTP 
+  resendUserOTP,
+  loginUser
 } from "./service.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 import AppError from "../../utils/AppError.js";
@@ -78,4 +80,20 @@ export const resendOTP = asyncHandler(async (req, res, next) => {
 
   const result = await resendUserOTP(validation.data.email);
   return res.status(200).json(result);
+});
+
+export const login = asyncHandler(async (req, res, next) => {
+  const validation = validateLoginInput(req.body);
+
+  if (!validation.isValid) {
+    return next(new AppError("Invalid login payload", 400));
+  }
+
+  const result = await loginUser(validation.data.email, validation.data.password);
+
+  return res.status(200).json({
+    success: true,
+    message: "Login successful",
+    ...result
+  });
 });
