@@ -3,7 +3,8 @@ import {
   validateVerifyEmailInput, 
   validateForgotPasswordInput, 
   validateResetPasswordInput,
-  validateResendOTPInput 
+  validateResendOTPInput,
+  validateLoginInput
 } from "../../validations/authValidation.js";
 
 import { 
@@ -12,6 +13,7 @@ import {
   forgotPasswordRequest, 
   resetUserPassword,
   resendUserOTP,
+  loginUser,
   verifyGoogleToken
 } from "./service.js";
 
@@ -96,8 +98,23 @@ export const resendOTP = asyncHandler(async (req, res, next) => {
   return res.status(200).json(result);
 });
 
+export const login = asyncHandler(async (req, res, next) => {
+  const validation = validateLoginInput(req.body);
 
-// 🔐 Google Login (YOUR FEATURE)
+  if (!validation.isValid) {
+    return next(new AppError("Invalid login payload", 400));
+  }
+
+  const result = await loginUser(validation.data.email, validation.data.password);
+
+  return res.status(200).json({
+    success: true,
+    message: "Login successful",
+    ...result
+  });
+});
+
+// 🔐 Google Login
 export const googleLogin = asyncHandler(async (req, res, next) => {
   const { token } = req.body;
 

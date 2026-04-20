@@ -52,7 +52,19 @@ export const resetPasswordSchema = z.object({
   newPassword: z.string().min(8)
 });
 
+export const loginSchema = z.object({
+  email: z
+    .string({ required_error: "Email is required" })
+    .trim()
+    .email("Please provide a valid email address")
+    .toLowerCase(),
+  password: z
+    .string({ required_error: "Password is required" })
+    .min(8, "Password must be at least 8 characters")
+});
+
 export const validateRegisterInput = (payload) => validate(registerSchema, payload);
+export const validateLoginInput = (payload) => validate(loginSchema, payload);
 export const validateVerifyEmailInput = (payload) => validate(verifyEmailSchema, payload);
 export const validateForgotPasswordInput = (payload) => validate(forgotPasswordSchema, payload);
 export const validateResetPasswordInput = (payload) => validate(resetPasswordSchema, payload);
