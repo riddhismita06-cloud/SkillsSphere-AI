@@ -276,6 +276,7 @@ SkillSphere-AI/
 - `POST /api/auth/resend-otp`
 - `POST /api/auth/forgot-password`
 - `POST /api/auth/reset-password`
+- `POST /api/auth/login`
 - `POST /api/resume/upload`
 - `POST /api/resume/analyze`
 - `GET /api/resume/result/:id`
@@ -325,6 +326,9 @@ Implemented:
 - Brute-force protection via OTP attempt limiting (max 5 attempts)
 - Reusable `sendEmail` utility for system-wide notifications
 - Input validation using Zod schemas for all auth flows
+- JWT-based authentication for stateful sessions
+- Role-Based Access Control (RBAC) middleware (`student`, `tutor`, `recruiter`)
+- Secure Login endpoint with credential verification
 ```
 
 ## For Open-Source Contributors
