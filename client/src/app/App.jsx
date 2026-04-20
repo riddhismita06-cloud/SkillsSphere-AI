@@ -5,6 +5,8 @@ import ResumeAnalyzerPage from "../modules/resume-analyzer/pages/ResumeAnalyzerP
 import ComponentDemo from "../modules/auth/components/ComponentDemo";
 import Login from "../modules/auth/Login";
 import Register from "../modules/auth/Register";
+import ResetPassword from "../modules/auth/ResetPassword";
+import VerifyEmail from "../modules/auth/VerifyEmail";
 
 function App() {
   return (
@@ -15,6 +17,8 @@ function App() {
         <Route path="/resume-analyzer" element={<ResumeAnalyzerPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
       </Routes>
     </div>
   );
