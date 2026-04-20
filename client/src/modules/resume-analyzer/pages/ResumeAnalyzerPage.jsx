@@ -5,8 +5,10 @@ import { analyzeResume } from "../services/resumeService";
 import { Loader2 } from "lucide-react";
 import Navbar from "../../../shared/landing_components/Navbar";
 import Button from "../../../shared/landing_components/Button";
+import { useToast } from "../../../shared/components";
 
 const ResumeAnalyzerPage = () => {
+  const { success, error: showError, warning } = useToast();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
@@ -19,8 +21,10 @@ const ResumeAnalyzerPage = () => {
     try {
       const data = await analyzeResume(file);
       setResult(data);
+      success("Resume analyzed successfully.");
     } catch (err) {
       setError("Failed to analyze resume. Please try again.");
+      showError("Resume analysis failed. Please try again.");
       console.error(err);
     } finally {
       setLoading(false);
@@ -31,6 +35,7 @@ const ResumeAnalyzerPage = () => {
     setResult(null);
     setSelectedFile(null);
     setError(null);
+    warning("Resume analyzer has been reset.");
   };
 
   return (
