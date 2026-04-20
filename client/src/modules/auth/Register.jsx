@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import Input from "../../shared/components/Input";
 import Select from "../../shared/components/Select";
 import Button from "../../shared/components/Button";
+import { useToast } from "../../shared/components";
 
 const Register = () => {
   const navigate = useNavigate();
+  const { success, warning } = useToast();
 
   const [form, setForm] = useState({
     name: "",
@@ -59,6 +61,11 @@ const Register = () => {
     const newErrors = validate();
     setErrors(newErrors);
 
+    if (Object.keys(newErrors).length > 0) {
+      warning("Please fix the highlighted registration fields before submitting.");
+      return;
+    }
+
     if (Object.keys(newErrors).length === 0) {
       // Registration data ready (no backend call as per requirements)
       console.log("Register payload:", {
@@ -67,6 +74,7 @@ const Register = () => {
         password: form.password,
         role: form.role,
       });
+      success("Account created successfully.");
     }
   };
 
