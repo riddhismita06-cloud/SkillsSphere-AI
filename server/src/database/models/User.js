@@ -25,10 +25,10 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
-    verificationToken: String,
-    verificationTokenExpires: Date,
-    resetPasswordToken: String,
-    resetPasswordExpires: Date,
+    verificationToken: { type: String, default: null },
+    verificationTokenExpires: { type: Date, default: null },
+    resetPasswordToken: { type: String, default: null },
+    resetPasswordExpires: { type: Date, default: null },
     otpAttempts: {
       type: Number,
       default: 0
