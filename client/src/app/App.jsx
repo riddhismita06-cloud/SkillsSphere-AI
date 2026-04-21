@@ -1,6 +1,7 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import LandingPage from "../modules/landing/LandingPage";
+import DashboardPage from "../modules/dashboard/DashboardPage";
 import ResumeAnalyzerPage from "../modules/resume-analyzer/pages/ResumeAnalyzerPage";
 import ComponentDemo from "../modules/auth/components/ComponentDemo";
 import Login from "../modules/auth/Login";
@@ -23,6 +24,14 @@ function App() {
               <ResumeAnalyzerPage />
             </ProtectedRoute>
           } 
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
         />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
