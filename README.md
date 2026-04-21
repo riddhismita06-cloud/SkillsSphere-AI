@@ -93,11 +93,8 @@ SkillSphere AI aims to simplify the path from learning to hiring by giving users
 The following structure keeps the project modular and easy to scale for new contributors:
 
 ```text
-SkillSphere-AI/
-├── client/                          # React frontend application
-│   ├── public/                      # Static public assets
-│   └── src/
-│       ├── app/                     # App-level providers, routes, layouts
+SkillSphere-AI/ (Simplified Structure)
+├── client/
 │       │   ├── App.jsx              # Root router (BrowserRouter + Routes)
 │       │   └── Home.jsx             # Placeholder home / landing page
 │       ├── modules/                 # Feature-based modules
@@ -281,6 +278,8 @@ SkillSphere-AI/
 - `POST /api/auth/forgot-password`
 - `POST /api/auth/reset-password`
 - `POST /api/auth/login`
+- `POST /api/auth/logout`
+- `GET /api/auth/me`
 - `POST /api/resume/upload`
 - `POST /api/resume/analyze`
 - `GET /api/resume/result/:id`
@@ -333,6 +332,9 @@ Implemented:
 - JWT-based authentication for stateful sessions
 - Role-Based Access Control (RBAC) middleware (`student`, `tutor`, `recruiter`)
 - Secure Login endpoint with credential verification
+- Logout endpoint for client-side session termination
+- Get Current User endpoint (`/me`) for profile fetching
+- JWT verification middleware for route protection
 ```
 
 ## For Open-Source Contributors

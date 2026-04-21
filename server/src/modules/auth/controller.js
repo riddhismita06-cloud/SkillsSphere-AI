@@ -163,3 +163,19 @@ export const googleLogin = asyncHandler(async (req, res, next) => {
     },
   });
 });
+
+// 👤 Get Current User
+export const getMe = asyncHandler(async (req, res, next) => {
+  res.status(200).json({
+    success: true,
+    user: req.user,
+  });
+});
+
+// 🚪 Logout
+export const logout = asyncHandler(async (req, res, next) => {
+  res.status(200).json({
+    success: true,
+    message: "Logged out successfully",
+  });
+});

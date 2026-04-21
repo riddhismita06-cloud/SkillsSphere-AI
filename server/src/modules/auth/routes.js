@@ -6,10 +6,16 @@ import {
   resetPassword,
   resendOTP,
   login,
-  googleLogin
+  googleLogin,
+  getMe,
+  logout
 } from "./controller.js";
+import { protect } from "../../middleware/authMiddleware.js";
 
 const router = express.Router();
+
+// 👤 Get Current User
+router.get("/me", protect, getMe);
 
 // 📝 Register & Auth
 router.post("/register", register);
@@ -18,6 +24,9 @@ router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
 router.post("/resend-otp", resendOTP);
 router.post("/login", login);
+
+// 🚪 Logout
+router.post("/logout", logout);
 
 // 🔐 Google Login
 router.post("/google", googleLogin);
