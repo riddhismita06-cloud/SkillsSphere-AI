@@ -2,8 +2,11 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Input from "../../shared/components/Input";
 import Button from "../../shared/components/Button";
+import { useToast } from "../../shared/components";
 
 const Login = () => {
+  const { success, warning } = useToast();
+
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -31,8 +34,14 @@ const Login = () => {
 
     setErrors(newErrors);
 
+    if (Object.keys(newErrors).length > 0) {
+      warning("Please fix the highlighted login fields before continuing.");
+      return;
+    }
+
     if (Object.keys(newErrors).length === 0) {
       console.log(form);
+      success("Logged in successfully.");
     }
   };
 

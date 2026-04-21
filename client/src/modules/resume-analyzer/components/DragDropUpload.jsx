@@ -1,10 +1,40 @@
 import React, { useCallback, useState } from "react";
 import { UploadCloud, CheckCircle2 } from "lucide-react";
 import Button from "../../../shared/landing_components/Button";
+import { useToast } from "../../../shared/components";
 
 const DragDropUpload = ({ onFileUpload }) => {
+  const { success, warning } = useToast();
   const [isDragActive, setIsDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+
+  const isSupportedFile = (file) => {
+    if (!file) return false;
+
+    const validMimeTypes = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
+    const fileName = file.name?.toLowerCase() || "";
+    const hasValidExtension = fileName.endsWith(".pdf") || fileName.endsWith(".doc") || fileName.endsWith(".docx");
+
+    return validMimeTypes.includes(file.type) || hasValidExtension;
+  };
+
+  const processFileUpload = useCallback(
+    (file) => {
+      if (!isSupportedFile(file)) {
+        warning("Unsupported file type. Please upload a PDF or DOCX file.");
+        return;
+      }
+
+      setSelectedFile(file);
+      success(`${file.name} uploaded. Starting analysis.`);
+      onFileUpload(file);
+    },
+    [onFileUpload, success, warning]
+  );
 
   const handleDragEnter = useCallback((e) => {
     e.preventDefault();
@@ -31,22 +61,20 @@ const DragDropUpload = ({ onFileUpload }) => {
 
       if (e.dataTransfer.files && e.dataTransfer.files[0]) {
         const file = e.dataTransfer.files[0];
-        setSelectedFile(file);
-        onFileUpload(file);
+        processFileUpload(file);
       }
     },
-    [onFileUpload]
+    [processFileUpload]
   );
 
   const handleFileInput = useCallback(
     (e) => {
       if (e.target.files && e.target.files[0]) {
         const file = e.target.files[0];
-        setSelectedFile(file);
-        onFileUpload(file);
+        processFileUpload(file);
       }
     },
-    [onFileUpload]
+    [processFileUpload]
   );
 
   const handlePaste = useCallback(
@@ -55,13 +83,12 @@ const DragDropUpload = ({ onFileUpload }) => {
       for (let i = 0; i < items.length; i++) {
         if (items[i].kind === "file") {
           const file = items[i].getAsFile();
-          setSelectedFile(file);
-          onFileUpload(file);
+          processFileUpload(file);
           break;
         }
       }
     },
-    [onFileUpload]
+    [processFileUpload]
   );
 
   return (

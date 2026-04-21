@@ -175,11 +175,40 @@ export const resendUserOTP = async (email) => {
   return { success: true, message: "A new verification code has been sent to your email." };
 };
 
-// 🔐 Google Token Verification (YOUR FEATURE)
+export const loginUser = async (email, password) => {
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new AppError("Invalid email or password", 401);
+  }
+
+  const isPasswordMatch = await bcrypt.compare(password, user.password);
+  if (!isPasswordMatch) {
+    throw new AppError("Invalid email or password", 401);
+  }
+
+  if (!user.isVerified) {
+    throw new AppError("Please verify your email before logging in", 403);
+  }
+
+  const token = buildAuthToken(user);
+
+  return {
+    token,
+    user: {
+      id: user._id.toString(),
+      name: user.name,
+      email: user.email,
+      role: user.role
+    }
+  };
+};
+
+// 🔐 Google Token Verification
 export const verifyGoogleToken = async (token) => {
   try {
     const ticket = await client.verifyIdToken({
-      idToken: token,
+      id_token: token,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
 

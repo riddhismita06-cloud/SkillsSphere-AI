@@ -47,11 +47,13 @@ Implemented:
 - Express server bootstrap in `server/index.js`
 - MongoDB connection setup in `src/database/db.js`
 - User model in `src/database/models/User.js`
-- Auth registration flow:
+- Auth registration & Login flow:
   - `src/modules/auth/routes.js`
   - `src/modules/auth/controller.js`
   - `src/modules/auth/service.js`
   - `src/validations/authValidation.js`
+- Auth & RBAC Middleware:
+  - `src/middleware/authMiddleware.js` (JWT & Role verification)
 - Resume upload and analysis flow:
   - `src/modules/resumes/routes.js`
   - `src/modules/resumes/controller.js`
@@ -84,7 +86,9 @@ Scaffolded placeholders:
 ## API Surface (Implemented)
 
 - `GET /health`: server health check
-- `POST /api/auth/register`: user registration and JWT issuance
+- `POST /api/auth/register`: user registration and initial token issuance
+- `POST /api/auth/login`: credential verification and JWT issuance
+- `POST /api/auth/verify-email`: verify user account via OTP
 - `POST /api/resume/upload`: upload resume file
 - `POST /api/resume/analyze`: parse PDF resume, optional skill match, optional keyword relevance (`jobDescription`)
 - `GET /api/resume/result/:id`: placeholder result retrieval endpoint

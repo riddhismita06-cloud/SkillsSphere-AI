@@ -8,6 +8,12 @@ import { registerUser } from "../../features/auth/authSlice";
 const Register = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+import { useToast } from "../../shared/components";
+
+const Register = () => {
+  const navigate = useNavigate();
+  const { success, warning } = useToast();
+
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -60,6 +66,11 @@ const Register = () => {
     const newErrors = validate();
     setErrors(newErrors);
 
+    if (Object.keys(newErrors).length > 0) {
+      warning("Please fix the highlighted registration fields before submitting.");
+      return;
+    }
+
     if (Object.keys(newErrors).length === 0) {
       const resultAction = await dispatch(registerUser({
         name: form.name,
@@ -76,6 +87,8 @@ const Register = () => {
         // Here you can handle the error from the backend if it reject
         setErrors({ ...errors, form: resultAction.payload || "Registration Failed" });
       }
+      });
+      success("Account created successfully.");
     }
   };
 

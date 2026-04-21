@@ -10,6 +10,7 @@ export const extractExperienceInYears = (text = "") => {
   if (!content.trim()) return 0;
 
   const detectedValues = [];
+  const combinedMatchedIndices = [];
 
   // Examples: "1 year 6 months", "2 years and 3 months", "1.5 years 6 months"
   const combinedPattern =
@@ -18,17 +19,30 @@ export const extractExperienceInYears = (text = "") => {
     const years = toNumber(match[1]);
     const months = toNumber(match[2]);
     detectedValues.push(years + months / 12);
+    
+    combinedMatchedIndices.push({
+      start: match.index,
+      end: match.index + match[0].length
+    });
   }
+
+  const isOverlapping = (index) => {
+    return combinedMatchedIndices.some(
+      (range) => index >= range.start && index < range.end
+    );
+  };
 
   // Examples: "3 years", "2+ years", "1 yr"
   const yearsPattern = /(\d+(?:\.\d+)?)\s*\+?\s*(?:years?|yrs?)/gi;
   for (const match of content.matchAll(yearsPattern)) {
+    if (isOverlapping(match.index)) continue;
     detectedValues.push(toNumber(match[1]));
   }
 
   // Examples: "18 months", "6+ months", "10 mo"
   const monthsPattern = /(\d+(?:\.\d+)?)\s*\+?\s*(?:months?|mos?)/gi;
   for (const match of content.matchAll(monthsPattern)) {
+    if (isOverlapping(match.index)) continue;
     detectedValues.push(toNumber(match[1]) / 12);
   }
 
