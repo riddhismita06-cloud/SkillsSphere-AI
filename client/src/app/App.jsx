@@ -8,6 +8,7 @@ import Register from "../modules/auth/Register";
 import ResetPassword from "../modules/auth/ResetPassword";
 import VerifyEmail from "../modules/auth/VerifyEmail";
 import ProfilePage from "../modules/profile/ProfilePage";
+import ProtectedRoute from "../shared/components/ProtectedRoute";
 
 function App() {
   return (
@@ -15,7 +16,14 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         {import.meta.env.DEV && <Route path="/demo" element={<ComponentDemo />} />}
-        <Route path="/resume-analyzer" element={<ResumeAnalyzerPage />} />
+        <Route 
+          path="/resume-analyzer" 
+          element={
+            <ProtectedRoute>
+              <ResumeAnalyzerPage />
+            </ProtectedRoute>
+          } 
+        />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/reset-password" element={<ResetPassword />} />
