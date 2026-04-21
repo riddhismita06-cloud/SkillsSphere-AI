@@ -1,16 +1,23 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { loginUser } from "../../features/auth/authSlice";
 import Input from "../../shared/components/Input";
 import Button from "../../shared/components/Button";
 import { useToast } from "../../shared/components";
 
 const Login = () => {
-  const { success, warning } = useToast();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { loading } = useSelector((state) => state.auth);
+  const { success, warning, error: showError } = useToast();
 
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
+  const [rememberMe, setRememberMe] = useState(true);
 
   const [errors, setErrors] = useState({});
 
@@ -18,12 +25,12 @@ const Login = () => {
     const { id, value } = e.target;
     setForm({ ...form, [id]: value });
     
-    if (errors[id]) {
-      setErrors({ ...errors, [id]: "" });
+    if (errors[id] || errors.form) {
+      setErrors({ ...errors, [id]: "", form: "" });
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     let newErrors = {};
 
@@ -39,10 +46,31 @@ const Login = () => {
       return;
     }
 
-    if (Object.keys(newErrors).length === 0) {
-      console.log(form);
+    const resultAction = await dispatch(
+      loginUser({
+        email: form.email.trim().toLowerCase(),
+        password: form.password,
+        rememberMe,
+      }),
+    );
+
+    if (loginUser.fulfilled.match(resultAction)) {
       success("Logged in successfully.");
+      const fallbackPath = "/dashboard";
+      const redirectTo = location.state?.from?.pathname || fallbackPath;
+      navigate(redirectTo, { replace: true });
+    } else {
+      const message = resultAction.payload || "Login failed";
+      setErrors({ ...errors, form: message });
+      showError(message);
     }
+  };
+
+  const goToVerification = () => {
+    const email = form.email.trim().toLowerCase();
+    navigate(`/verify-email?email=${encodeURIComponent(email)}`, {
+      state: { email },
+    });
   };
 
   return (
@@ -70,6 +98,7 @@ const Login = () => {
               value={form.email}
               onChange={handleChange}
               error={errors.email}
+              disabled={loading}
             />
 
             <Input
@@ -80,6 +109,7 @@ const Login = () => {
               value={form.password}
               onChange={handleChange}
               error={errors.password}
+              disabled={loading}
             />
           </div>
 
@@ -89,6 +119,8 @@ const Login = () => {
               <input
                 id="remember-me"
                 type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
                 className="accent-blue-500 rounded focus:ring-2 focus:ring-blue-500"
               />
               Remember me
@@ -102,10 +134,27 @@ const Login = () => {
           <Button 
             type="submit"
             fullWidth
+            loading={loading}
+            disabled={loading}
             className="mt-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 border-none font-bold text-[15px] hover:scale-105 hover:shadow-[0_0_20px_rgba(59,130,246,0.6)] transition-all duration-300"
           >
             Login
           </Button>
+
+          {errors.form && (
+            <div className="mt-3 text-center">
+              <p className="text-red-400 text-sm">{errors.form}</p>
+              {errors.form.toLowerCase().includes("verify") && (
+                <button
+                  type="button"
+                  onClick={goToVerification}
+                  className="mt-2 text-sm text-blue-400 hover:underline bg-transparent border-none cursor-pointer"
+                >
+                  Verify your email
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Footer */}
           <p className="text-center mt-5 text-slate-400 text-[14px]">

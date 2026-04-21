@@ -11,13 +11,10 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <Provider store={store}>
       <BrowserRouter>
-        <App />
+        <ToastProvider>
+          <App />
+        </ToastProvider>
       </BrowserRouter>
     </Provider>
-    <ToastProvider>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </ToastProvider>
   </React.StrictMode>
 );

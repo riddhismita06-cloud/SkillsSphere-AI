@@ -17,9 +17,17 @@ Implemented:
 
 - App shell and route configuration in `src/app/App.jsx`
 - Landing page module in `src/modules/landing/`
-- Auth UI modules:
+- Auth UI and API integration:
   - `src/modules/auth/Login.jsx`
+  - `src/modules/auth/Register.jsx`
+  - `src/modules/auth/VerifyEmail.jsx`
   - `src/modules/auth/components/ComponentDemo.jsx`
+- Redux auth state in `src/features/auth/authSlice.js`
+- API client helpers:
+  - `src/services/apiClient.js`
+  - `src/services/authService.js`
+- Protected dashboard route:
+  - `src/modules/dashboard/DashboardPage.jsx`
 - Resume Analyzer UI flow:
   - `src/modules/resume-analyzer/components/DragDropUpload.jsx`
   - `src/modules/resume-analyzer/components/AnalysisResult.jsx`
@@ -36,7 +44,6 @@ Implemented:
 Scaffolded placeholders:
 
 - `classrooms/`
-- `dashboard/`
 - `job-matcher/`
 - `mock-interview/`
 
@@ -89,6 +96,7 @@ Scaffolded placeholders:
 - `POST /api/auth/register`: user registration and initial token issuance
 - `POST /api/auth/login`: credential verification and JWT issuance
 - `POST /api/auth/verify-email`: verify user account via OTP
+- `POST /api/auth/resend-otp`: resend email verification OTP
 - `POST /api/resume/upload`: upload resume file
 - `POST /api/resume/analyze`: parse PDF resume, optional skill match, optional keyword relevance (`jobDescription`)
 - `GET /api/resume/result/:id`: placeholder result retrieval endpoint
