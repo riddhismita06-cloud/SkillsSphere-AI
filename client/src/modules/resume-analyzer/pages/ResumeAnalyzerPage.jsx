@@ -1,7 +1,5 @@
-import { Loader2 } from "lucide-react";
 import { useState } from "react";
-import { useToast } from "../../../shared/components";
-import Button from "../../../shared/landing/Button";
+import { useToast, Button, LoadingState, ErrorState, PageHeader } from "../../../shared/components";
 import Navbar from "../../../shared/landing/Navbar";
 import AnalysisResult from "../components/AnalysisResult";
 import DragDropUpload from "../components/DragDropUpload";
@@ -42,16 +40,10 @@ const ResumeAnalyzerPage = () => {
     <div className="min-h-screen bg-dark-bg text-text-main font-sans">
       <Navbar />
       <div className="max-w-4xl mx-auto pt-32 pb-12 px-4 sm:px-6 lg:px-8 space-y-8 animate-slide-up">
-        {/* Page Header */}
-        <div className="text-center space-y-4">
-          <h1 className="text-4xl md:text-6xl font-heading font-bold tracking-tight">
-            <span className="text-gradient">Resume</span> Analyzer
-          </h1>
-          <p className="text-text-muted text-lg max-w-2xl mx-auto">
-            Upload your resume and get instant AI-powered insights to optimize
-            your professional profile for top recruiters.
-          </p>
-        </div>
+        <PageHeader 
+          title={<><span className="text-gradient">Resume</span> Analyzer</>}
+          subtitle="Upload your resume and get instant AI-powered insights to optimize your professional profile for top recruiters."
+        />
 
         {/* Main Content Area */}
         <div className="mt-12 bg-surface border border-border rounded-[2rem] p-8 md:p-12 shadow-2xl relative overflow-hidden">
@@ -60,24 +52,15 @@ const ResumeAnalyzerPage = () => {
 
           <div className="relative z-10">
             {loading ? (
-              <div className="flex flex-col items-center justify-center py-20 animate-pulse">
-                <Loader2 className="w-16 h-16 text-primary animate-spin mb-6" />
-                <p className="text-2xl font-heading font-medium text-text-main">
-                  Analyzing your resume...
-                </p>
-                <p className="text-text-muted mt-2 italic">
-                  Scanning for skills, impact, and ATS optimization
-                </p>
-              </div>
+              <LoadingState 
+                title="Analyzing your resume..."
+                description="Scanning for skills, impact, and ATS optimization"
+              />
             ) : error ? (
-              <div className="text-center py-12">
-                <div className="bg-red-500/10 text-red-400 p-6 rounded-2xl border border-red-500/20 mb-8 max-w-md mx-auto">
-                  {error}
-                </div>
-                <Button variant="primary" size="lg" onClick={resetAnalyzer}>
-                  Try Again
-                </Button>
-              </div>
+              <ErrorState 
+                description={error}
+                onRetry={resetAnalyzer}
+              />
             ) : result ? (
               <AnalysisResult
                 result={result}

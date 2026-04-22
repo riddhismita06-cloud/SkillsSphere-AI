@@ -40,6 +40,10 @@ Implemented:
   - `src/shared/components/Button.jsx`
   - `src/shared/components/Input.jsx`
   - `src/shared/components/Select.jsx`
+  - `src/shared/components/LoadingState.jsx`
+  - `src/shared/components/ErrorState.jsx`
+  - `src/shared/components/EmptyState.jsx`
+  - `src/shared/components/PageHeader.jsx`
 
 Scaffolded placeholders:
 
