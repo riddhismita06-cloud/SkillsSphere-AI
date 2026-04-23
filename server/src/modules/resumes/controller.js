@@ -1,11 +1,32 @@
 import path from "path";
 import { parseResume } from "../../utils/parseResume.js";
-import { skillEvaluator } from "../../../../ai-ml/evaluators/skillEvaluator.js";
-import { keywordEvaluator } from "../../../../ai-ml/evaluators/keywordEvaluator.js";
-import { experienceEvaluator } from "../../../../ai-ml/evaluators/experienceEvaluator.js";
 import Resume from "../../database/models/Resume.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 import AppError from "../../utils/AppError.js";
+import {
+  experienceMatchEvaluator,
+  keywordMatchEvaluator,
+  skillMatchEvaluator,
+} from "./evaluatorAdapters.js";
+import { runPipeline } from "../../../../ai-ml/pipeline/runPipeline.js";
+
+const defaultDependencies = {
+  parseResume,
+  createResume: (payload) => Resume.create(payload),
+};
+
+let controllerDependencies = { ...defaultDependencies };
+
+export const setResumeControllerDependencies = (overrides = {}) => {
+  controllerDependencies = {
+    ...controllerDependencies,
+    ...overrides,
+  };
+};
+
+export const resetResumeControllerDependencies = () => {
+  controllerDependencies = { ...defaultDependencies };
+};
 
 const parseSkillArrayString = (input) => {
   try {
@@ -50,6 +71,47 @@ const normalizeSkillInput = (skillsInput) => {
   return { skills: [], invalidJson: false };
 };
 
+const toLegacySkillMatch = (pipelineResult) => {
+  const result = pipelineResult.breakdown.skillMatch;
+  if (!result) return {};
+
+  return {
+    score: result.score,
+    weight: result.weight,
+    feedback: result.details.feedback || [],
+    matchedSkills: result.details.matchedSkills || [],
+    missingSkills: result.details.missingSkills || [],
+    extraSkills: result.details.extraSkills || [],
+  };
+};
+
+const toLegacyKeywordMatch = (pipelineResult) => {
+  const result = pipelineResult.breakdown.keywordMatch;
+  if (!result) return {};
+
+  return {
+    score: result.score,
+    weight: result.weight,
+    feedback: result.details.feedback || [],
+    matchedKeywords: result.details.matchedKeywords || [],
+    missingKeywords: result.details.missingKeywords || [],
+  };
+};
+
+const toLegacyExperienceMatch = (pipelineResult) => {
+  const result = pipelineResult.breakdown.experienceMatch;
+  if (!result) return {};
+
+  return {
+    score: result.score,
+    weight: result.weight,
+    feedback: result.details.feedback || [],
+    candidateExperience: result.details.candidateExperience,
+    requiredExperience: result.details.requiredExperience,
+    experienceGap: result.details.experienceGap,
+  };
+};
+
 export const uploadResume = asyncHandler(async (req, res, next) => {
   if (!req.file) {
     return next(new AppError("No file uploaded", 400));
@@ -78,38 +140,43 @@ export const analyzeResume = asyncHandler(async (req, res, next) => {
     return next(new AppError("Only PDF files are supported for resume analysis right now", 400));
   }
 
-  const parsedData = await parseResume(req.file.path).catch((err) => {
+  const parsedData = await controllerDependencies.parseResume(req.file.path).catch((err) => {
     throw new AppError(err.message || "Unable to extract text from resume", 400);
   });
 
   const { skills: jobSkills, invalidJson } = normalizeSkillInput(req.body?.jobSkills);
-  const skillMatch =
-    parsedData.skills?.length && jobSkills.length
-      ? skillEvaluator({
-          resumeSkills: parsedData.skills,
-          jobSkills,
-        })
-      : {};
-
   const jobDescription = typeof req.body?.jobDescription === "string" ? req.body.jobDescription : "";
   const trimmedJobDescription = jobDescription.trim();
-  const keywordMatch =
-    trimmedJobDescription && parsedData.resumeText
-      ? keywordEvaluator({
-          resumeText: parsedData.resumeText,
-          jobDescription: trimmedJobDescription,
-        })
-      : {};
 
   const candidateExperienceText =
     Array.isArray(parsedData.experience) && parsedData.experience.length > 0
       ? parsedData.experience.join(" ")
       : parsedData.resumeText || "";
 
-  const experienceMatch = experienceEvaluator({
-    candidateExperienceText,
-    jobDescription: trimmedJobDescription,
-  }) || {};
+  const evaluators = [];
+  if (parsedData.skills?.length && jobSkills.length) {
+    evaluators.push(skillMatchEvaluator);
+  }
+  if (trimmedJobDescription && parsedData.resumeText) {
+    evaluators.push(keywordMatchEvaluator);
+  }
+  evaluators.push(experienceMatchEvaluator);
+
+  const pipelineResult = await runPipeline({
+    evaluators,
+    context: {
+      parsedResume: parsedData,
+      resumeSkills: parsedData.skills || [],
+      jobSkills,
+      resumeText: parsedData.resumeText || "",
+      jobDescription: trimmedJobDescription,
+      candidateExperienceText,
+    },
+  });
+
+  const skillMatch = toLegacySkillMatch(pipelineResult);
+  const keywordMatch = toLegacyKeywordMatch(pipelineResult);
+  const experienceMatch = toLegacyExperienceMatch(pipelineResult);
 
   const fileData = {
     originalName: req.file.originalname,
@@ -121,13 +188,15 @@ export const analyzeResume = asyncHandler(async (req, res, next) => {
 
   const { resumeText, ...resumeFields } = parsedData;
 
-  const savedResume = await Resume.create({
+  const savedResume = await controllerDependencies.createResume({
     ...resumeFields,
     jobSkills,
     jobDescription: trimmedJobDescription || null,
     skillMatch,
     keywordMatch,
     experienceMatch,
+    evaluatorBreakdown: pipelineResult.evaluators,
+    aggregatedScore: pipelineResult.score,
     file: fileData,
   });
 
@@ -150,6 +219,8 @@ export const analyzeResume = asyncHandler(async (req, res, next) => {
     keywordMatch,
     experienceMatch,
     file: fileData,
+    evaluatorBreakdown: pipelineResult.evaluators,
+    overallScore: pipelineResult.score,
   });
 });
 

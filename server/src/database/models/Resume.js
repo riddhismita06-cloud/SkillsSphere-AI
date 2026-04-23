@@ -92,6 +92,14 @@ const resumeSchema = new mongoose.Schema(
       requiredExperience: Number,
       experienceGap: Number,
     },
+    evaluatorBreakdown: {
+      type: [mongoose.Schema.Types.Mixed],
+      default: [],
+    },
+    aggregatedScore: {
+      type: Number,
+      default: null,
+    },
   },
   {
     timestamps: true,

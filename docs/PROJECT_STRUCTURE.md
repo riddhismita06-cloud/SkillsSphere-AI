@@ -86,6 +86,10 @@ Implemented:
 
 - Skill evaluator test coverage in `evaluators/__tests__/skillEvaluator.test.js`
 - Keyword evaluator test coverage in `evaluators/__tests__/keywordEvaluator.test.js`
+- Resume analysis pipeline helpers:
+  - `pipeline/evaluatorContract.js`: shared evaluator output schema
+  - `pipeline/runPipeline.js`: unified evaluator execution runner
+  - `pipeline/aggregator.js`: weighted scoring and breakdown aggregation
 
 Scaffolded placeholders:
 
