@@ -12,6 +12,7 @@ import {
   googleOAuthCallback //to be used for google callback route
 } from "./controller.js";
 import { protect } from "../../middleware/authMiddleware.js";
+import { authRateLimiter } from "../../middleware/rateLimiter.js";
 
 const router = express.Router();
 
@@ -27,13 +28,13 @@ router.get("/google", (req, res) => {
 // Callback from Google
 router.get("/google/callback", googleOAuthCallback);
 
-// 📝 Register & Auth
-router.post("/register", register);
-router.post("/verify-email", verifyEmail);
-router.post("/forgot-password", forgotPassword);
-router.post("/reset-password", resetPassword);
-router.post("/resend-otp", resendOTP);
-router.post("/login", login);
+// 📝 Register & Auth (Rate Limited)
+router.post("/register", authRateLimiter, register);
+router.post("/verify-email", authRateLimiter, verifyEmail);
+router.post("/forgot-password", authRateLimiter, forgotPassword);
+router.post("/reset-password", authRateLimiter, resetPassword);
+router.post("/resend-otp", authRateLimiter, resendOTP);
+router.post("/login", authRateLimiter, login);
 
 // 🚪 Logout
 router.post("/logout", logout);
