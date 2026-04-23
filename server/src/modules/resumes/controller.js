@@ -19,7 +19,7 @@ let controllerDependencies = { ...defaultDependencies };
 
 export const setResumeControllerDependencies = (overrides = {}) => {
   controllerDependencies = {
-    ...controllerDependencies,
+    ...defaultDependencies,
     ...overrides,
   };
 };
