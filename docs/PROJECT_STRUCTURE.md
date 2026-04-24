@@ -36,6 +36,12 @@ Implemented:
 - User Profile UI:
   - `src/modules/profile/ProfilePage.jsx`
   - `src/modules/profile/components/ProfileField.jsx`
+- Recruiter Job Management:
+  - `src/modules/recruiter-jobs/pages/RecruiterJobsPage.jsx`
+  - `src/modules/recruiter-jobs/pages/CreateJobPostingPage.jsx`
+  - `src/modules/recruiter-jobs/components/JobPostingForm.jsx`
+  - `src/modules/recruiter-jobs/components/JobPostingCard.jsx`
+  - `src/modules/recruiter-jobs/services/jobPostingService.js`
 - Shared UI primitives:
   - `src/shared/components/Button.jsx`
   - `src/shared/components/Input.jsx`

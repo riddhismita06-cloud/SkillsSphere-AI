@@ -13,6 +13,8 @@ import OAuthCallback from "../modules/auth/OAuthCallback";
 import ResetPassword from "../modules/auth/ResetPassword";
 import VerifyEmail from "../modules/auth/VerifyEmail";
 import ProfilePage from "../modules/profile/ProfilePage";
+import RecruiterJobsPage from "../modules/recruiter-jobs/pages/RecruiterJobsPage";
+import CreateJobPostingPage from "../modules/recruiter-jobs/pages/CreateJobPostingPage";
 import ProtectedRoute from "../shared/components/ProtectedRoute";
 
 function App() {
@@ -51,6 +53,22 @@ function App() {
         <Route path="/auth/callback" element={<OAuthCallback />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route
+          path="/recruiter/jobs"
+          element={
+            <ProtectedRoute requiredRole="recruiter">
+              <RecruiterJobsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/recruiter/jobs/new"
+          element={
+            <ProtectedRoute requiredRole="recruiter">
+              <CreateJobPostingPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/profile" element={<ProfilePage />} />
       </Routes>
       <ChatWidget />

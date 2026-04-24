@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Home, FileText, LayoutDashboard, MessageSquare, LogIn, UserPlus, X, Menu, LogOut, User, ChevronDown } from 'lucide-react';
+import { Home, FileText, LayoutDashboard, MessageSquare, LogIn, UserPlus, X, Menu, LogOut, User, ChevronDown, Briefcase } from 'lucide-react';
 import Button from './Button';
 import { logout } from '../../features/auth/authSlice';
 
@@ -38,7 +38,10 @@ const Navbar = () => {
 
   const navLinks = [
     { name: 'Home', path: '/', icon: <Home size={20} /> },
-    { name: 'Resume Analyzer', path: '/resume-analyzer', icon: <FileText size={20} /> },
+    ...(user?.role === 'recruiter' 
+      ? [{ name: 'Manage Jobs', path: '/recruiter/jobs', icon: <Briefcase size={20} /> }]
+      : [{ name: 'Resume Analyzer', path: '/resume-analyzer', icon: <FileText size={20} /> }]
+    ),
     { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
     { name: 'Mock Interview', path: '/mock-interview', icon: <MessageSquare size={20} /> },
   ];

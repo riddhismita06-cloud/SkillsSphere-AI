@@ -3,8 +3,8 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated } = useSelector((state) => state.auth);
+const ProtectedRoute = ({ children, requiredRole }) => {
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
   const location = useLocation();
 
   if (!isAuthenticated) {
@@ -15,11 +15,18 @@ const ProtectedRoute = ({ children }) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  if (requiredRole && user?.role !== requiredRole) {
+    // If a role is required but the user doesn't have it, redirect to dashboard
+    // or a specialized unauthorized page if one exists.
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return children;
 };
 
 ProtectedRoute.propTypes = {
   children: PropTypes.node.isRequired,
+  requiredRole: PropTypes.string,
 };
 
 export default ProtectedRoute;
