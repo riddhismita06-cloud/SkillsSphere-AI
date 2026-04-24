@@ -6,11 +6,9 @@ import Hero from "./components/Hero";
 import TargetUsers from "./components/TargetUsers";
 
 const LandingPage = () => {
-  const { isAuthenticated, user } = useSelector((state) => state.auth);
-
   return (
     <div className="landing-page">
-      <Navbar isAuthenticated={isAuthenticated} user={user} />
+      <Navbar />
       <Hero />
       <Features />
       <TargetUsers />

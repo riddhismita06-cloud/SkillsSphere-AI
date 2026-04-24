@@ -186,6 +186,18 @@ export const resendOtp = createAsyncThunk(
   },
 );
 
+export const fetchCurrentUser = createAsyncThunk(
+  "auth/fetchCurrentUser",
+  async (_, thunkAPI) => {
+    try {
+      const data = await authService.getCurrentUser();
+      return data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(toErrorMessage(error, "Failed to fetch user"));
+    }
+  }
+);
+
 const storedAuth = readStoredAuth();
 
 const initialState = {
@@ -307,6 +319,16 @@ const authSlice = createSlice({
       .addCase(resendOtp.rejected, (state, action) => {
         state.resendLoading = false;
         state.error = action.payload;
+      })
+      .addCase(fetchCurrentUser.fulfilled, (state, action) => {
+        state.user = action.payload.user;
+        state.isAuthenticated = true;
+      })
+      .addCase(fetchCurrentUser.rejected, (state, action) => {
+        clearStoredAuth();
+        state.user = null;
+        state.token = null;
+        state.isAuthenticated = false;
       });
   },
 });

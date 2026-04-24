@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Routes, Route } from "react-router-dom";
+import { fetchCurrentUser } from "../features/auth/authSlice";
 import ChatWidget from "../modules/ai-assistant/components/ChatWidget";
 import LandingPage from "../modules/landing/LandingPage";
 import DashboardPage from "../modules/dashboard/DashboardPage";
@@ -14,6 +16,15 @@ import ProfilePage from "../modules/profile/ProfilePage";
 import ProtectedRoute from "../shared/components/ProtectedRoute";
 
 function App() {
+  const dispatch = useDispatch();
+  const { token } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (token) {
+      dispatch(fetchCurrentUser());
+    }
+  }, [dispatch, token]);
+
   return (
     <div>
       <Routes>
