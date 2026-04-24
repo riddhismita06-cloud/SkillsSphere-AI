@@ -160,7 +160,8 @@ const Login = () => {
                 type="button"  //prevents from validation,so that the toast notification doesnt show up when we click on the continue with google button
                 onClick={() => {
                   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-                  window.location.href = `${API_URL}/api/auth/google`;
+                  const redirect = encodeURIComponent(`${window.location.origin}/auth/callback`);
+                  window.location.href = `${API_URL}/api/auth/google?redirect=${redirect}`;
                 }}
                 className="w-full flex items-center justify-center gap-3 px-4 py-2.5 
                           bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl

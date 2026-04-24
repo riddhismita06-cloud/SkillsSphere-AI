@@ -24,7 +24,8 @@ export const resendOtp = ({ email }) =>
     body: { email },
   });
 
-export const getCurrentUser = () =>
+export const getCurrentUser = (token) =>
   apiRequest("/api/auth/me", {
     method: "GET",
+    token,
   });
