@@ -1,16 +1,20 @@
-export const analyzeResume = async (file) => {
-  // Simulate network request
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        score: 85,
-        suggestions: [
-          "Format looks good, but missing a dedicated 'Skills' section.",
-          "Add more quantifiable metrics to your recent experience.",
-          "Consider tailoring the summary to outline a specific objective.",
-        ],
-        missing_keywords: ["React Native", "TypeScript", "GraphQL", "Agile"],
-      });
-    }, 2000);
+import { apiRequest } from "../../../services/apiClient";
+
+export const analyzeResume = async (file, jobDescription = "") => {
+  const formData = new FormData();
+  formData.append("resume", file);
+  
+  if (jobDescription) {
+    formData.append("jobDescription", jobDescription);
+  }
+
+  // Get token from storage using the correct key from authSlice
+  const TOKEN_KEY = "skillssphere.auth.token";
+  const token = localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY);
+
+  return apiRequest("/api/resume/analyze", {
+    method: "POST",
+    body: formData,
+    token,
   });
 };

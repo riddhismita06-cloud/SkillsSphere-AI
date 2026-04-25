@@ -31,8 +31,8 @@ Implemented:
 - Resume Analyzer UI flow:
   - `src/modules/resume-analyzer/components/DragDropUpload.jsx`
   - `src/modules/resume-analyzer/components/AnalysisResult.jsx`
-  - `src/modules/resume-analyzer/pages/ResumeAnalyzerPage.jsx`
-  - `src/modules/resume-analyzer/services/resumeService.js`
+  - `src/modules/resume-analyzer/pages/ResumeAnalyzerPage.jsx` (Updated: integrated Job Description input)
+  - `src/modules/resume-analyzer/services/resumeService.js` (Updated: real API integration with JD support)
 - User Profile UI:
   - `src/modules/profile/ProfilePage.jsx`
   - `src/modules/profile/components/ProfileField.jsx`
@@ -46,6 +46,7 @@ Implemented:
   - `src/shared/components/Button.jsx`
   - `src/shared/components/Input.jsx`
   - `src/shared/components/Select.jsx`
+  - `src/shared/components/TextArea.jsx` (New: Multi-line text input)
   - `src/shared/components/LoadingState.jsx`
   - `src/shared/components/ErrorState.jsx`
   - `src/shared/components/EmptyState.jsx`

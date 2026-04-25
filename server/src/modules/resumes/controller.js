@@ -1,5 +1,6 @@
 import path from "path";
 import { parseResume } from "../../utils/parseResume.js";
+import { cleanJDText } from "../../utils/cleanText.js";
 import Resume from "../../database/models/Resume.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 import AppError from "../../utils/AppError.js";
@@ -147,7 +148,7 @@ export const analyzeResume = asyncHandler(async (req, res, next) => {
 
   const { skills: jobSkills, invalidJson } = normalizeSkillInput(req.body?.jobSkills);
   const jobDescription = typeof req.body?.jobDescription === "string" ? req.body.jobDescription : "";
-  const trimmedJobDescription = jobDescription.trim();
+  const trimmedJobDescription = cleanJDText(jobDescription);
 
   const candidateExperienceText =
     Array.isArray(parsedData.experience) && parsedData.experience.length > 0

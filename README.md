@@ -94,10 +94,20 @@ The following structure keeps the project modular and easy to scale for new cont
 
 ```text
 SkillSphere-AI/
-├── client/                          # React frontend
+├── client/                          # React frontend (Vite)
+│   ├── src/
+│   │   ├── modules/                 # Feature-based modules (Auth, Resumes, etc.)
+│   │   ├── shared/                  # Reusable UI components
+│   │   └── services/                # API service layer
 ├── server/                          # Express backend
+│   ├── src/
+│   │   ├── modules/                 # Backend business logic by domain
+│   │   ├── database/                # Mongoose models and connection
+│   │   └── middleware/              # Auth, RBAC, and Upload handlers
 ├── ai-ml/                           # AI/ML intelligence layer
-├── docs/                            # Documentation
+│   ├── evaluators/                  # Skill, Keyword, and Experience matchers
+│   └── pipeline/                    # Unified analysis pipeline
+├── docs/                            # Project documentation
 └── ...                              # Configuration and root files
 ```
 
@@ -176,6 +186,11 @@ Implemented:
 - Common Page Layouts: `PageHeader` with support for gradient typography
 - Barrel exports for shared components to simplify module imports
 - Integration of shared states into `ResumeAnalyzerPage`
+- **New Feature: Job Description Integration**
+  - Added `TextArea` shared component for multi-line inputs
+  - Added JD input section to `ResumeAnalyzerPage` with paste and .txt upload support
+  - Integrated `resumeService` with real backend API calls using `FormData`
+  - Support for sending `jobDescription` alongside resume file for keyword relevance scoring
 ```
 
 ## For Open-Source Contributors
@@ -207,6 +222,24 @@ Automated checks run on pull requests to `main` through:
 - `.github/workflows/pr-quality-checks.yml`
 
 These checks validate docs/workflows and, once app code is added, automatically run lint/test/build for `client`, `server`, and `ai-ml` when their dependency manifests exist.
+
+## 🚀 Running the Project
+
+### Client
+
+```bash
+cd client
+npm install
+npm run dev
+```
+
+### Server
+
+```bash
+cd server
+npm install
+npm run dev
+```
 
 ## 🚀 Running the Project
 

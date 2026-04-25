@@ -1,23 +1,26 @@
 import { useState } from "react";
-import { useToast, Button, LoadingState, ErrorState, PageHeader } from "../../../shared/components";
+import { useToast, LoadingState, ErrorState, PageHeader } from "../../../shared/components";
 import Navbar from "../../../shared/landing/Navbar";
 import AnalysisResult from "../components/AnalysisResult";
 import DragDropUpload from "../components/DragDropUpload";
+import JobDescriptionInput from "../components/JobDescriptionInput";
 import { analyzeResume } from "../services/resumeService";
+import { FileText } from "lucide-react";
 
 const ResumeAnalyzerPage = () => {
-  const { success, error: showError, warning } = useToast();
+  const { success, error: showError } = useToast();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [jobDescription, setJobDescription] = useState("");
 
   const handleFileUpload = async (file) => {
     setLoading(true);
     setSelectedFile(file);
     setError(null);
     try {
-      const data = await analyzeResume(file);
+      const data = await analyzeResume(file, jobDescription);
       setResult(data);
       success("Resume analyzed successfully.");
     } catch (err) {
@@ -33,6 +36,7 @@ const ResumeAnalyzerPage = () => {
     setResult(null);
     setSelectedFile(null);
     setError(null);
+    setJobDescription("");
     warning("Resume analyzer has been reset.");
   };
 
@@ -68,7 +72,24 @@ const ResumeAnalyzerPage = () => {
                 onReset={resetAnalyzer}
               />
             ) : (
-              <DragDropUpload onFileUpload={handleFileUpload} />
+              <div className="space-y-8">
+                {/* Job Description Input */}
+                <JobDescriptionInput
+                  value={jobDescription}
+                  onChange={setJobDescription}
+                />
+
+                <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent"></div>
+
+                {/* Resume Upload Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 text-primary">
+                    <FileText className="w-5 h-5" />
+                    <h3 className="text-lg font-bold">Upload Resume</h3>
+                  </div>
+                  <DragDropUpload onFileUpload={handleFileUpload} />
+                </div>
+              </div>
             )}
           </div>
         </div>
