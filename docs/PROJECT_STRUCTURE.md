@@ -31,15 +31,22 @@ Implemented:
 - Resume Analyzer UI flow:
   - `src/modules/resume-analyzer/components/DragDropUpload.jsx`
   - `src/modules/resume-analyzer/components/AnalysisResult.jsx`
-  - `src/modules/resume-analyzer/pages/ResumeAnalyzerPage.jsx`
-  - `src/modules/resume-analyzer/services/resumeService.js`
+  - `src/modules/resume-analyzer/pages/ResumeAnalyzerPage.jsx` (Updated: integrated Job Description input)
+  - `src/modules/resume-analyzer/services/resumeService.js` (Updated: real API integration with JD support)
 - User Profile UI:
   - `src/modules/profile/ProfilePage.jsx`
   - `src/modules/profile/components/ProfileField.jsx`
+- Recruiter Job Management:
+  - `src/modules/recruiter-jobs/pages/RecruiterJobsPage.jsx`
+  - `src/modules/recruiter-jobs/pages/CreateJobPostingPage.jsx`
+  - `src/modules/recruiter-jobs/components/JobPostingForm.jsx`
+  - `src/modules/recruiter-jobs/components/JobPostingCard.jsx`
+  - `src/modules/recruiter-jobs/services/jobPostingService.js`
 - Shared UI primitives:
   - `src/shared/components/Button.jsx`
   - `src/shared/components/Input.jsx`
   - `src/shared/components/Select.jsx`
+  - `src/shared/components/TextArea.jsx` (New: Multi-line text input)
   - `src/shared/components/LoadingState.jsx`
   - `src/shared/components/ErrorState.jsx`
   - `src/shared/components/EmptyState.jsx`
@@ -57,7 +64,10 @@ Implemented:
 
 - Express server bootstrap in `server/index.js`
 - MongoDB connection setup in `src/database/db.js`
-- User model in `src/database/models/User.js`
+- Database Models:
+  - `src/database/models/User.js` — User model for authentication and role management
+  - `src/database/models/Resume.js` — Resume model for parsed resume data and skill matching
+  - `src/database/models/JobPosting.js` — Mongoose model for recruiter-owned job postings with status, location, skills, and salary constraints
 - Auth registration & Login flow:
   - `src/modules/auth/routes.js`
   - `src/modules/auth/controller.js`
@@ -70,6 +80,8 @@ Implemented:
   - `src/modules/resumes/controller.js`
   - `src/middleware/uploadResume.js`
   - `src/utils/parseResume.js`
+- Evaluator configuration:
+  - `src/config/evaluatorConfig.js`
 - Static upload serving via `app.use("/uploads", ...)`
 - Recruiter Job Posting system:
   - `src/modules/jobs/routes.js`

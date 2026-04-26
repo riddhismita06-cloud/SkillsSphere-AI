@@ -1,5 +1,6 @@
 import path from "path";
 import { parseResume } from "../../utils/parseResume.js";
+import { cleanJDText } from "../../utils/cleanText.js";
 import Resume from "../../database/models/Resume.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 import AppError from "../../utils/AppError.js";
@@ -9,6 +10,7 @@ import {
   skillMatchEvaluator,
 } from "./evaluatorAdapters.js";
 import { runPipeline } from "../../../../ai-ml/pipeline/runPipeline.js";
+import { getEvaluatorConfig } from "../../config/evaluatorConfig.js";
 
 const defaultDependencies = {
   parseResume,
@@ -146,33 +148,44 @@ export const analyzeResume = asyncHandler(async (req, res, next) => {
 
   const { skills: jobSkills, invalidJson } = normalizeSkillInput(req.body?.jobSkills);
   const jobDescription = typeof req.body?.jobDescription === "string" ? req.body.jobDescription : "";
-  const trimmedJobDescription = jobDescription.trim();
+  const trimmedJobDescription = cleanJDText(jobDescription);
 
   const candidateExperienceText =
     Array.isArray(parsedData.experience) && parsedData.experience.length > 0
       ? parsedData.experience.join(" ")
       : parsedData.resumeText || "";
 
+  const evaluatorConfig = getEvaluatorConfig();
+  const { toggles, weights } = evaluatorConfig;
+
   const evaluators = [];
-  if (parsedData.skills?.length && jobSkills.length) {
+  if (toggles.skillMatch && parsedData.skills?.length && jobSkills.length) {
     evaluators.push(skillMatchEvaluator);
   }
-  if (trimmedJobDescription && parsedData.resumeText) {
+  if (toggles.keywordMatch && trimmedJobDescription && parsedData.resumeText) {
     evaluators.push(keywordMatchEvaluator);
   }
-  evaluators.push(experienceMatchEvaluator);
+  if (toggles.experienceMatch) {
+    evaluators.push(experienceMatchEvaluator);
+  }
 
-  const pipelineResult = await runPipeline({
-    evaluators,
-    context: {
-      parsedResume: parsedData,
-      resumeSkills: parsedData.skills || [],
-      jobSkills,
-      resumeText: parsedData.resumeText || "",
-      jobDescription: trimmedJobDescription,
-      candidateExperienceText,
-    },
-  });
+  const pipelineResult =
+    evaluators.length === 0
+      ? { score: 0, evaluators: [], breakdown: {} }
+      : await runPipeline({
+          evaluators,
+          context: {
+            parsedResume: parsedData,
+            resumeSkills: parsedData.skills || [],
+            jobSkills,
+            resumeText: parsedData.resumeText || "",
+            jobDescription: trimmedJobDescription,
+            candidateExperienceText,
+            skillWeight: weights.skillMatch,
+            keywordWeight: weights.keywordMatch,
+            experienceWeight: weights.experienceMatch,
+          },
+        });
 
   const skillMatch = toLegacySkillMatch(pipelineResult);
   const keywordMatch = toLegacyKeywordMatch(pipelineResult);
@@ -189,6 +202,7 @@ export const analyzeResume = asyncHandler(async (req, res, next) => {
   const { resumeText, ...resumeFields } = parsedData;
 
   const savedResume = await controllerDependencies.createResume({
+    user: req.user._id,
     ...resumeFields,
     jobSkills,
     jobDescription: trimmedJobDescription || null,
@@ -230,6 +244,11 @@ export const getResumeResult = asyncHandler(async (req, res, next) => {
 
   if (!resume) {
     return next(new AppError("Resume not found", 404));
+  }
+
+  // Ensure the user owns this resume
+  if (resume.user.toString() !== req.user._id.toString()) {
+    return next(new AppError("You do not have permission to view this resume", 403));
   }
 
   res.status(200).json({

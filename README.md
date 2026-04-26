@@ -94,10 +94,20 @@ The following structure keeps the project modular and easy to scale for new cont
 
 ```text
 SkillSphere-AI/
-├── client/                          # React frontend
+├── client/                          # React frontend (Vite)
+│   ├── src/
+│   │   ├── modules/                 # Feature-based modules (Auth, Resumes, etc.)
+│   │   ├── shared/                  # Reusable UI components
+│   │   └── services/                # API service layer
 ├── server/                          # Express backend
+│   ├── src/
+│   │   ├── modules/                 # Backend business logic by domain
+│   │   ├── database/                # Mongoose models and connection
+│   │   └── middleware/              # Auth, RBAC, and Upload handlers
 ├── ai-ml/                           # AI/ML intelligence layer
-├── docs/                            # Documentation
+│   ├── evaluators/                  # Skill, Keyword, and Experience matchers
+│   └── pipeline/                    # Unified analysis pipeline
+├── docs/                            # Project documentation
 └── ...                              # Configuration and root files
 ```
 
@@ -179,6 +189,11 @@ Implemented:
 - Common Page Layouts: `PageHeader` with support for gradient typography
 - Barrel exports for shared components to simplify module imports
 - Integration of shared states into `ResumeAnalyzerPage`
+- **New Feature: Job Description Integration**
+  - Added `TextArea` shared component for multi-line inputs
+  - Added JD input section to `ResumeAnalyzerPage` with paste and .txt upload support
+  - Integrated `resumeService` with real backend API calls using `FormData`
+  - Support for sending `jobDescription` alongside resume file for keyword relevance scoring
 
 ### Recruiter Job Management Progress
 
@@ -241,46 +256,42 @@ npm run dev
 
 ## 🔐 Environment Variables Setup
 
-Create a `.env` file inside the `server/` folder and add:
+### Server
 
-PORT=5000
-MONGO_URI=your_mongodb_uri
+1. Copy example file:
 
-JWT_SECRET=your_jwt_secret
-JWT_EXPIRES_IN=7d
+```bash
+cd server
+cp .env.example .env
+```
 
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
-GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback
+2. Update required values in `server/.env`:
 
-EMAIL_SERVICE_MODE=console
-EMAIL_HOST=smtp.mailtrap.io
-EMAIL_PORT=2525
-EMAIL_USER=your_smtp_username
-EMAIL_PASS=your_smtp_password
+- `MONGO_URI`
+- `JWT_SECRET`
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
 
-## 🔐 Google OAuth Setup
+# Evaluator toggles and weights (optional)
+EVALUATOR_SKILL_MATCH_ENABLED=true
+EVALUATOR_KEYWORD_MATCH_ENABLED=true
+EVALUATOR_EXPERIENCE_MATCH_ENABLED=true
+EVALUATOR_SKILL_MATCH_WEIGHT=1
+EVALUATOR_KEYWORD_MATCH_WEIGHT=0.2
+EVALUATOR_EXPERIENCE_MATCH_WEIGHT=0.2
 
-1. Go to Google Cloud Console
-2. Create a new project
-3. Enable OAuth APIs
-4. Create OAuth credentials
-5. Add this redirect URI:
+### Client
 
-http://localhost:5000/api/auth/google/callback
+1. Copy example file:
 
-6. Copy Client ID and Client Secret
-7. Add them to your `.env` file
+```bash
+cd client
+cp .env.example .env
+```
 
-Server environment variables (create `server/.env` from `server/example.env`):
+2. For local development, keep:
 
-- `MONGO_URI` or `MONGODB_URI`
-- `PORT` (backend default: `5000`)
-- `JWT_SECRET` (required for JWT registration)
-- `JWT_EXPIRES_IN` (optional, default is `7d`)
-
-Example local development values:
-
+- `VITE_API_URL=http://localhost:5000`
 - `JWT_SECRET=skillsphere_dev_jwt_secret_1234567890abcdef`
 - `JWT_EXPIRES_IN=7d`
 - `EMAIL_SERVICE_MODE=console` (Use "smtp" for real emails)
@@ -289,11 +300,31 @@ Example local development values:
 - `EMAIL_USER=your_smtp_username`
 - `EMAIL_PASS=your_smtp_password`
 
+## 🔐 Google OAuth Setup
+
+1. Open Google Cloud Console.
+2. Create/select your project.
+3. Configure OAuth consent screen.
+4. Go to Credentials and create OAuth 2.0 Client ID (Web application).
+5. Add Authorized redirect URI exactly as:
+
+```text
+http://localhost:5000/api/auth/google/callback
 ```
 
+6. Copy Client ID and Client Secret into `server/.env`:
 
-
-
-
-
+```env
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback
+FRONTEND_URL=http://localhost:5174
 ```
+
+7. Restart both backend and frontend after updating env files.
+
+OAuth flow summary:
+
+- Frontend starts OAuth from `/api/auth/google`.
+- Google redirects to backend callback (`GOOGLE_CALLBACK_URL`).
+- Backend creates JWT and redirects to frontend callback (`FRONTEND_URL/auth/callback`).

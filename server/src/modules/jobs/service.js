@@ -10,7 +10,7 @@ import AppError from "../../utils/AppError.js";
 export const createJob = async (jobData, recruiterId) => {
   const job = await JobPosting.create({
     ...jobData,
-    postedBy: recruiterId,
+    recruiter: recruiterId,
   });
   return job;
 };
@@ -22,9 +22,9 @@ export const createJob = async (jobData, recruiterId) => {
  */
 export const getAllJobs = async (query = {}) => {
   // Only return published jobs by default
-  const filters = { status: "published", ...query };
+  const filters = { status: "open", ...query }; // status name changed from "published" to "open" in origin model
   const jobs = await JobPosting.find(filters)
-    .populate("postedBy", "name email company")
+    .populate("recruiter", "name email company")
     .sort("-createdAt");
   return jobs;
 };
@@ -35,7 +35,7 @@ export const getAllJobs = async (query = {}) => {
  * @returns {Promise<Object>} - Job details
  */
 export const getJobById = async (id) => {
-  const job = await JobPosting.findById(id).populate("postedBy", "name email company");
+  const job = await JobPosting.findById(id).populate("recruiter", "name email company");
   
   if (!job) {
     throw new AppError("Job not found", 404);
@@ -59,7 +59,7 @@ export const updateJob = async (id, updateData, recruiterId) => {
   }
   
   // Check if the recruiter owns this job
-  if (job.postedBy.toString() !== recruiterId.toString()) {
+  if (job.recruiter.toString() !== recruiterId.toString()) {
     throw new AppError("You do not have permission to update this job", 403);
   }
   
@@ -85,7 +85,7 @@ export const deleteJob = async (id, recruiterId) => {
   }
   
   // Check if the recruiter owns this job
-  if (job.postedBy.toString() !== recruiterId.toString()) {
+  if (job.recruiter.toString() !== recruiterId.toString()) {
     throw new AppError("You do not have permission to delete this job", 403);
   }
   

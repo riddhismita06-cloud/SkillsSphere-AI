@@ -1,12 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Home, FileText, LayoutDashboard, MessageSquare, LogIn, UserPlus, X, Menu } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { Home, FileText, LayoutDashboard, MessageSquare, LogIn, UserPlus, X, Menu, LogOut, User, ChevronDown, Briefcase } from 'lucide-react';
 import Button from './Button';
+import { logout } from '../../features/auth/authSlice';
 
-const Navbar = ({ isAuthenticated = false, user = null }) => {
+const Navbar = () => {
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+
+  const handleLogout = () => {
+    dispatch(logout());
+    setIsProfileOpen(false);
+    navigate('/login', { replace: true });
+  };
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -25,7 +38,10 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
 
   const navLinks = [
     { name: 'Home', path: '/', icon: <Home size={20} /> },
-    { name: 'Resume Analyzer', path: '/resume-analyzer', icon: <FileText size={20} /> },
+    ...(user?.role === 'recruiter' 
+      ? [{ name: 'Manage Jobs', path: '/recruiter/jobs', icon: <Briefcase size={20} /> }]
+      : [{ name: 'Resume Analyzer', path: '/resume-analyzer', icon: <FileText size={20} /> }]
+    ),
     { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
     { name: 'Mock Interview', path: '/mock-interview', icon: <MessageSquare size={20} /> },
   ];
@@ -66,11 +82,45 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
           ))}
         </div>
 
-        <div className="hidden lg:flex gap-5 items-center">
+        <div className="hidden lg:flex gap-5 items-center relative">
           {isAuthenticated ? (
-            <div className="flex items-center gap-5">
-              <span className="text-sm text-[#9CA3AF]">Hi, {user?.name || 'User'}</span>
-              <Button variant="secondary" size="sm" to="/dashboard">Account</Button>
+            <div className="relative">
+              <button 
+                onClick={() => setIsProfileOpen(!isProfileOpen)}
+                className="flex items-center gap-3 hover:bg-white/[0.05] p-2 rounded-xl transition-colors duration-200"
+              >
+                <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold border border-primary/30">
+                  {user?.name?.charAt(0).toUpperCase() || <User size={18} />}
+                </div>
+                <div className="text-left hidden xl:block">
+                  <p className="text-sm font-medium text-[#F3F4F6]">{user?.name || 'User'}</p>
+                </div>
+                <ChevronDown size={16} className={`text-[#9CA3AF] transition-transform duration-200 ${isProfileOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {isProfileOpen && (
+                <div className="absolute right-0 mt-2 w-56 bg-surface border border-white/[0.08] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] rounded-xl py-2 z-[1002] animate-[slideFadeIn_0.2s_ease_forwards]">
+                  <div className="px-4 py-3 border-b border-white/[0.08] mb-2">
+                    <p className="text-sm font-medium text-[#F3F4F6] truncate">{user?.name || 'User'}</p>
+                    <p className="text-xs text-[#9CA3AF] truncate mt-0.5">{user?.email}</p>
+                  </div>
+                  <Link 
+                    to="/dashboard" 
+                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-[#9CA3AF] hover:text-[#F3F4F6] hover:bg-white/[0.03] transition-colors"
+                    onClick={() => setIsProfileOpen(false)}
+                  >
+                    <LayoutDashboard size={18} />
+                    Dashboard
+                  </Link>
+                  <button 
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-400 hover:text-red-300 hover:bg-red-400/10 transition-colors mt-1 border-t border-white/[0.08] pt-3"
+                  >
+                    <LogOut size={18} />
+                    Logout
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <>
@@ -156,9 +206,23 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
           {/* Drawer Footer */}
           <div className="mt-auto pt-6 border-t border-[#1F2937]">
             {isAuthenticated ? (
-              <Button variant="primary" size="lg" to="/dashboard" className="w-full justify-center">
-                Go to Dashboard
-              </Button>
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-3 px-2 mb-2">
+                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold border border-primary/30">
+                    {user?.name?.charAt(0).toUpperCase() || <User size={20} />}
+                  </div>
+                  <div className="overflow-hidden">
+                    <p className="text-sm font-medium text-[#F3F4F6] truncate">{user?.name || 'User'}</p>
+                    <p className="text-xs text-[#9CA3AF] truncate">{user?.email}</p>
+                  </div>
+                </div>
+                <Button variant="primary" size="lg" to="/dashboard" className="w-full justify-center">
+                  Go to Dashboard
+                </Button>
+                <Button variant="ghost" size="lg" onClick={handleLogout} className="w-full justify-center text-red-400 hover:text-red-300 hover:bg-red-400/10">
+                  <LogOut size={20} /> Logout
+                </Button>
+              </div>
             ) : (
               <div className="flex flex-col gap-3">
                 <Button variant="secondary" size="lg" to="/login" className="w-full justify-center">

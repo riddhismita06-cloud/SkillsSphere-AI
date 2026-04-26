@@ -24,7 +24,7 @@ const DashboardPage = () => {
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,#0f172a,#020617)] p-3 sm:p-5 pt-20 sm:pt-28 text-slate-100">
-      <Navbar isAuthenticated user={user} />
+      <Navbar />
 
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 sm:gap-5 py-6 sm:py-8 px-0 sm:px-2">
         <div className="flex flex-col gap-3 sm:gap-4 sm:flex-row sm:items-center sm:justify-between">

@@ -186,6 +186,26 @@ export const resendOtp = createAsyncThunk(
   },
 );
 
+export const fetchCurrentUser = createAsyncThunk(
+  "auth/fetchCurrentUser",
+  async (_, thunkAPI) => {
+    try {
+      const token = thunkAPI.getState()?.auth?.token;
+
+      if (!token) {
+        return thunkAPI.rejectWithValue("No auth token available");
+      }
+
+      const data = await authService.getCurrentUser(token);
+      return data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        toErrorMessage(error, "Failed to fetch user"),
+      );
+    }
+  },
+);
+
 const storedAuth = readStoredAuth();
 
 const initialState = {
@@ -221,12 +241,12 @@ const authSlice = createSlice({
     },
     setOAuthData: (state, action) => {
       const { token, user, rememberMe = true } = action.payload;
-      
+
       const storage = rememberMe ? window.localStorage : window.sessionStorage;
       storage.setItem(TOKEN_KEY, token);
       storage.setItem(USER_KEY, JSON.stringify(user));
-      
-      state.token = token;                                                                                                                                                        
+
+      state.token = token;
       state.user = user;
       state.isAuthenticated = true;
       state.loading = false;
@@ -307,11 +327,25 @@ const authSlice = createSlice({
       .addCase(resendOtp.rejected, (state, action) => {
         state.resendLoading = false;
         state.error = action.payload;
+      })
+      .addCase(fetchCurrentUser.fulfilled, (state, action) => {
+        state.user = action.payload.user;
+        state.isAuthenticated = true;
+      })
+      .addCase(fetchCurrentUser.rejected, (state, action) => {
+        clearStoredAuth();
+        state.user = null;
+        state.token = null;
+        state.isAuthenticated = false;
       });
   },
 });
 
-export const { clearAuthError, logout, setPendingVerificationEmail,setOAuthData } =
-  authSlice.actions;
+export const {
+  clearAuthError,
+  logout,
+  setPendingVerificationEmail,
+  setOAuthData,
+} = authSlice.actions;
 
 export default authSlice.reducer;
