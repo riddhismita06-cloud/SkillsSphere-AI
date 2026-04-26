@@ -7,6 +7,7 @@ import path from "path";
 import connectDB from "./src/database/db.js";
 import authRoutes from "./src/modules/auth/routes.js";
 import resumeRoutes from "./src/modules/resumes/routes.js";
+import jobRoutes from "./src/modules/jobs/routes.js";
 import globalErrorHandler from "./src/middleware/errorMiddleware.js";
 
 const app = express();
@@ -25,6 +26,7 @@ app.get("/health", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/resume", resumeRoutes);
+app.use("/api/jobs", jobRoutes);
 
 app.use(globalErrorHandler);
 

@@ -116,6 +116,9 @@ SkillSphere-AI/
 - `POST /api/resume/analyze`
 - `GET /api/resume/result/:id`
 - `GET /uploads/:filename`
+- `POST /api/jobs`: create a new job (Recruiter only)
+- `GET /api/jobs`: list all published jobs
+- `GET /api/jobs/:id`: get job details
 
 ### Why this structure works
 
@@ -176,6 +179,16 @@ Implemented:
 - Common Page Layouts: `PageHeader` with support for gradient typography
 - Barrel exports for shared components to simplify module imports
 - Integration of shared states into `ResumeAnalyzerPage`
+
+### Recruiter Job Management Progress
+
+Implemented:
+
+- JobPosting schema with `experienceRequired`, `jobLevel`, and matching-ready fields
+- RBAC-protected Job Creation API for Recruiters
+- Publicly accessible Job Listing and Detail APIs
+- Ownership-based Job Update and Delete APIs
+- Populated recruiter information in job responses
 ```
 
 ## For Open-Source Contributors
