@@ -272,6 +272,13 @@ cp .env.example .env
 - `GOOGLE_CLIENT_ID`
 - `GOOGLE_CLIENT_SECRET`
 
+- `EMAIL_SERVICE_MODE=console` (Use "smtp" for real emails)
+- `EMAIL_HOST=smtp.gmail.com`
+- `EMAIL_PORT=587`
+- `EMAIL_USER=your-email@gmail.com`
+- `EMAIL_PASS=your-app-password`
+- `EMAIL_FROM="SkillsSphere AI" <your-email@gmail.com>`
+
 # Evaluator toggles and weights (optional)
 EVALUATOR_SKILL_MATCH_ENABLED=true
 EVALUATOR_KEYWORD_MATCH_ENABLED=true
@@ -292,13 +299,6 @@ cp .env.example .env
 2. For local development, keep:
 
 - `VITE_API_URL=http://localhost:5000`
-- `JWT_SECRET=skillsphere_dev_jwt_secret_1234567890abcdef`
-- `JWT_EXPIRES_IN=7d`
-- `EMAIL_SERVICE_MODE=console` (Use "smtp" for real emails)
-- `EMAIL_HOST=smtp.mailtrap.io`
-- `EMAIL_PORT=2525`
-- `EMAIL_USER=your_smtp_username`
-- `EMAIL_PASS=your_smtp_password`
 
 ## 🔐 Google OAuth Setup
 
@@ -328,3 +328,24 @@ OAuth flow summary:
 - Frontend starts OAuth from `/api/auth/google`.
 - Google redirects to backend callback (`GOOGLE_CALLBACK_URL`).
 - Backend creates JWT and redirects to frontend callback (`FRONTEND_URL/auth/callback`).
+
+## 📧 Email SMTP Setup (Gmail)
+
+To use real email notifications (OTP verification, password reset) via Gmail, follow these steps:
+
+1. **Enable 2-Step Verification**: Go to your [Google Account Security](https://myaccount.google.com/security) and ensure 2-Step Verification is ON.
+2. **Generate App Password**:
+   - Search for "App Passwords" in your Google Account search bar.
+   - Enter a name (e.g., "SkillsSphere AI").
+   - Click **Create**.
+   - Copy the **16-character code** (e.g., `abcd efgh ijkl mnop`).
+3. **Update `server/.env`**:
+   ```env
+   EMAIL_SERVICE_MODE=smtp
+   EMAIL_HOST=smtp.gmail.com
+   EMAIL_PORT=587
+   EMAIL_USER=your-email@gmail.com
+   EMAIL_PASS=abcd efgh ijkl mnop
+   EMAIL_FROM="SkillsSphere AI" <your-email@gmail.com>
+   ```
+4. **Restart the server** to apply changes.
