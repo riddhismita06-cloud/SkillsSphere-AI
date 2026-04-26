@@ -202,6 +202,7 @@ export const analyzeResume = asyncHandler(async (req, res, next) => {
   const { resumeText, ...resumeFields } = parsedData;
 
   const savedResume = await controllerDependencies.createResume({
+    user: req.user._id,
     ...resumeFields,
     jobSkills,
     jobDescription: trimmedJobDescription || null,
@@ -243,6 +244,11 @@ export const getResumeResult = asyncHandler(async (req, res, next) => {
 
   if (!resume) {
     return next(new AppError("Resume not found", 404));
+  }
+
+  // Ensure the user owns this resume
+  if (resume.user.toString() !== req.user._id.toString()) {
+    return next(new AppError("You do not have permission to view this resume", 403));
   }
 
   res.status(200).json({
