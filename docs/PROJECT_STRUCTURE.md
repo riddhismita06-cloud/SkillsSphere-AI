@@ -83,6 +83,11 @@ Implemented:
 - Evaluator configuration:
   - `src/config/evaluatorConfig.js`
 - Static upload serving via `app.use("/uploads", ...)`
+- Recruiter Job Posting system:
+  - `src/modules/jobs/routes.js`
+  - `src/modules/jobs/controller.js`
+  - `src/modules/jobs/service.js`
+  - `src/database/models/JobPosting.js`
 
 Scaffolded placeholders:
 
@@ -121,6 +126,11 @@ Scaffolded placeholders:
 - `POST /api/resume/analyze`: parse PDF resume, optional skill match, optional keyword relevance (`jobDescription`)
 - `GET /api/resume/result/:id`: placeholder result retrieval endpoint
 - `GET /uploads/:filename`: static file access for uploaded files
+- `POST /api/jobs`: create a new job (Recruiter only)
+- `GET /api/jobs`: list all published jobs
+- `GET /api/jobs/:id`: get job details
+- `PATCH /api/jobs/:id`: update a job (Owner Recruiter only)
+- `DELETE /api/jobs/:id`: delete a job (Owner Recruiter only)
 
 ## Notes
 

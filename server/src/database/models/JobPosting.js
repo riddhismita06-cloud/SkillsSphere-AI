@@ -17,6 +17,16 @@ const jobPostingSchema = new mongoose.Schema(
       minlength: [20, "Job description must be at least 20 characters"],
     },
 
+    requirements: {
+      type: [String],
+      default: [],
+    },
+
+    responsibilities: {
+      type: [String],
+      default: [],
+    },
+
     skills: {
       type: [String],
       required: [true, "At least one skill is required"],
@@ -30,6 +40,19 @@ const jobPostingSchema = new mongoose.Schema(
         skills
           .map((skill) => String(skill).trim().toLowerCase())
           .filter(Boolean),
+    },
+
+    experienceRequired: {
+      type: Number, // Years of experience
+      required: [true, "Experience required is required"],
+      default: 0,
+    },
+
+    jobLevel: {
+      type: String,
+      enum: ["Internship", "Entry Level", "Associate", "Mid-Senior Level", "Director", "Executive"],
+      required: [true, "Job level is required"],
+      default: "Entry Level",
     },
 
     status: {
@@ -92,6 +115,11 @@ const jobPostingSchema = new mongoose.Schema(
         default: false,
       },
       _id: false,
+    },
+
+    keywords: {
+      type: [String],
+      default: [],
     },
   },
   { timestamps: true }

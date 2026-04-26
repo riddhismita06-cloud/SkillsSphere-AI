@@ -126,6 +126,9 @@ SkillSphere-AI/
 - `POST /api/resume/analyze`
 - `GET /api/resume/result/:id`
 - `GET /uploads/:filename`
+- `POST /api/jobs`: create a new job (Recruiter only)
+- `GET /api/jobs`: list all published jobs
+- `GET /api/jobs/:id`: get job details
 
 ### Why this structure works
 
@@ -191,6 +194,16 @@ Implemented:
   - Added JD input section to `ResumeAnalyzerPage` with paste and .txt upload support
   - Integrated `resumeService` with real backend API calls using `FormData`
   - Support for sending `jobDescription` alongside resume file for keyword relevance scoring
+
+### Recruiter Job Management Progress
+
+Implemented:
+
+- JobPosting schema with `experienceRequired`, `jobLevel`, and matching-ready fields
+- RBAC-protected Job Creation API for Recruiters
+- Publicly accessible Job Listing and Detail APIs
+- Ownership-based Job Update and Delete APIs
+- Populated recruiter information in job responses
 ```
 
 ## For Open-Source Contributors
@@ -241,24 +254,6 @@ npm install
 npm run dev
 ```
 
-## 🚀 Running the Project
-
-### Client
-
-```bash
-cd client
-npm install
-npm run dev
-```
-
-### Server
-
-```bash
-cd server
-npm install
-npm run dev
-```
-
 ## 🔐 Environment Variables Setup
 
 ### Server
@@ -285,13 +280,6 @@ EVALUATOR_SKILL_MATCH_WEIGHT=1
 EVALUATOR_KEYWORD_MATCH_WEIGHT=0.2
 EVALUATOR_EXPERIENCE_MATCH_WEIGHT=0.2
 
-## 🔐 Google OAuth Setup
-3. Keep local defaults for development:
-
-- `PORT=5000`
-- `FRONTEND_URL=http://localhost:5174`
-- `GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback`
-
 ### Client
 
 1. Copy example file:
@@ -304,7 +292,6 @@ cp .env.example .env
 2. For local development, keep:
 
 - `VITE_API_URL=http://localhost:5000`
-
 - `JWT_SECRET=skillsphere_dev_jwt_secret_1234567890abcdef`
 - `JWT_EXPIRES_IN=7d`
 - `EMAIL_SERVICE_MODE=console` (Use "smtp" for real emails)
@@ -312,12 +299,7 @@ cp .env.example .env
 - `EMAIL_PORT=2525`
 - `EMAIL_USER=your_smtp_username`
 - `EMAIL_PASS=your_smtp_password`
-- `EVALUATOR_SKILL_MATCH_ENABLED=true`
-- `EVALUATOR_KEYWORD_MATCH_ENABLED=true`
-- `EVALUATOR_EXPERIENCE_MATCH_ENABLED=true`
-- `EVALUATOR_SKILL_MATCH_WEIGHT=1`
-- `EVALUATOR_KEYWORD_MATCH_WEIGHT=0.2`
-- `EVALUATOR_EXPERIENCE_MATCH_WEIGHT=0.2`
+
 ## 🔐 Google OAuth Setup
 
 1. Open Google Cloud Console.
