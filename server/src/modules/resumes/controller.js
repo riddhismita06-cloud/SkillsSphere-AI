@@ -11,11 +11,14 @@ import {
 } from "./evaluatorAdapters.js";
 import { runPipeline } from "../../../../ai-ml/pipeline/runPipeline.js";
 import { getEvaluatorConfig } from "../../config/evaluatorConfig.js";
+import * as resumeService from "./service.js";
+
 
 const defaultDependencies = {
   parseResume,
-  createResume: (payload) => Resume.create(payload),
+  upsertResume: (userId, payload) => resumeService.upsertResume(userId, payload),
 };
+
 
 let controllerDependencies = { ...defaultDependencies };
 
@@ -201,8 +204,7 @@ export const analyzeResume = asyncHandler(async (req, res, next) => {
 
   const { resumeText, ...resumeFields } = parsedData;
 
-  const savedResume = await controllerDependencies.createResume({
-    user: req.user._id,
+  const savedResume = await controllerDependencies.upsertResume(req.user._id, {
     ...resumeFields,
     jobSkills,
     jobDescription: trimmedJobDescription || null,
@@ -213,6 +215,7 @@ export const analyzeResume = asyncHandler(async (req, res, next) => {
     aggregatedScore: pipelineResult.score,
     file: fileData,
   });
+
 
   const successParts = [];
   if (Object.keys(skillMatch).length > 0) successParts.push("skill match");
@@ -240,7 +243,8 @@ export const analyzeResume = asyncHandler(async (req, res, next) => {
 
 export const getResumeResult = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
-  const resume = await Resume.findById(id).lean();
+  const resume = await Resume.findById(id).select("-resumeText").lean();
+
 
   if (!resume) {
     return next(new AppError("Resume not found", 404));
@@ -257,4 +261,19 @@ export const getResumeResult = asyncHandler(async (req, res, next) => {
     data: resume,
   });
 });
+
+export const getLatestResume = asyncHandler(async (req, res, next) => {
+  const resume = await resumeService.getLatestResume(req.user._id);
+
+  if (!resume) {
+    return next(new AppError("No resume found for this user", 404));
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Latest resume fetched successfully",
+    data: resume,
+  });
+});
+
 
