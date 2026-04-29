@@ -44,8 +44,10 @@ const createApp = () => {
         size: 12 * 1024,
         mimetype: "application/pdf",
       };
+      req.user = { _id: "64f1f77bcf86cd7994390000" };
       next();
     },
+
     analyzeResume,
   );
   app.use(globalErrorHandler);
@@ -79,13 +81,15 @@ const stubControllerDependencies = () => {
 
   setResumeControllerDependencies({
     parseResume: async () => parsedResume,
-    createResume: async (payload) => {
-      savedPayloads.push(payload);
+    upsertResume: async (userId, payload) => {
+      savedPayloads.push({ ...payload, user: userId });
       return {
         _id: "64f1f77bcf86cd7994390111",
         ...payload,
+        user: userId,
       };
     },
+
   });
 
   return savedPayloads;

@@ -139,8 +139,10 @@ SkillSphere-AI/
 - `POST /api/auth/logout`
 - `GET /api/auth/me`
 - `POST /api/resume/upload`
-- `POST /api/resume/analyze`
+- `POST /api/resume/analyze` (v2: uses latest-only upsert flow)
+- `GET /api/resume/me/latest`: fetch user's latest parsed resume (no raw resumeText)
 - `GET /api/resume/result/:id`
+
 - `GET /uploads/:filename`
 - `POST /api/jobs`: create a new job (Recruiter only)
 - `GET /api/jobs`: list all published jobs
@@ -178,6 +180,10 @@ Implemented:
 - Weighted experience scoring with explainable feedback (`score`, `weight`, `candidateExperience`, `requiredExperience`, `experienceGap`)
 - Unit tests for experience evaluator at `ai-ml/evaluators/__tests__/experienceEvaluator.test.js`
 - `/api/resume/analyze` now includes `experienceMatch` in response and MongoDB resume records
+- **Latest-Only Resume Flow**: Implemented singleton resume pattern where each user keeps only one stored parsed record, with new uploads replacing the previous one
+- **Resume Service Layer**: Introduced `service.js` in the resumes module to manage upsert and ownership logic
+- **Data Privacy**: Enforced exclusion of `resumeText` from all resume API responses
+
 
 ### Authentication & Security Progress
 

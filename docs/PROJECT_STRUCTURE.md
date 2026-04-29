@@ -78,7 +78,9 @@ Implemented:
 - Resume upload and analysis flow:
   - `src/modules/resumes/routes.js`
   - `src/modules/resumes/controller.js`
+  - `src/modules/resumes/service.js` (New: Singleton resume logic and ownership enforcement)
   - `src/middleware/uploadResume.js`
+
   - `src/utils/parseResume.js`
 - Evaluator configuration:
   - `src/config/evaluatorConfig.js`
@@ -123,8 +125,10 @@ Scaffolded placeholders:
 - `POST /api/auth/verify-email`: verify user account via OTP
 - `POST /api/auth/resend-otp`: resend email verification OTP
 - `POST /api/resume/upload`: upload resume file
-- `POST /api/resume/analyze`: parse PDF resume, optional skill match, optional keyword relevance (`jobDescription`)
-- `GET /api/resume/result/:id`: placeholder result retrieval endpoint
+- `POST /api/resume/analyze`: parse PDF resume, latest-only upsert flow, optional skill/keyword/experience match
+- `GET /api/resume/me/latest`: fetch user's latest parsed resume (no raw resumeText)
+- `GET /api/resume/result/:id`: fetch stored resume record by ID
+
 - `GET /uploads/:filename`: static file access for uploaded files
 - `POST /api/jobs`: create a new job (Recruiter only)
 - `GET /api/jobs`: list all published jobs
