@@ -4,13 +4,7 @@ import { cleanJDText } from "../../utils/cleanText.js";
 import Resume from "../../database/models/Resume.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 import AppError from "../../utils/AppError.js";
-import {
-  experienceMatchEvaluator,
-  keywordMatchEvaluator,
-  skillMatchEvaluator,
-} from "./evaluatorAdapters.js";
 import { runPipeline } from "../../../../ai-ml/pipeline/runPipeline.js";
-import { getEvaluatorConfig } from "../../config/evaluatorConfig.js";
 import * as resumeService from "./service.js";
 
 
@@ -153,46 +147,11 @@ export const analyzeResume = asyncHandler(async (req, res, next) => {
   const jobDescription = typeof req.body?.jobDescription === "string" ? req.body.jobDescription : "";
   const trimmedJobDescription = cleanJDText(jobDescription);
 
-  const candidateExperienceText =
-    Array.isArray(parsedData.experience) && parsedData.experience.length > 0
-      ? parsedData.experience.join(" ")
-      : parsedData.resumeText || "";
-
-  const evaluatorConfig = getEvaluatorConfig();
-  const { toggles, weights } = evaluatorConfig;
-
-  const evaluators = [];
-  if (toggles.skillMatch && parsedData.skills?.length && jobSkills.length) {
-    evaluators.push(skillMatchEvaluator);
-  }
-  if (toggles.keywordMatch && trimmedJobDescription && parsedData.resumeText) {
-    evaluators.push(keywordMatchEvaluator);
-  }
-  if (toggles.experienceMatch && trimmedJobDescription) {
-    evaluators.push(experienceMatchEvaluator);
-  }
-
-  const pipelineResult =
-    evaluators.length === 0
-      ? { score: 0, evaluators: [], breakdown: {} }
-      : await runPipeline({
-          evaluators,
-          context: {
-            parsedResume: parsedData,
-            resumeSkills: parsedData.skills || [],
-            jobSkills,
-            resumeText: parsedData.resumeText || "",
-            jobDescription: trimmedJobDescription,
-            candidateExperienceText,
-            skillWeight: weights.skillMatch,
-            keywordWeight: weights.keywordMatch,
-            experienceWeight: weights.experienceMatch,
-          },
-        });
-
-  const skillMatch = toLegacySkillMatch(pipelineResult);
-  const keywordMatch = toLegacyKeywordMatch(pipelineResult);
-  const experienceMatch = toLegacyExperienceMatch(pipelineResult);
+  const pipelineResult = await runPipeline({
+    resumeData: parsedData,
+    jobSkills,
+    jobDescription: trimmedJobDescription,
+  });
 
   const fileData = {
     originalName: req.file.originalname,
@@ -208,19 +167,18 @@ export const analyzeResume = asyncHandler(async (req, res, next) => {
     ...resumeFields,
     jobSkills,
     jobDescription: trimmedJobDescription || null,
-    skillMatch,
-    keywordMatch,
-    experienceMatch,
-    evaluatorBreakdown: pipelineResult.evaluators,
+    skillMatch: pipelineResult.skillMatch,
+    keywordMatch: pipelineResult.keywordMatch,
+    experienceMatch: pipelineResult.experienceMatch,
+    evaluatorBreakdown: pipelineResult.breakdown,
     aggregatedScore: pipelineResult.score,
     file: fileData,
   });
 
-
   const successParts = [];
-  if (Object.keys(skillMatch).length > 0) successParts.push("skill match");
-  if (Object.keys(keywordMatch).length > 0) successParts.push("keyword relevance");
-  if (Object.keys(experienceMatch).length > 0) successParts.push("experience fit");
+  if (Object.keys(pipelineResult.skillMatch || {}).length > 0) successParts.push("skill match");
+  if (Object.keys(pipelineResult.keywordMatch || {}).length > 0) successParts.push("keyword relevance");
+  if (Object.keys(pipelineResult.experienceMatch || {}).length > 0) successParts.push("experience fit");
 
   const evalSummary =
     successParts.length > 0
@@ -232,12 +190,8 @@ export const analyzeResume = asyncHandler(async (req, res, next) => {
     message: invalidJson ? "Resume parsed and saved, but jobSkills JSON format is invalid" : evalSummary,
     resumeId: savedResume._id,
     data: resumeFields,
-    skillMatch,
-    keywordMatch,
-    experienceMatch,
+    ...pipelineResult,
     file: fileData,
-    evaluatorBreakdown: pipelineResult.evaluators,
-    overallScore: pipelineResult.score,
   });
 });
 

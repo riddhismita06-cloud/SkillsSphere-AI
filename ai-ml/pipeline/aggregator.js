@@ -1,28 +1,24 @@
-import { validateEvaluatorResult } from "./evaluatorContract.js";
+export function aggregateResults(evaluations) {
+  let totalWeight = 0;
+  let weightedScoreSum = 0;
+  const breakdown = {};
 
-const round = (value) => Math.round(value * 100) / 100;
+  evaluations.forEach((evalResult) => {
+    if (!evalResult || typeof evalResult.score !== "number") return;
 
-const clampScore = (value) => Math.min(Math.max(value, 0), 100);
+    const weight = typeof evalResult.weight === "number" ? evalResult.weight : 0;
 
-export const aggregateEvaluatorResults = (results = []) => {
-  const evaluators = results.map(validateEvaluatorResult);
+    totalWeight += weight;
+    weightedScoreSum += evalResult.score * weight;
 
-  const totalRawWeightedScore = evaluators.reduce((sum, item) => sum + item.weightedScore, 0);
-  const totalWeight = evaluators.reduce((sum, item) => sum + item.weight, 0);
-  
-  const normalizedScore = totalWeight > 0 
-    ? round(clampScore(totalRawWeightedScore / totalWeight)) 
-    : 0;
+    breakdown[evalResult.name] = evalResult.score;
+  });
 
-  const breakdown = evaluators.reduce((acc, item) => {
-    acc[item.key] = item;
-    return acc;
-  }, {});
+  const finalScore =
+    totalWeight > 0 ? Number((weightedScoreSum / totalWeight).toFixed(2)) : 0;
 
   return {
-    score: normalizedScore,
+    score: finalScore,
     breakdown,
-    evaluators,
   };
-};
-
+}
