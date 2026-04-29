@@ -3,7 +3,22 @@ import PropTypes from "prop-types";
 import Button from "../../../shared/components/Button";
 
 const JobPostingCard = ({ job, onViewStats, onEdit }) => {
-  const { title, location, level, createdAt, status } = job;
+  const { title, location, createdAt, status, salary } = job;
+
+  // Format location from nested object
+  const formatLocation = (loc) => {
+    if (!loc) return "Location not specified";
+    const parts = [loc.city, loc.state, loc.country].filter(Boolean);
+    return parts.join(", ") + (loc.remote ? " (Remote)" : "");
+  };
+
+  // Format salary for display
+  const formatSalary = (sal) => {
+    if (!sal) return "Salary not specified";
+    const { min, max, currency, isNegotiable } = sal;
+    if (isNegotiable) return `Negotiable (${currency})`;
+    return `${min?.toLocaleString?.() || min} - ${max?.toLocaleString?.() || max} ${currency}`;
+  };
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -19,14 +34,16 @@ const JobPostingCard = ({ job, onViewStats, onEdit }) => {
         <div>
           <h3 className="text-lg font-semibold text-slate-100">{title}</h3>
           <div className="flex items-center gap-3 mt-1 text-sm text-slate-400">
-            <span>{location}</span>
+            <span>{formatLocation(location)}</span>
             <span className="w-1 h-1 bg-slate-600 rounded-full"></span>
-            <span>{level}</span>
+            <span>{formatSalary(salary)}</span>
           </div>
         </div>
         <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
-          status === "active" 
-            ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" 
+          status === "open"
+            ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+            : status === "draft"
+            ? "bg-yellow-500/20 text-yellow-300 border border-yellow-500/30"
             : "bg-slate-800 text-slate-400 border border-slate-700"
         }`}>
           {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -52,10 +69,21 @@ const JobPostingCard = ({ job, onViewStats, onEdit }) => {
 
 JobPostingCard.propTypes = {
   job: PropTypes.shape({
-    id: PropTypes.string.isRequired,
+    _id: PropTypes.string,
+    id: PropTypes.string,
     title: PropTypes.string.isRequired,
-    location: PropTypes.string.isRequired,
-    level: PropTypes.string.isRequired,
+    location: PropTypes.shape({
+      city: PropTypes.string,
+      state: PropTypes.string,
+      country: PropTypes.string,
+      remote: PropTypes.bool,
+    }),
+    salary: PropTypes.shape({
+      min: PropTypes.number,
+      max: PropTypes.number,
+      currency: PropTypes.string,
+      isNegotiable: PropTypes.bool,
+    }),
     createdAt: PropTypes.string.isRequired,
     status: PropTypes.string.isRequired,
   }).isRequired,

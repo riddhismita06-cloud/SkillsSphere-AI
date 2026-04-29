@@ -28,7 +28,7 @@ app.get("/health", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/resume", resumeRoutes);
-app.use("/api/jobs", jobRoutes);
+app.use("/api/recruiter/jobs", jobRoutes);
 
 app.use(globalErrorHandler);
 

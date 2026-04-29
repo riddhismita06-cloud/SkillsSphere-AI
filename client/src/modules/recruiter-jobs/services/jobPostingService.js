@@ -1,53 +1,108 @@
-import { apiRequest } from "../../../services/apiClient";
+import { apiRequest, normalizeApiError } from "../../../services/apiClient";
 
 /**
  * Service for managing recruiter job postings.
- * Logic is structured to use the apiRequest helper for backend integration.
+ * All API calls use the shared apiRequest helper for consistent
+ * auth, headers, and error handling.
  */
 
-export const getRecruiterJobs = async (token) => {
-  // Real API implementation (uncomment when backend is ready)
-  // return apiRequest("/recruiter/jobs", { token });
-  
-  // Current mock implementation for development/demo
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const storedJobs = localStorage.getItem("recruiter_jobs");
-      resolve({
-        success: true,
-        jobs: storedJobs ? JSON.parse(storedJobs) : []
-      });
-    }, 800);
-  });
+/**
+ * Normalize service errors for consistent frontend handling
+ */
+const handleServiceError = (error) => {
+  const normalized = normalizeApiError(error);
+
+  // Map status codes to user-friendly messages
+  if (normalized.status === 401 || normalized.status === 403) {
+    return {
+      ...normalized,
+      message: "You are not authorized to perform this action. Please log in again.",
+    };
+  }
+
+  if (normalized.status === 422 || normalized.status === 400) {
+    // Validation errors - preserve field-level errors
+    return {
+      ...normalized,
+      message: normalized.message || "Please check your input and try again.",
+    };
+  }
+
+  if (normalized.status === 0 || normalized.status >= 500) {
+    return {
+      ...normalized,
+      message: "Unable to connect to the server. Please try again later.",
+    };
+  }
+
+  return normalized;
 };
 
-export const createJobPosting = async (jobData, token) => {
-  // Real API implementation (uncomment when backend is ready)
-  /*
-  return apiRequest("/recruiter/jobs", {
-    method: "POST",
-    body: jobData,
-    token
-  });
-  */
+/**
+ * Fetch all job postings for the authenticated recruiter
+ * @param {string} token - Auth bearer token
+ * @returns {Promise<{success: boolean, jobs: Array}>}
+ */
+export const getRecruiterJobs = async (token) => {
+  try {
+    const response = await apiRequest("/api/recruiter/jobs", { token });
+    return {
+      success: true,
+      jobs: response.jobs || response.data || [],
+    };
+  } catch (error) {
+    const normalizedError = handleServiceError(error);
+    throw normalizedError;
+  }
+};
 
-  // Current mock implementation using localStorage for testing
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const storedJobs = JSON.parse(localStorage.getItem("recruiter_jobs") || "[]");
-      const newJob = {
-        id: `job_${Date.now()}`,
-        ...jobData,
-        createdAt: new Date().toISOString(),
-        status: "active"
-      };
-      
-      localStorage.setItem("recruiter_jobs", JSON.stringify([newJob, ...storedJobs]));
-      
-      resolve({
-        success: true,
-        job: newJob
-      });
-    }, 1000);
-  });
+/**
+ * Create a new job posting
+ * @param {Object} jobData - Job posting payload
+ * @param {string} token - Auth bearer token
+ * @returns {Promise<{success: boolean, job: Object}>}
+ */
+export const createJobPosting = async (jobData, token) => {
+  try {
+    // Transform skills from comma-separated string to array if needed
+    const payload = {
+      ...jobData,
+      skills: Array.isArray(jobData.skills)
+        ? jobData.skills
+        : jobData.skills.split(",").map((s) => s.trim()).filter(Boolean),
+    };
+
+    const response = await apiRequest("/api/recruiter/jobs", {
+      method: "POST",
+      body: payload,
+      token,
+    });
+
+    return {
+      success: true,
+      job: response.job || response.data,
+    };
+  } catch (error) {
+    const normalizedError = handleServiceError(error);
+    throw normalizedError;
+  }
+};
+
+/**
+ * Get a single job posting by ID
+ * @param {string} id - Job posting ID
+ * @param {string} token - Auth bearer token
+ * @returns {Promise<{success: boolean, job: Object}>}
+ */
+export const getJobPostingById = async (id, token) => {
+  try {
+    const response = await apiRequest(`/api/recruiter/jobs/${id}`, { token });
+    return {
+      success: true,
+      job: response.job || response.data,
+    };
+  } catch (error) {
+    const normalizedError = handleServiceError(error);
+    throw normalizedError;
+  }
 };

@@ -1,74 +1,105 @@
-import * as jobService from "./service.js";
+import JobPosting from "../../database/models/JobPosting.js";
+import AppError from "../../utils/AppError.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 
 /**
- * @desc Create a new job posting
- * @route POST /api/jobs
- * @access Private (Recruiter)
+ * @desc    Create a new job posting
+ * @route   POST /api/recruiter/jobs
+ * @access  Private (Recruiters only)
  */
-export const createJob = asyncHandler(async (req, res) => {
-  const job = await jobService.createJob(req.body, req.user._id);
-  
+export const createJobPosting = asyncHandler(async (req, res) => {
+  const {
+    title,
+    description,
+    skills,
+    status,
+    location,
+    salary,
+  } = req.body;
+
+  // Validate required fields with detailed errors
+  const validationErrors = {};
+  if (!title) validationErrors.title = "Job title is required";
+  if (!description) validationErrors.description = "Job description is required";
+  if (!skills || (Array.isArray(skills) && skills.length === 0)) {
+    validationErrors.skills = "At least one skill is required";
+  }
+  if (!location) {
+    validationErrors.location = "Location is required";
+  } else {
+    if (!location.city) validationErrors["location.city"] = "City is required";
+    if (!location.state) validationErrors["location.state"] = "State is required";
+    if (!location.country) validationErrors["location.country"] = "Country is required";
+  }
+  if (!salary) {
+    validationErrors.salary = "Salary information is required";
+  } else {
+    if (salary.min === undefined || salary.min === null) {
+      validationErrors["salary.min"] = "Minimum salary is required";
+    }
+    if (salary.max === undefined || salary.max === null) {
+      validationErrors["salary.max"] = "Maximum salary is required";
+    }
+    if (salary.min !== undefined && salary.max !== undefined && salary.min > salary.max) {
+      validationErrors["salary.max"] = "Maximum salary must be greater than or equal to minimum";
+    }
+  }
+
+  if (Object.keys(validationErrors).length > 0) {
+    const error = new AppError("Please provide all required fields", 400);
+    error.errors = validationErrors;
+    throw error;
+  }
+
+  // Create job posting with recruiter from authenticated user
+  const jobPosting = await JobPosting.create({
+    title,
+    description,
+    skills,
+    status: status || "draft",
+    location,
+    salary,
+    recruiter: req.user._id,
+  });
+
   res.status(201).json({
-    status: "success",
-    data: { job },
+    success: true,
+    job: jobPosting,
   });
 });
 
 /**
- * @desc Get all jobs
- * @route GET /api/jobs
- * @access Public
+ * @desc    Get all job postings for the authenticated recruiter
+ * @route   GET /api/recruiter/jobs
+ * @access  Private (Recruiters only)
  */
-export const getAllJobs = asyncHandler(async (req, res) => {
-  const jobs = await jobService.getAllJobs(req.query);
-  
+export const getRecruiterJobs = asyncHandler(async (req, res) => {
+  const jobs = await JobPosting.find({ recruiter: req.user._id })
+    .sort({ createdAt: -1 });
+
   res.status(200).json({
-    status: "success",
-    results: jobs.length,
-    data: { jobs },
+    success: true,
+    jobs,
   });
 });
 
 /**
- * @desc Get job by ID
- * @route GET /api/jobs/:id
- * @access Public
+ * @desc    Get a single job posting by ID
+ * @route   GET /api/recruiter/jobs/:id
+ * @access  Private (Recruiters only)
  */
-export const getJobById = asyncHandler(async (req, res) => {
-  const job = await jobService.getJobById(req.params.id);
-  
-  res.status(200).json({
-    status: "success",
-    data: { job },
+export const getJobPostingById = asyncHandler(async (req, res) => {
+  const job = await JobPosting.findOne({
+    _id: req.params.id,
+    recruiter: req.user._id,
   });
-});
 
-/**
- * @desc Update job
- * @route PATCH /api/jobs/:id
- * @access Private (Recruiter)
- */
-export const updateJob = asyncHandler(async (req, res) => {
-  const job = await jobService.updateJob(req.params.id, req.body, req.user._id);
-  
-  res.status(200).json({
-    status: "success",
-    data: { job },
-  });
-});
+  if (!job) {
+    throw new AppError("Job posting not found", 404);
+  }
 
-/**
- * @desc Delete job
- * @route DELETE /api/jobs/:id
- * @access Private (Recruiter)
- */
-export const deleteJob = asyncHandler(async (req, res) => {
-  await jobService.deleteJob(req.params.id, req.user._id);
-  
   res.status(200).json({
-    status: "success",
-    message: "Job deleted successfully",
-    data: null,
+    success: true,
+    job,
   });
 });

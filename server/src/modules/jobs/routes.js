@@ -1,19 +1,24 @@
 import express from "express";
-import * as jobController from "./controller.js";
 import { protect, authorizeRoles } from "../../middleware/authMiddleware.js";
+import {
+  createJobPosting,
+  getRecruiterJobs,
+  getJobPostingById,
+} from "./controller.js";
 
 const router = express.Router();
 
-// Public routes
-router.get("/", jobController.getAllJobs);
-router.get("/:id", jobController.getJobById);
-
-// Protected routes (Logged in users only)
+// Protect all routes and restrict to recruiters
 router.use(protect);
+router.use(authorizeRoles("recruiter"));
 
-// Recruiter only routes
-router.post("/", authorizeRoles("recruiter"), jobController.createJob);
-router.patch("/:id", authorizeRoles("recruiter"), jobController.updateJob);
-router.delete("/:id", authorizeRoles("recruiter"), jobController.deleteJob);
+router
+  .route("/")
+  .get(getRecruiterJobs)
+  .post(createJobPosting);
+
+router
+  .route("/:id")
+  .get(getJobPostingById);
 
 export default router;

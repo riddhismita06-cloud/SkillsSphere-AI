@@ -4,11 +4,12 @@ const getApiBaseUrl = () => {
 };
 
 export class ApiError extends Error {
-  constructor(message, status, data) {
+  constructor(message, status, data, errors = {}) {
     super(message);
     this.name = "ApiError";
     this.status = status;
     this.data = data;
+    this.errors = errors;
   }
 }
 
@@ -21,6 +22,34 @@ const parseResponseBody = async (response) => {
 
   const text = await response.text();
   return text ? { message: text } : {};
+};
+
+/**
+ * Normalizes API errors into a frontend-friendly shape
+ */
+export const normalizeApiError = (error) => {
+  if (error instanceof ApiError) {
+    return {
+      message: error.message,
+      status: error.status,
+      errors: error.errors || {},
+    };
+  }
+
+  // Network or unexpected errors
+  if (error.name === "TypeError" && error.message.includes("fetch")) {
+    return {
+      message: "Unable to connect. Please check your internet connection and try again.",
+      status: 0,
+      errors: {},
+    };
+  }
+
+  return {
+    message: error.message || "Something went wrong. Please try again.",
+    status: error.status || 500,
+    errors: {},
+  };
 };
 
 export const apiRequest = async (
@@ -54,11 +83,9 @@ export const apiRequest = async (
   const data = await parseResponseBody(response);
 
   if (!response.ok || data?.success === false) {
-    throw new ApiError(
-      data?.message || "Something went wrong. Please try again.",
-      response.status,
-      data,
-    );
+    const message = data?.message || "Something went wrong. Please try again.";
+    const errors = data?.errors || data?.details || {};
+    throw new ApiError(message, response.status, data, errors);
   }
 
   return data;

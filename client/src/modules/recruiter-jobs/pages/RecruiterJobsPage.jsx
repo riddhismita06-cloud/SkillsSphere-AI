@@ -19,29 +19,60 @@ const RecruiterJobsPage = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
+  const fetchJobs = async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await getRecruiterJobs(token);
+      setJobs(response.jobs || []);
+    } catch (err) {
+      setError(err.message || "Failed to load job postings. Please try again later.");
+      console.error("Failed to fetch jobs:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchJobs = async () => {
+    let ignore = false;
+
+    async function loadJobs() {
+      setLoading(true);
+      setError("");
+
       try {
-        setLoading(true);
         const response = await getRecruiterJobs(token);
-        if (response.success) {
-          setJobs(response.jobs);
+        if (!ignore) {
+          setJobs(response.jobs || []);
         }
       } catch (err) {
-        setError("Failed to load job postings. Please try again later.");
-        console.error(err);
+        if (!ignore) {
+          setError(err.message || "Failed to load job postings. Please try again later.");
+        }
+        console.error("Failed to fetch jobs:", err);
       } finally {
-        setLoading(false);
+        if (!ignore) {
+          setLoading(false);
+        }
       }
-    };
+    }
 
-    fetchJobs();
+    loadJobs();
+    return () => {
+      ignore = true;
+    };
   }, [token]);
 
-  const filteredJobs = jobs.filter((job) =>
-    job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    job.location.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredJobs = jobs.filter((job) => {
+    const locationString = job.location
+      ? `${job.location.city}, ${job.location.state}, ${job.location.country}`
+      : "";
+    return (
+      job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      locationString.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
 
   const handleEditJob = (job) => {
     // navigate(`/recruiter/jobs/edit/${job.id}`);
@@ -86,7 +117,7 @@ const RecruiterJobsPage = () => {
             <LoadingState message="Fetching your job postings..." />
           </div>
         ) : error ? (
-          <ErrorState message={error} onRetry={() => window.location.reload()} />
+          <ErrorState message={error} onRetry={fetchJobs} />
         ) : filteredJobs.length === 0 ? (
           <EmptyState
             icon={<Briefcase size={48} className="text-slate-600" />}
@@ -104,7 +135,7 @@ const RecruiterJobsPage = () => {
           <div className="grid grid-cols-1 gap-4">
             {filteredJobs.map((job) => (
               <JobPostingCard
-                key={job.id}
+                key={job._id || job.id}
                 job={job}
                 onEdit={handleEditJob}
                 onViewStats={handleViewRecommendations}
