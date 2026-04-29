@@ -29,7 +29,7 @@ export const createJobPosting = asyncHandler(async (req, res) => {
   } else {
     if (!location.city) validationErrors["location.city"] = "City is required";
     if (!location.state) validationErrors["location.state"] = "State is required";
-    if (!location.country) validationErrors["location.country"] = "Country is required";
+    // Country is optional here as it has a default value in the Mongoose model
   }
   if (!salary) {
     validationErrors.salary = "Salary information is required";
