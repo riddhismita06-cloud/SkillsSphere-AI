@@ -7,11 +7,11 @@ import Resume from "../../database/models/Resume.js";
  * 
  * @param {string} userId - The ID of the user
  * @param {Object} resumeData - The parsed resume data to save
+ * @param {boolean} includeText - Whether to include protected fields in the return (default: false)
  * @returns {Promise<Object>} The saved resume document
  */
-export const upsertResume = async (userId, resumeData) => {
-  // Use findOneAndUpdate with upsert: true to ensure only one record per user
-  return await Resume.findOneAndUpdate(
+export const upsertResume = async (userId, resumeData, includeText = false) => {
+  const query = Resume.findOneAndUpdate(
     { user: userId },
     { 
       ...resumeData, 
@@ -23,6 +23,12 @@ export const upsertResume = async (userId, resumeData) => {
       runValidators: true 
     }
   );
+
+  if (includeText) {
+    query.select("+resumeText");
+  }
+
+  return await query;
 };
 
 /**
@@ -30,10 +36,17 @@ export const upsertResume = async (userId, resumeData) => {
  * Enforces ownership by filtering by userId and excludes raw resumeText.
  * 
  * @param {string} userId - The ID of the user
+ * @param {boolean} includeText - Whether to include the raw resume text (default: false)
  * @returns {Promise<Object|null>} The resume document or null if not found
  */
-export const getLatestResume = async (userId) => {
-  return await Resume.findOne({ user: userId })
-    .select("-resumeText") // Ensure raw resumeText is excluded if it exists
-    .lean();
+export const getLatestResume = async (userId, includeText = false) => {
+  const query = Resume.findOne({ user: userId });
+  
+  if (!includeText) {
+    query.select("-resumeText");
+  } else {
+    query.select("+resumeText"); // Explicitly include if it was marked as select: false
+  }
+
+  return await query.lean();
 };

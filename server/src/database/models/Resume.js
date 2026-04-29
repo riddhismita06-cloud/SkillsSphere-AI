@@ -59,6 +59,11 @@ const resumeSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    resumeText: {
+      type: String,
+      default: null,
+      select: false, // Don't include in queries by default for privacy
+    },
     jobSkills: {
       type: [String],
       default: [],

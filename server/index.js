@@ -8,6 +8,7 @@ import connectDB from "./src/database/db.js";
 import authRoutes from "./src/modules/auth/routes.js";
 import resumeRoutes from "./src/modules/resumes/routes.js";
 import jobRoutes from "./src/modules/jobs/routes.js";
+import matchingRoutes from "./src/modules/matching/routes.js";
 import globalErrorHandler from "./src/middleware/errorMiddleware.js";
 import { logEvaluatorConfig } from "./src/config/evaluatorConfig.js";
 
@@ -29,6 +30,7 @@ app.get("/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/resume", resumeRoutes);
 app.use("/api/recruiter/jobs", jobRoutes);
+app.use("/api/matching", matchingRoutes);
 
 app.use(globalErrorHandler);
 
