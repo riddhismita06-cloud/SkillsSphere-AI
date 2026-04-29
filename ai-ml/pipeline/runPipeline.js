@@ -5,41 +5,38 @@ import { experienceEvaluator } from "../evaluators/experienceEvaluator.js";
 
 export async function runPipeline({
   resumeData,
-  jobSkills,
-  jobDescription,
+  jobSkills = [],
+  jobDescription = "",
 }) {
   const evaluations = [];
 
-  // Skill Evaluator
+  // 🟢 Skill Match
   const skillMatch = skillEvaluator({
     resumeSkills: resumeData.skills || [],
-    jobSkills: jobSkills || [],
+    jobSkills,
   });
+  evaluations.push({ ...skillMatch, name: "skillMatch" });
 
-  evaluations.push({ ...skillMatch, name: "skills" });
-
-  // Keyword Evaluator
+  // 🟡 Keyword Match
   const keywordMatch = keywordEvaluator({
     resumeText: resumeData.resumeText || "",
-    jobDescription: jobDescription || "",
+    jobDescription,
   });
+  evaluations.push({ ...keywordMatch, name: "keywordMatch" });
 
-  evaluations.push({ ...keywordMatch, name: "keywords" });
-
-  // Experience Evaluator
+  // 🔵 Experience Match
   const experienceMatch = experienceEvaluator({
     candidateExperienceText: (resumeData.experience || []).join(" "),
-    jobDescription: jobDescription || "",
+    jobDescription,
   });
+  evaluations.push({ ...experienceMatch, name: "experienceMatch" });
 
-  evaluations.push({ ...experienceMatch, name: "experience" });
-
-  // Aggregate
-  const aggregated = aggregateResults(evaluations);
+  // 🧠 Aggregate
+  const { score, breakdown } = aggregateResults(evaluations);
 
   return {
-    score: aggregated.score,
-    breakdown: aggregated.breakdown,
+    score,
+    breakdown,
     skillMatch,
     keywordMatch,
     experienceMatch,
