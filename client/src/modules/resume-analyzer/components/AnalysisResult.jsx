@@ -12,8 +12,8 @@ import Button from "../../../shared/landing/Button";
 
 const AnalysisResult = ({ result, file, onReset }) => {
   // Support both legacy mock structure and new backend structure
-  const score = result.overallScore ?? result.score ?? 0;
-  
+  const score = result?.score || 0;
+
   const suggestions = result.suggestions ?? [
     ...(result.skillMatch?.feedback || []),
     ...(result.keywordMatch?.feedback || []),

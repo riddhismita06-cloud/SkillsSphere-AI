@@ -37,6 +37,11 @@ const STOP_WORDS = new Set([
   "hiring",
   "hire",
   "hires",
+  "good",
+  "such",
+  "responsibilities",
+  "understanding",
+  "knowledge",
 ]);
 
 const normalizeText = (text = "") =>
@@ -68,7 +73,7 @@ const extractKeywords = (text = "") => {
       normalizedText
         .split(" ")
         .map((word) => stripEdgeNonWordChars(word.trim()))
-        .filter((word) => word.length > 2 && !STOP_WORDS.has(word)),
+        .filter((word) => word.length > 3 && !STOP_WORDS.has(word)),
     ),
   ];
 };

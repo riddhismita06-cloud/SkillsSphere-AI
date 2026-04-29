@@ -1,44 +1,47 @@
-import { aggregateEvaluatorResults } from "./aggregator.js";
-import { validateEvaluatorResult } from "./evaluatorContract.js";
+import { aggregateResults } from "./aggregator.js";
+import { skillEvaluator } from "../evaluators/skillEvaluator.js";
+import { keywordEvaluator } from "../evaluators/keywordEvaluator.js";
+import { experienceEvaluator } from "../evaluators/experienceEvaluator.js";
 
-const formatValidationIssues = (error) => {
-  if (!Array.isArray(error?.issues) || error.issues.length === 0) {
-    return error.message;
-  }
+export async function runPipeline({
+  resumeData,
+  jobSkills,
+  jobDescription,
+}) {
+  const evaluations = [];
 
-  return error.issues
-    .map((issue) => {
-      const field = issue.path.length > 0 ? issue.path.join(".") : "result";
-      return `${field}: ${issue.message}`;
-    })
-    .join("; ");
-};
+  // Skill Evaluator
+  const skillMatch = skillEvaluator({
+    resumeSkills: resumeData.skills || [],
+    jobSkills: jobSkills || [],
+  });
 
-export const runPipeline = async ({ evaluators = [], context = {} } = {}) => {
-  const results = [];
+  evaluations.push({ ...skillMatch, name: "skills" });
 
-  for (const evaluator of evaluators) {
-    if (!evaluator || typeof evaluator.evaluate !== "function") {
-      throw new Error("Invalid evaluator supplied to pipeline");
-    }
+  // Keyword Evaluator
+  const keywordMatch = keywordEvaluator({
+    resumeText: resumeData.resumeText || "",
+    jobDescription: jobDescription || "",
+  });
 
-    const result = await evaluator.evaluate(context);
-    let validated;
-    try {
-      validated = validateEvaluatorResult(result);
-    } catch (error) {
-      if (process.env.NODE_ENV !== "production") {
-        console.error(`Invalid evaluator output from "${evaluator.key || "unknown"}":`, result);
-      }
+  evaluations.push({ ...keywordMatch, name: "keywords" });
 
-      throw new Error(
-        `Evaluator "${evaluator.key || "unknown"}" returned invalid output: ${formatValidationIssues(error)}`,
-      );
-    }
+  // Experience Evaluator
+  const experienceMatch = experienceEvaluator({
+    candidateExperienceText: (resumeData.experience || []).join(" "),
+    jobDescription: jobDescription || "",
+  });
 
-    results.push(validated);
-  }
+  evaluations.push({ ...experienceMatch, name: "experience" });
 
-  return aggregateEvaluatorResults(results);
-};
+  // Aggregate
+  const aggregated = aggregateResults(evaluations);
 
+  return {
+    score: aggregated.score,
+    breakdown: aggregated.breakdown,
+    skillMatch,
+    keywordMatch,
+    experienceMatch,
+  };
+}
