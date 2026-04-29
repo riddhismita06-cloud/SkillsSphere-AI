@@ -11,7 +11,19 @@ import { useEffect, useState } from "react";
 import Button from "../../../shared/landing/Button";
 
 const AnalysisResult = ({ result, file, onReset }) => {
-  const { score, suggestions, missing_keywords } = result;
+  // Support both legacy mock structure and new backend structure
+  const score = result.overallScore ?? result.score ?? 0;
+  
+  const suggestions = result.suggestions ?? [
+    ...(result.skillMatch?.feedback || []),
+    ...(result.keywordMatch?.feedback || []),
+    ...(result.experienceMatch?.feedback || [])
+  ];
+
+  const missing_keywords = result.missing_keywords ?? [
+    ...(result.keywordMatch?.missingKeywords || []),
+    ...(result.skillMatch?.missingSkills || [])
+  ];
   const [previewUrl, setPreviewUrl] = useState(null);
 
   useEffect(() => {
@@ -99,7 +111,7 @@ const AnalysisResult = ({ result, file, onReset }) => {
               </h3>
             </div>
             <ul className="space-y-5">
-              {suggestions.map((suggestion, index) => (
+              {(suggestions || []).map((suggestion, index) => (
                 <li key={index} className="flex items-start gap-4 group">
                   <div className="mt-1.5 bg-primary/10 border border-primary/20 rounded-md p-0.5 group-hover:bg-primary/20 transition-all">
                     <ChevronRight className="w-4 h-4 text-primary transition-transform group-hover:translate-x-1" />
@@ -123,7 +135,7 @@ const AnalysisResult = ({ result, file, onReset }) => {
               </h3>
             </div>
             <div className="flex flex-wrap gap-2.5">
-              {missing_keywords.map((keyword, index) => (
+              {(missing_keywords || []).map((keyword, index) => (
                 <span
                   key={index}
                   className="px-4 py-2 bg-primary/5 border border-primary/20 hover:border-primary/50 text-primary-hover font-bold rounded-xl text-xs transition-all hover:bg-primary/10 cursor-default shadow-sm"

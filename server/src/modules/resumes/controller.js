@@ -168,7 +168,7 @@ export const analyzeResume = asyncHandler(async (req, res, next) => {
   if (toggles.keywordMatch && trimmedJobDescription && parsedData.resumeText) {
     evaluators.push(keywordMatchEvaluator);
   }
-  if (toggles.experienceMatch) {
+  if (toggles.experienceMatch && trimmedJobDescription) {
     evaluators.push(experienceMatchEvaluator);
   }
 

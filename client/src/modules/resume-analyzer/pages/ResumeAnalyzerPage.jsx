@@ -8,7 +8,7 @@ import { analyzeResume } from "../services/resumeService";
 import { FileText } from "lucide-react";
 
 const ResumeAnalyzerPage = () => {
-  const { success, error: showError } = useToast();
+  const { success, error: showError, warning } = useToast();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
