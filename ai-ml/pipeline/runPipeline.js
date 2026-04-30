@@ -38,24 +38,30 @@ export async function runPipeline({
   const evaluations = [];
 
   // 🟢 Skill Match
-  const skillMatch = skillEvaluator({
+  const skillMatch = safeEval("skillMatch", () =>
+  skillEvaluator({
     resumeSkills: resumeData.skills || [],
     jobSkills,
-  });
+  })
+);
   evaluations.push({ ...skillMatch, name: "skillMatch" });
 
   // 🟡 Keyword Match
-  const keywordMatch = keywordEvaluator({
+  const keywordMatch = safeEval("keywordMatch", () =>
+  keywordEvaluator({
     resumeText: resumeData.resumeText || "",
     jobDescription,
-  });
+  })
+);
   evaluations.push({ ...keywordMatch, name: "keywordMatch" });
 
   // 🔵 Experience Match
-  const experienceMatch = experienceEvaluator({
-    candidateExperienceText: (resumeData.experience || []).join(" "),
+  const experienceMatch = safeEval("experienceMatch", () =>
+  experienceEvaluator({
+    candidateExperienceText: parseExperience(resumeData.experience),
     jobDescription,
-  });
+  })
+);
   evaluations.push({ ...experienceMatch, name: "experienceMatch" });
 
   // 🧠 Aggregate
