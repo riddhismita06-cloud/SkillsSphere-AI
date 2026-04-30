@@ -1,4 +1,10 @@
 {
+  "devDependencies": {
+    "autoprefixer": "^10.5.0",
+    "postcss": "^8.5.12",
+    "tailwindcss": "^4.2.4"
+  }
+}
   "type": "module",
   "private": true,
   "name": "skillsphere-ai-root",
