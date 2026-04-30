@@ -8,6 +8,33 @@ export async function runPipeline({
   jobSkills = [],
   jobDescription = "",
 }) {
+    // ADD — safe wrapper for all evaluator calls
+  function safeEval(name, fn, fallback = { score: 0, error: true }) {
+    try {
+      return fn();
+    } catch (err) {
+      console.error(`[runPipeline] Evaluator "${name}" failed:`, err);
+      return fallback;
+    }
+  }
+
+  // ADD — handles both string and object experience entries
+  function parseExperience(experience = []) {
+    return experience.map((entry) => {
+      if (typeof entry === "string") return entry;
+      if (typeof entry === "object" && entry !== null) {
+        return [
+          entry.title,
+          entry.company,
+          entry.duration,
+          entry.description,
+        ]
+          .filter(Boolean)
+          .join(" ");
+      }
+      return "";
+    }).join("\n");
+  }
   const evaluations = [];
 
   // 🟢 Skill Match
