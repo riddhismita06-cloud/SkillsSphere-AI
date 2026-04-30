@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
+import { Eye, EyeOff } from "lucide-react";
 
 /**
  * Input — Reusable text input component.
@@ -37,19 +38,24 @@ const Input = ({
   ...rest
 }) => {
   const hasError = Boolean(error);
+  const [showPassword, setShowPassword] = useState(false);
+  
+  const isPassword = type === "password";
+  const inputType = isPassword ? (showPassword ? "text" : "password") : type;
 
   const baseInput = [
-    "w-full rounded-lg border bg-white px-3.5 py-2.5 text-sm text-slate-800",
-    "placeholder:text-slate-400 transition-all duration-150",
+    "w-full rounded-lg border bg-slate-800 px-3.5 py-2.5 text-sm text-white caret-white",
+    "placeholder:text-gray-500 transition-all duration-150",
     "focus:outline-none focus:ring-2 focus:ring-offset-0",
+    "autofill-fix",
     leftIcon ? "pl-10" : "",
-    rightIcon ? "pr-10" : "",
+    (rightIcon || isPassword) ? "pr-10" : "",
     hasError
       ? "border-red-400 focus:ring-red-400 focus:border-red-400"
-      : "border-slate-300 focus:ring-brand-500 focus:border-brand-500",
+      : "border-slate-600 focus:ring-blue-500 focus:border-blue-500",
     disabled
-      ? "cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200"
-      : "hover:border-slate-400",
+      ? "cursor-not-allowed bg-slate-800/50 text-slate-500 border-slate-700"
+      : "hover:border-slate-500",
   ]
     .filter(Boolean)
     .join(" ");
@@ -59,7 +65,7 @@ const Input = ({
       {label && (
         <label
           htmlFor={id}
-          className="text-sm font-medium text-slate-700 select-none"
+          className="text-sm font-medium text-gray-300 select-none"
         >
           {label}
           {required && (
@@ -80,7 +86,7 @@ const Input = ({
 
         <input
           id={id}
-          type={type}
+          type={inputType}
           placeholder={placeholder}
           value={value}
           onChange={onChange}
@@ -94,16 +100,25 @@ const Input = ({
           {...rest}
         />
 
-        {rightIcon && (
+        {isPassword && !rightIcon ? (
+          <button
+            type="button"
+            className="absolute right-3 flex items-center text-slate-400 hover:text-slate-200 transition-colors bg-transparent border-none p-0 cursor-pointer"
+            onClick={() => setShowPassword(!showPassword)}
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        ) : rightIcon ? (
           <span className="pointer-events-none absolute right-3 flex items-center text-slate-400">
             {rightIcon}
           </span>
-        )}
+        ) : null}
       </div>
 
       {/* Error or helper text */}
       {hasError ? (
-        <p id={`${id}-error`} role="alert" className="text-xs text-red-500 flex items-center gap-1">
+        <p id={`${id}-error`} role="alert" className="text-xs text-red-400 flex items-center gap-1">
           <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
             <path fillRule="evenodd" d="M18 10A8 8 0 1 1 2 10a8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clipRule="evenodd" />
           </svg>

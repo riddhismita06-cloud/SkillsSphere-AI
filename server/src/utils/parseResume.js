@@ -36,13 +36,25 @@ const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g;
 const phoneRegex = /(?:\+?\d{1,3}[\s-]?)?(?:\(?\d{3,5}\)?[\s-]?)?\d{6,10}\b/g;
 const linkedinRegex = /(https?:\/\/)?(www\.)?linkedin\.com\/[^\s)]+/gi;
 const githubRegex = /(https?:\/\/)?(www\.)?github\.com\/[^\s)]+/gi;
-const portfolioRegex = /(https?:\/\/)?(www\.)?(?!linkedin\.com|github\.com)[a-z0-9-]+(\.[a-z0-9-]+)+\/?[^\s)]*/gi;
+const urlRegex = /(https?:\/\/[^\s)]+)/gi;
+const portfolioKeywords = ["portfolio", "vercel.app", "netlify.app", ".dev"];
 
 const normalizeWhitespace = (text) => text.replace(/\r/g, "\n").replace(/\n{2,}/g, "\n").trim();
 
 const normalizeUrl = (url) => {
   if (!url) return null;
   return url.startsWith("http://") || url.startsWith("https://") ? url : `https://${url}`;
+};
+
+const cleanupUrl = (url) => (url || "").replace(/[),.;]+$/, "").trim();
+
+const isLikelyPortfolioUrl = (url) => {
+  if (!url) return false;
+
+  const lowerUrl = url.toLowerCase();
+  if (lowerUrl.includes("linkedin.com") || lowerUrl.includes("github.com")) return false;
+
+  return portfolioKeywords.some((keyword) => lowerUrl.includes(keyword));
 };
 
 const toUniqueList = (items) => [...new Set(items.filter(Boolean).map((item) => item.trim()))];
@@ -119,23 +131,36 @@ export const parseResume = async (filePath) => {
   const phones = toUniqueList((text.match(phoneRegex) || []).map((phone) => phone.replace(/\s+/g, " ").trim()));
   const linkedins = toUniqueList((text.match(linkedinRegex) || []).map(normalizeUrl));
   const githubs = toUniqueList((text.match(githubRegex) || []).map(normalizeUrl));
-  const portfolios = toUniqueList((text.match(portfolioRegex) || []).map(normalizeUrl)).filter(
-    (url) => !/linkedin\.com|github\.com/i.test(url)
-  );
+  const allUrls = toUniqueList((text.match(urlRegex) || []).map(cleanupUrl).map(normalizeUrl));
+  const portfolios = allUrls.filter((url) => isLikelyPortfolioUrl(url));
+
+  const name = extractName(lines);
+  const email = emails[0];
+  const phone = phones[0];
+  const skills = extractSkills(text);
+  const education = extractSectionLines(lines, sectionHeaders.education);
+  const experience = extractSectionLines(lines, sectionHeaders.experience);
+  const projects = extractSectionLines(lines, sectionHeaders.projects);
+  const certifications = extractSectionLines(lines, sectionHeaders.certifications);
+  const linkedin = linkedins[0];
+  const github = githubs[0];
+  const portfolio = portfolios[0];
+  const keywords = extractSkills(text);
 
   return {
-    name: extractName(lines),
-    email: emails[0] || null,
-    phone: phones[0] || null,
-    skills: extractSkills(text),
-    education: extractSectionLines(lines, sectionHeaders.education),
-    experience: extractSectionLines(lines, sectionHeaders.experience),
-    projects: extractSectionLines(lines, sectionHeaders.projects),
-    certifications: extractSectionLines(lines, sectionHeaders.certifications),
-    linkedin: linkedins[0] || null,
-    github: githubs[0] || null,
-    portfolio: portfolios[0] || null,
-    keywords: extractSkills(text),
-    extractedTextLength: text.length,
+    name: name || "",
+    email: typeof email === "string" ? email : null,   
+    phone: phone || null,
+    skills: skills || [],
+    education: education || [],
+    experience: experience || [],
+    projects: projects || [],
+    certifications: certifications || [],
+    linkedin: linkedin || null,
+    github: github || null,
+    portfolio: portfolio || null,
+    keywords: keywords || [],
+    extractedTextLength: text.length || 0,
+    resumeText: text || "",
   };
 };

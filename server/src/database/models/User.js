@@ -1,30 +1,58 @@
-import mongoose from 'mongoose';
-const userSchema= new mongoose.Schema(
+import mongoose from "mongoose";
+
+const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true
+      required: true,
     },
-   email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    trim: true
+
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
     },
+
     password: {
       type: String,
-      required: true
+      required: false, // for Google users
     },
-    role:{
+
+    role: {
       type: String,
-      enum:["student","tutor","recruiter"],
-      default:"student"
+      enum: ["student", "tutor", "recruiter"],
+      default: "student",
+    },
+
+    provider: {
+      type: String,
+      default: "local", // local or google
+    },
+
+    profilePic: {
+      type: String,
+      default: null,
+    },
+
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+
+    verificationToken: { type: String, default: null },
+    verificationTokenExpires: { type: Date, default: null },
+    resetPasswordToken: { type: String, default: null },
+    resetPasswordExpires: { type: Date, default: null },
+
+    otpAttempts: {
+      type: Number,
+      default: 0,
     },
   },
-    {timestamps:true}
-  
-  );
+  { timestamps: true }
+);
 
-  const User=mongoose.model("User",userSchema);
-  export default User;
+const User = mongoose.model("User", userSchema);
+export default User;

@@ -35,16 +35,16 @@ const Select = ({
   const hasError = Boolean(error);
 
   const selectClasses = [
-    "w-full appearance-none rounded-lg border bg-white px-3.5 py-2.5 pr-9",
+    "w-full appearance-none rounded-lg border bg-slate-800 px-3.5 py-2.5 pr-9",
     "text-sm transition-all duration-150 cursor-pointer",
     "focus:outline-none focus:ring-2 focus:ring-offset-0",
     hasError
-      ? "border-red-400 text-slate-800 focus:ring-red-400 focus:border-red-400"
-      : "border-slate-300 text-slate-800 focus:ring-brand-500 focus:border-brand-500 hover:border-slate-400",
+      ? "border-red-400 text-white focus:ring-red-400 focus:border-red-400"
+      : "border-slate-600 text-white focus:ring-blue-500 focus:border-blue-500 hover:border-slate-500",
     disabled
-      ? "cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200"
+      ? "cursor-not-allowed bg-slate-800/50 text-slate-500 border-slate-700"
       : "",
-    !value ? "text-slate-400" : "text-slate-800",
+    !value ? "text-slate-400" : "text-white",
   ]
     .filter(Boolean)
     .join(" ");
@@ -54,7 +54,7 @@ const Select = ({
       {label && (
         <label
           htmlFor={id}
-          className="text-sm font-medium text-slate-700 select-none"
+          className="text-sm font-medium text-gray-300 select-none"
         >
           {label}
           {required && (

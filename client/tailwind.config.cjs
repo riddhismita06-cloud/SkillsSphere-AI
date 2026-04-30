@@ -2,13 +2,13 @@
 module.exports = {
   content: [
     "./index.html",
-    "./src/app/main.jsx",
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
     extend: {
       fontFamily: {
         sans: ["Inter", "ui-sans-serif", "system-ui"],
+        heading: ["Outfit", "Inter", "system-ui"],
       },
       colors: {
         brand: {
@@ -23,9 +23,29 @@ module.exports = {
           800: "#3730a3",
           900: "#312e81",
         },
+        primary: "#4F46E5",
+        "primary-hover": "#4338CA",
+        secondary: "#10B981",
+        "dark-bg": "#0B0F19",
+        surface: "#131B2C",
+        "surface-hover": "#1A243A",
+        "text-main": "#F3F4F6",
+        "text-muted": "#9CA3AF",
+        border: "#1F2937",
+      },
+      keyframes: {
+        scaleIn: {
+          from: { transform: 'scaleX(0)' },
+          to: { transform: 'scaleX(1)' },
+        },
+        slideFadeIn: {
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
       },
       animation: {
         spin: "spin 0.75s linear infinite",
+        scaleIn: "scaleIn 0.3s ease-out forwards",
+        slideFadeIn: "slideFadeIn 0.5s ease forwards",
       },
     },
   },

@@ -5,3 +5,21 @@
     "tailwindcss": "^4.2.4"
   }
 }
+  "type": "module",
+  "private": true,
+  "name": "skillsphere-ai-root",
+  "version": "1.0.0",
+  "scripts": {
+    "install-all": "cd client && npm install && cd ../server && npm install && cd ../ai-ml && npm install",
+    "client": "cd client && npm run dev",
+    "server": "cd server && npm run dev",
+    "dev": "concurrently \"npm run client\" \"npm run server\""
+  },
+  "dependencies": {
+    "google-auth-library": "^10.6.2",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.0"
+  }
+}

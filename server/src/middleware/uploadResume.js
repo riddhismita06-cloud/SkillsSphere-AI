@@ -33,7 +33,7 @@ const fileFilter = (req, file, cb) => {
   const hasAllowedMimeType = allowedMimeTypes.includes(file.mimetype);
   const hasAllowedExtension = allowedExtensions.includes(extension);
 
-  if (hasAllowedMimeType || hasAllowedExtension) {
+  if (hasAllowedMimeType && hasAllowedExtension) {
     cb(null, true);
   } else {
     const typeError = new Error("Only PDF, DOC, and DOCX files are allowed");

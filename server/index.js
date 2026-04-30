@@ -1,19 +1,27 @@
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
+dotenv.config();
+
 import path from "path";
 import connectDB from "./src/database/db.js";
 import authRoutes from "./src/modules/auth/routes.js";
 import resumeRoutes from "./src/modules/resumes/routes.js";
-
-dotenv.config();
+import jobRoutes from "./src/modules/jobs/routes.js";
+import matchingRoutes from "./src/modules/matching/routes.js";
+import globalErrorHandler from "./src/middleware/errorMiddleware.js";
+import { logEvaluatorConfig } from "./src/config/evaluatorConfig.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+app.use(cors());
 
 app.use(express.json());
 app.use("/uploads", express.static(path.resolve("src", "uploads")));
 
 await connectDB();
+logEvaluatorConfig();
 
 app.get("/health", (req, res) => {
   res.json({ status: "OK" });
@@ -21,6 +29,10 @@ app.get("/health", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/resume", resumeRoutes);
+app.use("/api/recruiter/jobs", jobRoutes);
+app.use("/api/matching", matchingRoutes);
+
+app.use(globalErrorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
