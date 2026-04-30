@@ -65,7 +65,9 @@ export async function runPipeline({
   evaluations.push({ ...experienceMatch, name: "experienceMatch" });
 
   // 🧠 Aggregate
-  const { score, breakdown } = aggregateResults(evaluations);
+  const result = aggregateResults(evaluations);
+  if (!result) throw new Error("[runPipeline] aggregateResults returned empty");
+  const { score, breakdown } = result;
 
   return {
     score,
