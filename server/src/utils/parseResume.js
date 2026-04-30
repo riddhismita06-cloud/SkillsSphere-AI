@@ -134,20 +134,33 @@ export const parseResume = async (filePath) => {
   const allUrls = toUniqueList((text.match(urlRegex) || []).map(cleanupUrl).map(normalizeUrl));
   const portfolios = allUrls.filter((url) => isLikelyPortfolioUrl(url));
 
+  const name = extractName(lines);
+  const email = emails[0];
+  const phone = phones[0];
+  const skills = extractSkills(text);
+  const education = extractSectionLines(lines, sectionHeaders.education);
+  const experience = extractSectionLines(lines, sectionHeaders.experience);
+  const projects = extractSectionLines(lines, sectionHeaders.projects);
+  const certifications = extractSectionLines(lines, sectionHeaders.certifications);
+  const linkedin = linkedins[0];
+  const github = githubs[0];
+  const portfolio = portfolios[0];
+  const keywords = extractSkills(text);
+
   return {
-    name: extractName(lines),
-    email: emails[0] || null,
-    phone: phones[0] || null,
-    skills: extractSkills(text),
-    education: extractSectionLines(lines, sectionHeaders.education),
-    experience: extractSectionLines(lines, sectionHeaders.experience),
-    projects: extractSectionLines(lines, sectionHeaders.projects),
-    certifications: extractSectionLines(lines, sectionHeaders.certifications),
-    linkedin: linkedins[0] || null,
-    github: githubs[0] || null,
-    portfolio: portfolios[0] || null,
-    keywords: extractSkills(text),
-    extractedTextLength: text.length,
-    resumeText: text,
+    name: name || "",
+    email: typeof email === "string" ? email : null,   
+    phone: phone || null,
+    skills: skills || [],
+    education: education || [],
+    experience: experience || [],
+    projects: projects || [],
+    certifications: certifications || [],
+    linkedin: linkedin || null,
+    github: github || null,
+    portfolio: portfolio || null,
+    keywords: keywords || [],
+    extractedTextLength: text.length || 0,
+    resumeText: text || "",
   };
 };
