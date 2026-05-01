@@ -18,8 +18,10 @@ function calculateMonths(startMonth, startYear, endMonth, endYear) {
 export function extractExperienceInYears(text = "") {
   if (!text) return 0;
 
-  let clean = normalize(text);
-  let totalMonths = 0;
+  const clean = normalize(text);
+  let maxYears = 0;
+
+  let match;
 
   // ================================
   // 1. DATE RANGE HANDLING (NEW 🔥)
@@ -31,72 +33,61 @@ export function extractExperienceInYears(text = "") {
   const currentMonth = now.getMonth();
   const currentYear = now.getFullYear();
 
-  clean = clean.replace(dateRangeRegex, (match, m1, y1, endGrp, m2, y2) => {
-    const startMonth = MONTH_MAP[m1.toLowerCase()];
-    const startYear = parseInt(y1);
+  while ((match = dateRangeRegex.exec(clean))) {
+    const startMonth = MONTH_MAP[match[1]];
+    const startYear = parseInt(match[2]);
 
     let endMonth, endYear;
-    const endStr = endGrp.toLowerCase();
 
-    if (endStr.includes("present") || endStr.includes("current")) {
+    if (match[3].includes("present") || match[3].includes("current")) {
       endMonth = currentMonth;
       endYear = currentYear;
     } else {
-      endMonth = MONTH_MAP[m2.toLowerCase()];
-      endYear = parseInt(y2);
+      endMonth = MONTH_MAP[match[4]];
+      endYear = parseInt(match[5]);
     }
 
     const months = calculateMonths(startMonth, startYear, endMonth, endYear);
-    totalMonths += Math.max(0, months); // Add months, safeguard against negative
-    return " "; // Remove from string so it isn't double-counted
-  });
+    const years = months / 12;
 
-  // ================================
-  // 1.5 BRACKET HANDLING (NEW 🔥)
-  // ================================
-  const bracketRegex = /\((\d+)\s*(year|years|yr|yrs)\)/g;
-  clean = clean.replace(bracketRegex, (match, y) => {
-    totalMonths += parseInt(y) * 12;
-    return " ";
-  });
+    maxYears = Math.max(maxYears, years);
+  }
 
   // ================================
   // 2. COMBINED (1 year 6 months)
   // ================================
   const combinedRegex = /(\d+)\s*(year|years|yr|yrs)\s*(\d+)\s*(month|months|mo|mos)/g;
-  clean = clean.replace(combinedRegex, (match, y, unitY, m) => {
-    totalMonths += parseInt(y) * 12 + parseInt(m);
-    return " ";
-  });
+  while ((match = combinedRegex.exec(clean))) {
+    const years = parseInt(match[1]);
+    const months = parseInt(match[3]);
+    maxYears = Math.max(maxYears, years + months / 12);
+  }
 
   // ================================
   // 3. RANGE (1-3 years)
   // ================================
   const rangeRegex = /(\d+)\s*-\s*(\d+)\s*(year|years|yr|yrs)/g;
-  clean = clean.replace(rangeRegex, (match, start, end) => {
-    totalMonths += parseInt(end) * 12;
-    return " ";
-  });
+  while ((match = rangeRegex.exec(clean))) {
+    maxYears = Math.max(maxYears, parseInt(match[2]));
+  }
 
   // ================================
   // 4. PLUS (2+ years)
   // ================================
   const plusRegex = /(\d+)\+?\s*(year|years|yr|yrs)/g;
-  clean = clean.replace(plusRegex, (match, y) => {
-    totalMonths += parseInt(y) * 12;
-    return " ";
-  });
+  while ((match = plusRegex.exec(clean))) {
+    maxYears = Math.max(maxYears, parseInt(match[1]));
+  }
 
   // ================================
   // 5. MONTHS ONLY (18 months)
   // ================================
   const monthRegex = /(\d+)\s*(month|months|mo|mos)/g;
-  clean = clean.replace(monthRegex, (match, m) => {
-    totalMonths += parseInt(m);
-    return " ";
-  });
+  while ((match = monthRegex.exec(clean))) {
+    maxYears = Math.max(maxYears, parseInt(match[1]) / 12);
+  }
 
-  return totalMonths / 12;
+  return maxYears;
 }
 
 // --- MAIN EVALUATOR ---
@@ -104,7 +95,7 @@ export function experienceEvaluator({
   candidateExperienceText = "",
   jobDescription = "",
   weight = 0.2,
-}) {
+} = {}) {
   const candidateYears = extractExperienceInYears(candidateExperienceText);
   const requiredYears = extractExperienceInYears(jobDescription);
 
