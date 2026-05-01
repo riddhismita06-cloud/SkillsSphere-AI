@@ -42,5 +42,9 @@ export function normalizePipelineResult(result = {}) {
       result.experienceMatch && typeof result.experienceMatch === "object"
         ? result.experienceMatch
         : {},
+    classification:
+      result.classification && typeof result.classification === "object"
+        ? result.classification
+        : null,
   };
 }

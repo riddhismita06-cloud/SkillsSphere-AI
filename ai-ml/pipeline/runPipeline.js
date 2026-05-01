@@ -2,6 +2,7 @@ import { aggregateResults } from "./aggregator.js";
 import { skillEvaluator } from "../evaluators/skillEvaluator.js";
 import { keywordEvaluator } from "../evaluators/keywordEvaluator.js";
 import { experienceEvaluator } from "../evaluators/experienceEvaluator.js";
+import { classifyResume } from "../utils/resumeClassifier.js";
 
 export async function runPipeline({
   resumeData,
@@ -69,11 +70,19 @@ export async function runPipeline({
   if (!result) throw new Error("[runPipeline] aggregateResults returned empty");
   const { score, breakdown } = result;
 
+  // 🔥 Classification
+  const classification = classifyResume({
+    score,
+    skillMatch,
+    experienceMatch,
+  });
+
   return {
     score,
     breakdown,
     skillMatch,
     keywordMatch,
     experienceMatch,
+    classification,
   };
 }
