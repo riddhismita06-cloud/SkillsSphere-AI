@@ -1,111 +1,155 @@
-const roundToTwo = (value) => Number(value.toFixed(2));
+// --- Normalize text ---
+function normalize(text = "") {
+  return text.toLowerCase().replace(/\s+/g, " ").trim();
+}
 
-const toNumber = (value) => {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : 0;
+// --- Month mapping ---
+const MONTH_MAP = {
+  jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5,
+  jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11
 };
 
-export const extractExperienceInYears = (text = "") => {
-  const content = `${text}`.toLowerCase();
-  if (!content.trim()) return 0;
+// --- Calculate months difference ---
+function calculateMonths(startMonth, startYear, endMonth, endYear) {
+  return (endYear - startYear) * 12 + (endMonth - startMonth);
+}
 
-  const detectedValues = [];
-  const combinedMatchedIndices = [];
+// --- Extract experience in YEARS ---
+export function extractExperienceInYears(text = "") {
+  if (!text) return 0;
 
-  // Examples: "1 year 6 months", "2 years and 3 months", "1.5 years 6 months"
-  const combinedPattern =
-    /(\d+(?:\.\d+)?)\s*\+?\s*(?:years?|yrs?)\s*(?:and\s*)?(\d+(?:\.\d+)?)\s*\+?\s*(?:months?|mos?)/gi;
-  for (const match of content.matchAll(combinedPattern)) {
-    const years = toNumber(match[1]);
-    const months = toNumber(match[2]);
-    detectedValues.push(years + months / 12);
-    
-    combinedMatchedIndices.push({
-      start: match.index,
-      end: match.index + match[0].length
-    });
-  }
+  let clean = normalize(text);
+  let totalMonths = 0;
 
-  const isOverlapping = (index) => {
-    return combinedMatchedIndices.some(
-      (range) => index >= range.start && index < range.end
-    );
-  };
+  // ================================
+  // 1. DATE RANGE HANDLING (NEW 🔥)
+  // ================================
+  const dateRangeRegex =
+    /(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s*(\d{4})\s*[-–]\s*(present|current|(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s*(\d{4}))/gi;
 
-  // Examples: "3 years", "2+ years", "1 yr"
-  const yearsPattern = /(\d+(?:\.\d+)?)\s*\+?\s*(?:years?|yrs?)/gi;
-  for (const match of content.matchAll(yearsPattern)) {
-    if (isOverlapping(match.index)) continue;
-    detectedValues.push(toNumber(match[1]));
-  }
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
 
-  // Examples: "18 months", "6+ months", "10 mo"
-  const monthsPattern = /(\d+(?:\.\d+)?)\s*\+?\s*(?:months?|mos?)/gi;
-  for (const match of content.matchAll(monthsPattern)) {
-    if (isOverlapping(match.index)) continue;
-    detectedValues.push(toNumber(match[1]) / 12);
-  }
+  clean = clean.replace(dateRangeRegex, (match, m1, y1, endGrp, m2, y2) => {
+    const startMonth = MONTH_MAP[m1.toLowerCase()];
+    const startYear = parseInt(y1);
 
-  if (detectedValues.length === 0) return 0;
-  return roundToTwo(Math.max(...detectedValues));
-};
+    let endMonth, endYear;
+    const endStr = endGrp.toLowerCase();
 
-export const experienceEvaluator = ({
+    if (endStr.includes("present") || endStr.includes("current")) {
+      endMonth = currentMonth;
+      endYear = currentYear;
+    } else {
+      endMonth = MONTH_MAP[m2.toLowerCase()];
+      endYear = parseInt(y2);
+    }
+
+    const months = calculateMonths(startMonth, startYear, endMonth, endYear);
+    totalMonths += Math.max(0, months); // Add months, safeguard against negative
+    return " "; // Remove from string so it isn't double-counted
+  });
+
+  // ================================
+  // 1.5 BRACKET HANDLING (NEW 🔥)
+  // ================================
+  const bracketRegex = /\((\d+)\s*(year|years|yr|yrs)\)/g;
+  clean = clean.replace(bracketRegex, (match, y) => {
+    totalMonths += parseInt(y) * 12;
+    return " ";
+  });
+
+  // ================================
+  // 2. COMBINED (1 year 6 months)
+  // ================================
+  const combinedRegex = /(\d+)\s*(year|years|yr|yrs)\s*(\d+)\s*(month|months|mo|mos)/g;
+  clean = clean.replace(combinedRegex, (match, y, unitY, m) => {
+    totalMonths += parseInt(y) * 12 + parseInt(m);
+    return " ";
+  });
+
+  // ================================
+  // 3. RANGE (1-3 years)
+  // ================================
+  const rangeRegex = /(\d+)\s*-\s*(\d+)\s*(year|years|yr|yrs)/g;
+  clean = clean.replace(rangeRegex, (match, start, end) => {
+    totalMonths += parseInt(end) * 12;
+    return " ";
+  });
+
+  // ================================
+  // 4. PLUS (2+ years)
+  // ================================
+  const plusRegex = /(\d+)\+?\s*(year|years|yr|yrs)/g;
+  clean = clean.replace(plusRegex, (match, y) => {
+    totalMonths += parseInt(y) * 12;
+    return " ";
+  });
+
+  // ================================
+  // 5. MONTHS ONLY (18 months)
+  // ================================
+  const monthRegex = /(\d+)\s*(month|months|mo|mos)/g;
+  clean = clean.replace(monthRegex, (match, m) => {
+    totalMonths += parseInt(m);
+    return " ";
+  });
+
+  return totalMonths / 12;
+}
+
+// --- MAIN EVALUATOR ---
+export function experienceEvaluator({
   candidateExperienceText = "",
   jobDescription = "",
   weight = 0.2,
-} = {}) => {
-  const candidateExperience = extractExperienceInYears(candidateExperienceText);
-  const requiredExperience = extractExperienceInYears(jobDescription);
+}) {
+  const candidateYears = extractExperienceInYears(candidateExperienceText);
+  const requiredYears = extractExperienceInYears(jobDescription);
 
-  if (!requiredExperience) {
+  if (!requiredYears) {
     return {
       score: 0,
       weight,
-      feedback: ["Could not detect required experience from the job description"],
-      candidateExperience,
+      feedback: [
+        "Could not detect required experience from the job description",
+      ],
+      candidateExperience: Number(candidateYears.toFixed(2)),
       requiredExperience: 0,
       experienceGap: 0,
     };
   }
 
-  const gap = Math.max(requiredExperience - candidateExperience, 0);
-  const rawScore =
-    candidateExperience >= requiredExperience
+  let score =
+    candidateYears >= requiredYears
       ? 100
-      : (candidateExperience / requiredExperience) * 100;
-  const score = roundToTwo(Math.min(rawScore, 100));
-  const experienceGap = roundToTwo(gap);
+      : (candidateYears / requiredYears) * 100;
 
-  let feedback = [];
-  if (candidateExperience >= requiredExperience) {
-    feedback = [
-      "Candidate experience meets or exceeds job requirements",
-      `Required experience: ${requiredExperience} years`,
-      `Candidate experience: ${candidateExperience} years`,
-    ];
-  } else if (score < 40) {
-    feedback = [
-      "Candidate experience is significantly below job requirements",
-      `Required experience: ${requiredExperience} years`,
-      `Candidate experience: ${candidateExperience} years`,
-      `Experience gap: ${experienceGap} years`,
-    ];
+  score = Math.min(100, Number(score.toFixed(2)));
+
+  const gap = Math.max(0, requiredYears - candidateYears);
+
+  const feedback = [];
+
+  if (score === 100) {
+    feedback.push("Candidate meets or exceeds required experience");
+  } else if (score >= 50) {
+    feedback.push("Candidate experience partially matches job requirements");
   } else {
-    feedback = [
-      "Candidate experience partially matches job requirements",
-      `Required experience: ${requiredExperience} years`,
-      `Candidate experience: ${candidateExperience} years`,
-      `Experience gap: ${experienceGap} years`,
-    ];
+    feedback.push("Candidate has significantly less experience than required");
   }
+
+  feedback.push(`Required experience: ${requiredYears} years`);
+  feedback.push(`Candidate experience: ${candidateYears.toFixed(2)} years`);
+  feedback.push(`Experience gap: ${gap.toFixed(2)} years`);
 
   return {
     score,
     weight,
     feedback,
-    candidateExperience,
-    requiredExperience,
-    experienceGap,
+    candidateExperience: Number(candidateYears.toFixed(2)),
+    requiredExperience: Number(requiredYears.toFixed(2)),
+    experienceGap: Number(gap.toFixed(2)),
   };
-};
+}
