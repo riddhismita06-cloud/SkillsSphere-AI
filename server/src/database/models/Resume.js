@@ -110,6 +110,10 @@ const resumeSchema = new mongoose.Schema(
       type: Number,
       default: null,
     },
+    classification: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
+    },
   },
   {
     timestamps: true,
