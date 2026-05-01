@@ -29,7 +29,7 @@ app.get("/health", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/resume", resumeRoutes);
-app.use("/api/recruiter/jobs", jobRoutes);
+app.use("/api/jobs", jobRoutes);
 app.use("/api/matching", matchingRoutes);
 
 app.use(globalErrorHandler);

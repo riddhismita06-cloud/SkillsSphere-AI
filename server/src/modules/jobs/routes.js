@@ -4,21 +4,23 @@ import {
   createJobPosting,
   getRecruiterJobs,
   getJobPostingById,
+  getJobs,
 } from "./controller.js";
 
 const router = express.Router();
 
-// Protect all routes and restrict to recruiters
+// Protect all routes
 router.use(protect);
-router.use(authorizeRoles("recruiter"));
 
-router
-  .route("/")
-  .get(getRecruiterJobs)
-  .post(createJobPosting);
+// Public job discovery (for all authenticated users)
+router.get("/", getJobs);
+
+// Recruiter-only routes
+router.get("/recruiter", authorizeRoles("recruiter"), getRecruiterJobs);
+router.post("/", authorizeRoles("recruiter"), createJobPosting);
 
 router
   .route("/:id")
-  .get(getJobPostingById);
+  .get(authorizeRoles("recruiter"), getJobPostingById);
 
 export default router;

@@ -1,4 +1,5 @@
 import JobPosting from "../../database/models/JobPosting.js";
+import { getAllJobs } from "./service.js";
 import AppError from "../../utils/AppError.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 
@@ -101,5 +102,27 @@ export const getJobPostingById = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     job,
+  });
+});
+
+/**
+ * @desc    Get all open job postings with optional filters
+ * @route   GET /api/jobs
+ * @access  Private (All authenticated users)
+ */
+export const getJobs = asyncHandler(async (req, res) => {
+  const { minSalary, maxSalary, designation, postedWithin } = req.query;
+  
+  const jobs = await getAllJobs({
+    minSalary,
+    maxSalary,
+    designation,
+    postedWithin,
+  });
+
+  res.status(200).json({
+    success: true,
+    count: jobs.length,
+    jobs,
   });
 });

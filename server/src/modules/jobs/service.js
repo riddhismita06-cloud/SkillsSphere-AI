@@ -16,16 +16,61 @@ export const createJob = async (jobData, recruiterId) => {
 };
 
 /**
- * Get all published jobs
- * @param {Object} query - Query filters
+ * Get all published jobs with optional filtering
+ * @param {Object} queryParams - Query filters (minSalary, maxSalary, designation, postedWithin)
  * @returns {Promise<Array>} - List of jobs
  */
-export const getAllJobs = async (query = {}) => {
-  // Only return published jobs by default
-  const filters = { status: "open", ...query }; // status name changed from "published" to "open" in origin model
+export const getAllJobs = async (queryParams = {}) => {
+  const { minSalary, maxSalary, designation, postedWithin } = queryParams;
+  
+  // Base filter: only show open jobs
+  const filters = { status: "open" };
+
+  // Filter by designation (case-insensitive regex search on title)
+  if (designation) {
+    filters.title = { $regex: designation, $options: "i" };
+  }
+
+  // Filter by Salary Range
+  if (minSalary || maxSalary) {
+    // If minSalary is provided, ensure job's min salary is >= minSalary
+    // Or more commonly: ensure the job's max salary is at least the user's min expectation
+    if (minSalary) {
+      filters["salary.min"] = { $gte: Number(minSalary) };
+    }
+    if (maxSalary) {
+      filters["salary.max"] = { $lte: Number(maxSalary) };
+    }
+  }
+
+  // Filter by Date Posted
+  if (postedWithin) {
+    const now = new Date();
+    let cutoffDate;
+
+    switch (postedWithin) {
+      case "1d":
+        cutoffDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+        break;
+      case "7d":
+        cutoffDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        break;
+      case "30d":
+        cutoffDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        break;
+      default:
+        cutoffDate = null;
+    }
+
+    if (cutoffDate) {
+      filters.createdAt = { $gte: cutoffDate };
+    }
+  }
+
   const jobs = await JobPosting.find(filters)
     .populate("recruiter", "name email company")
     .sort("-createdAt");
+    
   return jobs;
 };
 
