@@ -17,6 +17,24 @@ const CURRENCY_OPTIONS = [
   { value: "GBP", label: "GBP - British Pound" },
 ];
 
+// Matches schema enum exactly
+const JOB_LEVEL_OPTIONS = [
+  { value: "Internship", label: "Internship" },
+  { value: "Entry Level", label: "Entry Level" },
+  { value: "Associate", label: "Associate" },
+  { value: "Mid-Senior Level", label: "Mid-Senior Level" },
+  { value: "Director", label: "Director" },
+  { value: "Executive", label: "Executive" },
+];
+
+// Matches schema's set() transform: trim + lowercase
+const stringToArray = (str) =>
+  str ? str.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean) : [];
+
+// For pre-populating textareas from existing array data (edit mode)
+const arrayToString = (arr) =>
+  Array.isArray(arr) ? arr.join(", ") : arr || "";
+
 const JobPostingForm = ({ onSubmit, initialData = {}, isLoading = false, fieldErrors = {} }) => {
   const [formData, setFormData] = useState({
     title: initialData.title || "",
