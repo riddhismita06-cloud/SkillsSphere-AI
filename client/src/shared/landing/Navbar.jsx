@@ -40,7 +40,10 @@ const Navbar = () => {
     { name: 'Home', path: '/', icon: <Home size={20} /> },
     ...(user?.role === 'recruiter' 
       ? [{ name: 'Manage Jobs', path: '/recruiter/jobs', icon: <Briefcase size={20} /> }]
-      : [{ name: 'Resume Analyzer', path: '/resume-analyzer', icon: <FileText size={20} /> }]
+      : [
+          { name: 'Job Board', path: '/jobs', icon: <Briefcase size={20} /> },
+          { name: 'Resume Analyzer', path: '/resume-analyzer', icon: <FileText size={20} /> }
+        ]
     ),
     { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
     { name: 'Mock Interview', path: '/mock-interview', icon: <MessageSquare size={20} /> },

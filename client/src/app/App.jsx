@@ -16,6 +16,7 @@ import VerifyEmail from "../modules/auth/VerifyEmail";
 import ProfilePage from "../modules/profile/ProfilePage";
 import RecruiterJobsPage from "../modules/recruiter-jobs/pages/RecruiterJobsPage";
 import CreateJobPostingPage from "../modules/recruiter-jobs/pages/CreateJobPostingPage";
+import JobBoardPage from "../modules/student-jobs/pages/JobBoardPage";
 import ProtectedRoute from "../shared/components/ProtectedRoute";
 
 function App() {
@@ -68,6 +69,14 @@ function App() {
           element={
             <ProtectedRoute requiredRole="recruiter">
               <CreateJobPostingPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/jobs"
+          element={
+            <ProtectedRoute>
+              <JobBoardPage />
             </ProtectedRoute>
           }
         />
