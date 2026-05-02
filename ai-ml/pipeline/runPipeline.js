@@ -5,6 +5,7 @@ import { experienceEvaluator } from "../evaluators/experienceEvaluator.js";
 import { classifyResume } from "../utils/resumeClassifier.js";
 import consistencyEvaluator from "../evaluators/consistencyEvaluator.js";
 import gapAnalyzer from "../utils/gapAnalyzer.js";
+import readabilityEvaluator from "../evaluators/readabilityEvaluator.js";
 
 export async function runPipeline({
   resumeData,
@@ -75,6 +76,14 @@ export async function runPipeline({
 );
   evaluations.push({ ...consistencyMatch, name: "consistencyMatch" });
 
+  // 🟠 Readability Match
+  const readabilityMatch = safeEval("readabilityMatch", () =>
+  readabilityEvaluator({
+    resumeText: resumeData.resumeText || "",
+  })
+);
+  evaluations.push({ ...readabilityMatch, name: "readabilityMatch" });
+
   // 🧠 Aggregate
   const result = aggregateResults(evaluations);
   if (!result) throw new Error("[runPipeline] aggregateResults returned empty");
@@ -101,6 +110,7 @@ export async function runPipeline({
     keywordMatch,
     experienceMatch,
     consistencyMatch,
+    readabilityMatch,
     gapAnalysis,
     classification,
   };

@@ -19,6 +19,7 @@ const AnalysisResult = ({ result, file, onReset }) => {
     ...(result.keywordMatch?.feedback || []),
     ...(result.experienceMatch?.feedback || []),
     ...(result.consistencyMatch?.feedback || []),
+    ...(result.readabilityMatch?.feedback || []),
     ...(result.gapAnalysis?.suggestions || [])
   ];
 
