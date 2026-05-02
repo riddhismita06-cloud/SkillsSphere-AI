@@ -182,6 +182,29 @@ const JobPostingForm = ({ onSubmit, initialData = {}, isLoading = false, fieldEr
         />
       </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Select
+          id="jobLevel"
+          label="Job Level"
+          options={JOB_LEVEL_OPTIONS}
+          value={formData.jobLevel}
+          onChange={handleChange}
+          error={allErrors.jobLevel}
+          required
+        />
+        <Input
+          id="experienceRequired"
+          label="Years of Experience Required"
+          type="number"
+          min="0"
+          placeholder="e.g. 3"
+          value={formData.experienceRequired}
+          onChange={handleChange}
+          error={allErrors.experienceRequired}
+          required
+        />
+      </div>
+
       <div className="flex flex-col gap-1.5">
         <label htmlFor="description" className="text-sm font-medium text-gray-300">
           Job Description <span className="text-red-500">*</span>
