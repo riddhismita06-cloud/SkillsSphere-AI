@@ -46,6 +46,10 @@ export function normalizePipelineResult(result = {}) {
       result.consistencyMatch && typeof result.consistencyMatch === "object"
         ? result.consistencyMatch
         : {},
+    gapAnalysis:
+      result.gapAnalysis && typeof result.gapAnalysis === "object"
+        ? result.gapAnalysis
+        : {},
     classification:
       result.classification && typeof result.classification === "object"
         ? result.classification

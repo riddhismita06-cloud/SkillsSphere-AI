@@ -4,6 +4,7 @@ import { keywordEvaluator } from "../evaluators/keywordEvaluator.js";
 import { experienceEvaluator } from "../evaluators/experienceEvaluator.js";
 import { classifyResume } from "../utils/resumeClassifier.js";
 import consistencyEvaluator from "../evaluators/consistencyEvaluator.js";
+import gapAnalyzer from "../utils/gapAnalyzer.js";
 
 export async function runPipeline({
   resumeData,
@@ -79,6 +80,13 @@ export async function runPipeline({
   if (!result) throw new Error("[runPipeline] aggregateResults returned empty");
   const { score, breakdown } = result;
 
+  // 🎯 Gap Analysis
+  const gapAnalysis = gapAnalyzer({
+    skillMatch,
+    keywordMatch,
+    experienceMatch
+  });
+
   // 🔥 Classification
   const classification = classifyResume({
     score,
@@ -93,6 +101,7 @@ export async function runPipeline({
     keywordMatch,
     experienceMatch,
     consistencyMatch,
+    gapAnalysis,
     classification,
   };
 }

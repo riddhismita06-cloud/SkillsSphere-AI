@@ -18,7 +18,8 @@ const AnalysisResult = ({ result, file, onReset }) => {
     ...(result.skillMatch?.feedback || []),
     ...(result.keywordMatch?.feedback || []),
     ...(result.experienceMatch?.feedback || []),
-    ...(result.consistencyMatch?.feedback || [])
+    ...(result.consistencyMatch?.feedback || []),
+    ...(result.gapAnalysis?.suggestions || [])
   ];
 
   const rawMissing = [
