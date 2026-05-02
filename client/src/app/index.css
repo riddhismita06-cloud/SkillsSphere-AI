@@ -109,9 +109,10 @@ a {
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, #4F46E5, #A855F7);
+  background: linear-gradient(135deg, #6366F1, #EC4899, #8B5CF6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.2));
 }
 
 
