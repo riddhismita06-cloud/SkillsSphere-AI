@@ -39,7 +39,12 @@ const JobPostingForm = ({ onSubmit, initialData = {}, isLoading = false, fieldEr
   const [formData, setFormData] = useState({
     title: initialData.title || "",
     description: initialData.description || "",
-    skills: initialData.skills || "",
+    skills: arrayToString(initialData.skills),
+    requirements: arrayToString(initialData.requirements),
+    responsibilities: arrayToString(initialData.responsibilities),
+    keywords: arrayToString(initialData.keywords),
+    experienceRequired: initialData.experienceRequired ?? 0,
+    jobLevel: initialData.jobLevel || "Entry Level",
     status: initialData.status || "draft",
     location: {
       city: initialData.location?.city || "",
