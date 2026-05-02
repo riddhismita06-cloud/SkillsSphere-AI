@@ -96,20 +96,32 @@ const JobPostingForm = ({ onSubmit, initialData = {}, isLoading = false, fieldEr
 
   const validate = () => {
     const newErrors = {};
-    if (!formData.title) newErrors.title = "Job title is required";
-    if (!formData.description) newErrors.description = "Description is required";
-    if (!formData.skills) newErrors.skills = "Required skills are required";
+    if (!formData.title.trim()) newErrors.title = "Job title is required";
+    if (!formData.description.trim()) newErrors.description = "Description is required";
+    if (formData.description.trim().length < 20)
+      newErrors.description = "Description must be at least 20 characters";
+    if (!formData.skills.trim()) newErrors.skills = "At least one skill is required";
 
-    // Location validation
-    if (!formData.location.city) newErrors["location.city"] = "City is required";
-    if (!formData.location.state) newErrors["location.state"] = "State is required";
-    if (!formData.location.country) newErrors["location.country"] = "Country is required";
+    // Required per schema
+    if (formData.experienceRequired === "" || formData.experienceRequired === null || Number(formData.experienceRequired) < 0)
+      newErrors.experienceRequired = "Years of experience is required";
+    if (!formData.jobLevel) newErrors.jobLevel = "Job level is required";
 
-    // Salary validation
-    if (!formData.salary.min) newErrors["salary.min"] = "Minimum salary is required";
-    if (!formData.salary.max) newErrors["salary.max"] = "Maximum salary is required";
-    if (formData.salary.min && formData.salary.max && Number(formData.salary.min) > Number(formData.salary.max)) {
-      newErrors["salary.max"] = "Maximum salary must be greater than minimum";
+    // Location
+    if (!formData.location.city.trim()) newErrors["location.city"] = "City is required";
+    if (!formData.location.state.trim()) newErrors["location.state"] = "State is required";
+    if (!formData.location.country.trim()) newErrors["location.country"] = "Country is required";
+
+    // Salary — always required per schema (min/max have no negotiable bypass in the model)
+    if (formData.salary.min === "" || formData.salary.min === null)
+      newErrors["salary.min"] = "Minimum salary is required";
+    if (formData.salary.max === "" || formData.salary.max === null)
+      newErrors["salary.max"] = "Maximum salary is required";
+    if (
+      formData.salary.min !== "" && formData.salary.max !== "" &&
+      Number(formData.salary.min) > Number(formData.salary.max)
+    ) {
+      newErrors["salary.max"] = "Maximum salary must be greater than or equal to minimum";
     }
 
     setErrors(newErrors);
