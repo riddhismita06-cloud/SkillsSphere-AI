@@ -17,7 +17,8 @@ const AnalysisResult = ({ result, file, onReset }) => {
   const suggestions = result.suggestions ?? [
     ...(result.skillMatch?.feedback || []),
     ...(result.keywordMatch?.feedback || []),
-    ...(result.experienceMatch?.feedback || [])
+    ...(result.experienceMatch?.feedback || []),
+    ...(result.consistencyMatch?.feedback || [])
   ];
 
   const rawMissing = [

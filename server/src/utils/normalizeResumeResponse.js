@@ -42,6 +42,10 @@ export function normalizePipelineResult(result = {}) {
       result.experienceMatch && typeof result.experienceMatch === "object"
         ? result.experienceMatch
         : {},
+    consistencyMatch:
+      result.consistencyMatch && typeof result.consistencyMatch === "object"
+        ? result.consistencyMatch
+        : {},
     classification:
       result.classification && typeof result.classification === "object"
         ? result.classification

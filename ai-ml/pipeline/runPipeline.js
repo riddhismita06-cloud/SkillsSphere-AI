@@ -3,6 +3,7 @@ import { skillEvaluator } from "../evaluators/skillEvaluator.js";
 import { keywordEvaluator } from "../evaluators/keywordEvaluator.js";
 import { experienceEvaluator } from "../evaluators/experienceEvaluator.js";
 import { classifyResume } from "../utils/resumeClassifier.js";
+import consistencyEvaluator from "../evaluators/consistencyEvaluator.js";
 
 export async function runPipeline({
   resumeData,
@@ -65,6 +66,14 @@ export async function runPipeline({
 );
   evaluations.push({ ...experienceMatch, name: "experienceMatch" });
 
+  // 🟣 Consistency Match
+  const consistencyMatch = safeEval("consistencyMatch", () =>
+  consistencyEvaluator({
+    resumeText: resumeData.resumeText || "",
+  })
+);
+  evaluations.push({ ...consistencyMatch, name: "consistencyMatch" });
+
   // 🧠 Aggregate
   const result = aggregateResults(evaluations);
   if (!result) throw new Error("[runPipeline] aggregateResults returned empty");
@@ -83,6 +92,7 @@ export async function runPipeline({
     skillMatch,
     keywordMatch,
     experienceMatch,
+    consistencyMatch,
     classification,
   };
 }
