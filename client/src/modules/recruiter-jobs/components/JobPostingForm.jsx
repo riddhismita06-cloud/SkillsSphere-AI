@@ -392,7 +392,7 @@ const JobPostingForm = ({ onSubmit, initialData = {}, isLoading = false, fieldEr
           loading={isLoading}
           className="px-8 bg-blue-600 hover:bg-blue-500"
         >
-          {initialData.id ? "Update Job Posting" : "Create Job Posting"}
+          {(initialData._id || initialData.id) ? "Update Job Posting" : "Create Job Posting"}
         </Button>
       </div>
     </form>
