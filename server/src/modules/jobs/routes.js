@@ -5,6 +5,7 @@ import {
   getRecruiterJobs,
   getJobPostingById,
   getJobs,
+  getRecommendations,
 } from "./controller.js";
 
 const router = express.Router();
@@ -14,6 +15,7 @@ router.use(protect);
 
 // Public job discovery (for all authenticated users)
 router.get("/", getJobs);
+router.get("/recommendations", getRecommendations);
 
 // Recruiter-only routes
 router.get("/recruiter", authorizeRoles("recruiter"), getRecruiterJobs);
