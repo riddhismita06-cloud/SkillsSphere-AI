@@ -160,7 +160,7 @@ const JobPostingForm = ({ onSubmit, initialData = {}, isLoading = false, fieldEr
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6" noValidate>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Input
           id="title"
