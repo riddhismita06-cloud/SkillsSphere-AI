@@ -130,9 +130,33 @@ const JobPostingForm = ({ onSubmit, initialData = {}, isLoading = false, fieldEr
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (validate()) {
-      onSubmit(formData);
-    }
+    if (!validate())  return; 
+      // Explicit field mapping — only sends fields defined in the JobPosting schema
+    const payload = {
+      title: formData.title.trim(),
+      description: formData.description.trim(),
+      skills: stringToArray(formData.skills),
+      requirements: stringToArray(formData.requirements),
+      responsibilities: stringToArray(formData.responsibilities),
+      keywords: stringToArray(formData.keywords),
+      experienceRequired: Number(formData.experienceRequired),
+      jobLevel: formData.jobLevel,
+      status: formData.status,
+      location: {
+        city: formData.location.city.trim(),
+        state: formData.location.state.trim(),
+        country: formData.location.country.trim(),
+        remote: formData.location.remote,
+      },
+      salary: {
+        min: Number(formData.salary.min),
+        max: Number(formData.salary.max),
+        currency: formData.salary.currency,
+        isNegotiable: formData.salary.isNegotiable,
+      },
+    };
+
+    onSubmit(payload);
   };
 
   return (
