@@ -40,7 +40,7 @@ const Hero = () => {
                 <p className="text-base font-semibold text-[var(--text-main)]">Career cockpit</p>
                 <p className="text-sm text-[var(--text-muted)]">From learning signal to hiring readiness</p>
               </div>
-              <div className="hidden rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-1 text-xs font-semibold text-[var(--secondary)] sm:block">
+              <div className="hidden rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-1 text-xs font-semibold text-[var(--secondary)] animate-pulse-soft sm:block">
                 AI active
               </div>
             </div>

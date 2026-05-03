@@ -111,6 +111,157 @@ a {
   background-size: 26px 26px;
 }
 
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes floatPanel {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes scanLine {
+  0% {
+    transform: translateY(-180%);
+    opacity: 0;
+  }
+  18%, 78% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(340px);
+    opacity: 0;
+  }
+}
+
+@keyframes flowAcross {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(160%);
+  }
+}
+
+@keyframes pulseSoft {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.65;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+
+@keyframes waveBar {
+  0%, 100% {
+    transform: scaleY(0.35);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes growWidth {
+  0%, 100% {
+    transform: scaleX(0.35);
+  }
+  50% {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes uploadBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  45% {
+    transform: translateY(-9px);
+  }
+}
+
+@keyframes compareNudge {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(6px);
+  }
+}
+
+@keyframes otpPop {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  45% {
+    transform: translateY(-4px) scale(1.08);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.6s ease-out both;
+}
+
+.animate-float-panel {
+  animation: floatPanel 4.6s ease-in-out infinite;
+}
+
+.animate-scan-line {
+  animation: scanLine 3.2s ease-in-out infinite;
+}
+
+.animate-flow-across {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-flow-across::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 42%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent);
+  animation: flowAcross 1.9s ease-in-out infinite;
+}
+
+.animate-pulse-soft {
+  animation: pulseSoft 2s ease-in-out infinite;
+}
+
+.animate-wave-bar {
+  transform-origin: bottom;
+  animation: waveBar 1s ease-in-out infinite;
+}
+
+.animate-grow-width {
+  transform-origin: left;
+  animation: growWidth 2.4s ease-in-out infinite;
+}
+
+.animate-upload-bounce {
+  animation: uploadBounce 1.8s ease-in-out infinite;
+}
+
+.animate-compare-nudge {
+  animation: compareNudge 2.1s ease-in-out infinite;
+}
+
+.animate-otp-pop {
+  animation: otpPop 1.8s ease-in-out infinite;
+}
+
 /* CARD */
 .card {
   background: rgba(255, 255, 255, 0.05);

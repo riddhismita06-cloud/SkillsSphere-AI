@@ -16,19 +16,19 @@ const ClassroomPreview = () => (
   <div className="grid h-36 grid-cols-[1fr_0.72fr] gap-3 rounded-lg border border-[var(--border)] bg-[var(--background)] p-3">
     <div className="relative rounded-lg bg-[var(--surface)] p-3">
       <div className="mb-3 flex items-center gap-2">
-        <span className="h-2.5 w-2.5 rounded-full bg-red-400" />
+        <span className="h-2.5 w-2.5 rounded-full bg-red-400 animate-pulse-soft" />
         <span className="h-2.5 w-2.5 rounded-full bg-[var(--secondary)] animate-pulse-soft" />
         <span className="text-xs font-semibold text-[var(--text-muted)]">Live room</span>
       </div>
       <div className="grid grid-cols-2 gap-2">
-        <span className="h-12 rounded-lg bg-[var(--surface-soft)]" />
-        <span className="h-12 rounded-lg bg-[var(--surface-soft)] animate-pulse-soft" />
+        <span className="h-12 rounded-lg bg-[var(--surface-soft)] animate-float-panel" />
+        <span className="h-12 rounded-lg bg-[var(--surface-soft)] animate-float-panel [animation-delay:0.35s]" />
       </div>
     </div>
     <div className="space-y-2 rounded-lg bg-[var(--surface)] p-3">
       <span className="block h-3 w-16 rounded-full bg-[var(--surface-soft)]" />
-      <span className="block h-3 w-full rounded-full bg-[var(--surface-soft)]" />
-      <span className="block h-3 w-2/3 rounded-full bg-[var(--surface-soft)]" />
+      <span className="block h-3 w-full rounded-full bg-[var(--surface-soft)] animate-grow-width" />
+      <span className="block h-3 w-2/3 rounded-full bg-[var(--surface-soft)] animate-grow-width [animation-delay:0.3s]" />
       <span className="block h-8 rounded-lg border border-[var(--border)] bg-[var(--background)]" />
     </div>
   </div>
@@ -37,10 +37,10 @@ const ClassroomPreview = () => (
 const ResumePreview = () => (
   <div className="grid h-36 grid-cols-[0.58fr_1fr] gap-3 overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--background)] p-3">
     <div className="relative min-h-0 overflow-hidden rounded-lg border border-dashed border-[var(--primary)] bg-[var(--surface)] p-3">
-      <Upload size={20} className="mb-3 text-[var(--primary)] animate-float-panel" />
+      <Upload size={20} className="mb-3 text-[var(--primary)] animate-upload-bounce" />
       <span className="block h-2 w-full rounded-full bg-[var(--surface-soft)]" />
       <span className="mt-2 block h-2 w-3/4 rounded-full bg-[var(--surface-soft)]" />
-      <span className="absolute bottom-2 left-2 right-2 rounded-lg bg-[var(--surface-soft)] px-2 py-1 text-center text-[0.7rem] font-bold text-[var(--text-main)]">
+      <span className="absolute bottom-2 left-2 right-2 rounded-lg bg-[var(--surface-soft)] px-2 py-1 text-center text-[0.7rem] font-bold text-[var(--text-main)] animate-float-panel">
         PDF
       </span>
     </div>
@@ -57,7 +57,7 @@ const ResumePreview = () => (
           </div>
           <div className="h-2 rounded-full bg-[var(--surface-soft)]">
             <span
-              className="block h-full rounded-full bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]"
+              className="block h-full rounded-full bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] animate-grow-width"
               style={{ width: `${72 + index * 8}%` }}
             />
           </div>
@@ -70,13 +70,13 @@ const ResumePreview = () => (
 const MatcherPreview = () => (
   <div className="h-36 rounded-lg border border-[var(--border)] bg-[var(--background)] p-3">
     <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-      <div className="space-y-2 rounded-lg bg-[var(--surface)] p-3">
+      <div className="space-y-2 rounded-lg bg-[var(--surface)] p-3 animate-compare-nudge">
         <span className="block h-3 w-14 rounded-full bg-[var(--surface-soft)]" />
         <span className="block h-6 rounded-lg bg-[var(--surface-soft)]" />
         <span className="block h-6 rounded-lg bg-[var(--surface-soft)]" />
       </div>
       <FileSearch size={24} className="text-[var(--primary)] animate-pulse-soft" />
-      <div className="space-y-2 rounded-lg bg-[var(--surface)] p-3">
+      <div className="space-y-2 rounded-lg bg-[var(--surface)] p-3 animate-compare-nudge [animation-delay:0.35s]">
         <span className="block h-3 w-16 rounded-full bg-[var(--surface-soft)]" />
         <span className="block h-6 rounded-lg bg-[var(--surface-soft)]" />
         <span className="block h-6 rounded-lg bg-[var(--surface-soft)]" />
@@ -102,7 +102,7 @@ const InterviewPreview = () => (
         {[18, 30, 22, 38, 26, 34, 20, 32].map((height, index) => (
           <span
             key={index}
-            className="w-full rounded-t bg-[var(--accent)] opacity-80 animate-pulse-soft"
+            className="w-full rounded-t bg-[var(--accent)] opacity-80 animate-wave-bar"
             style={{ height, animationDelay: `${index * 0.12}s` }}
           />
         ))}
@@ -126,7 +126,7 @@ const DashboardPreview = () => (
         {[28, 46, 38, 62, 74].map((height, index) => (
           <span
             key={index}
-            className="w-full rounded-t bg-[var(--secondary)] animate-float-panel"
+            className="w-full rounded-t bg-[var(--secondary)] animate-wave-bar"
             style={{ height, animationDelay: `${index * 0.14}s` }}
           />
         ))}
@@ -140,7 +140,7 @@ const DashboardPreview = () => (
             <span>{70 + index * 9}%</span>
           </div>
           <span className="block h-2 rounded-full bg-[var(--surface-soft)]">
-            <span className="block h-full rounded-full bg-[var(--secondary)]" style={{ width: `${70 + index * 9}%` }} />
+            <span className="block h-full rounded-full bg-[var(--secondary)] animate-grow-width" style={{ width: `${70 + index * 9}%`, animationDelay: `${index * 0.2}s` }} />
           </span>
         </div>
       ))}
@@ -159,7 +159,7 @@ const AuthPreview = () => (
     </div>
     <div className="grid grid-cols-6 gap-2">
       {[1, 2, 3, 4, 5, 6].map((digit) => (
-        <span key={digit} className="flex h-10 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface)] text-sm font-bold text-[var(--text-main)]">
+        <span key={digit} className="flex h-10 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface)] text-sm font-bold text-[var(--text-main)] animate-otp-pop" style={{ animationDelay: `${digit * 0.12}s` }}>
           {digit}
         </span>
       ))}
