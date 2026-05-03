@@ -1,21 +1,21 @@
 export const skillEvaluator = ({ resumeSkills = [], jobSkills = [] }) => {
-  if (jobSkills.length === 0) {
-    return {
-      score: 0,
-      weight: 1.0,
-      feedback: ["No job skills provided for comparison"],
-      matchedSkills: [],
-      missingSkills: [],
-      extraSkills: resumeSkills,
-    };
-  }
-
   // Normalize: lowercase, trim, unique
   const normalize = (skills) => 
     [...new Set(skills.map(s => s.toLowerCase().trim()).filter(Boolean))];
 
   const normResume = normalize(resumeSkills);
   const normJob = normalize(jobSkills);
+
+  if (jobSkills.length === 0 || normJob.length === 0) {
+    return {
+      score: 0,
+      weight: 1.0,
+      feedback: ["No job skills provided for comparison"],
+      matchedSkills: [],
+      missingSkills: [],
+      extraSkills: normResume,
+    };
+  }
 
   // Matched: intersection
   const matched = normJob.filter(s => normResume.includes(s));
