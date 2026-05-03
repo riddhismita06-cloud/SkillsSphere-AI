@@ -230,13 +230,26 @@ const DashboardPage = () => {
                           <Target size={18} />
                           <h3 className="font-bold">Key Suggestions</h3>
                         </div>
-                        <ul className="space-y-2">
-                          {latestAnalysis.suggestions.slice(0, 3).map((suggestion, idx) => (
-                            <li key={idx} className="flex gap-2 text-sm text-slate-300">
-                              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500"></span>
-                              {suggestion}
-                            </li>
-                          ))}
+                        <ul className="space-y-3">
+                          {latestAnalysis.suggestions.slice(0, 3).map((suggestion, idx) => {
+                            const isObject = typeof suggestion === "object" && suggestion !== null;
+                            const text = isObject ? suggestion.text : suggestion;
+                            const priority = isObject ? suggestion.priority : "Suggestion";
+                            
+                            return (
+                              <li key={idx} className="flex flex-col gap-1">
+                                <div className="flex items-center gap-2">
+                                  <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+                                    priority === "Critical" ? "bg-red-500" : "bg-emerald-500"
+                                  }`}></span>
+                                  <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">{priority}</span>
+                                </div>
+                                <p className="text-sm text-slate-300 pl-3.5 leading-relaxed">
+                                  {text}
+                                </p>
+                              </li>
+                            );
+                          })}
                         </ul>
                       </div>
                     </div>

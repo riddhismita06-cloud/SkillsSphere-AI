@@ -1,88 +1,79 @@
-// --- Split into sentences ---
-function splitSentences(text) {
-  // Split by common sentence terminators and newlines
-  return text.split(/(?<=[.!?])\s+|\n+/).map(s => s.trim()).filter(Boolean);
-}
+import powerVerbs from "../data/powerVerbs.json" with { type: "json" };
 
-// --- Action Verbs ---
-const ACTION_VERBS = [
-  "built", "implemented", "designed", "developed", "created", 
-  "led", "managed", "optimized", "engineered", "resolved", 
-  "drove", "launched", "spearheaded", "executed", "increased",
-  "reduced", "delivered", "architected", "integrated", "spearheaded",
-  "automated", "streamlined", "transformed", "orchestrated"
-];
-
-function hasActionVerb(sentence) {
-  const lowerSentence = sentence.toLowerCase();
-  return ACTION_VERBS.some(verb => new RegExp(`\\b${verb}\\b`).test(lowerSentence));
-}
-
+/**
+ * Advanced Readability Evaluator:
+ * 1. Analyzes sentence structure for "Power Verbs"
+ * 2. Identifies specific weak bullets (sentences missing action verbs)
+ * 3. Detects passive voice
+ */
 export default function readabilityEvaluator({ resumeText = "", weight = 0.1 }) {
-  const sentences = splitSentences(resumeText);
-  
-  if (sentences.length === 0) {
-    return { score: 0, weight, longSentences: 0, avgWordsPerSentence: 0, feedback: [] };
-  }
+  const sentences = resumeText
+    .split(/[.!?\n]/)
+    .map(s => s.trim())
+    .filter(s => s.length > 20); // Only analyze meaningful sentences
 
-  let penalty = 0;
-  const feedback = new Set();
+  const allPowerVerbs = Object.values(powerVerbs).flat().map(v => v.toLowerCase());
   
-  let longSentences = 0;
-  let actionOrientedSentences = 0;
+  const weakBullets = [];
+  const passiveVoicePatterns = [
+    /\b(?:is|are|was|were|be|been|being)\b\s+\b\w+ed\b/gi,
+    /\bresponsible for\b/gi,
+    /\bworked on\b/gi,
+    /\btasks included\b/gi
+  ];
+
+  let powerVerbCount = 0;
+  let passiveVoiceCount = 0;
 
   sentences.forEach(sentence => {
-    const words = sentence.split(/\s+/).filter(Boolean);
+    const lowerSentence = sentence.toLowerCase();
+    const words = lowerSentence.split(/\s+/);
     
-    // 1. Sentence Length Analysis
-    if (words.length > 25) {
-      longSentences++;
+    // Check for power verb at start or near start of sentence
+    const hasPowerVerb = allPowerVerbs.some(verb => words.slice(0, 4).includes(verb));
+    
+    if (hasPowerVerb) {
+      powerVerbCount++;
+    } else {
+      // It's a weak bullet if it doesn't start with an action verb
+      weakBullets.push(sentence);
     }
 
-    // 2. Action Clarity Check
-    if (hasActionVerb(sentence)) {
-      actionOrientedSentences++;
+    // Check for passive voice
+    if (passiveVoicePatterns.some(pattern => pattern.test(lowerSentence))) {
+      passiveVoiceCount++;
     }
   });
 
-  const longSentenceRatio = longSentences / sentences.length;
-  const actionVerbRatio = actionOrientedSentences / sentences.length;
+  // Dynamic Suggestions based on domain detection
+  const suggestions = [];
+  const isTechnical = /react|node|javascript|python|java|aws|sql/gi.test(resumeText);
+  const relevantVerbs = isTechnical ? powerVerbs.technical : powerVerbs.management;
 
-  // Penalize if more than 20% of sentences are overly long
-  if (longSentenceRatio > 0.2) {
-    penalty += 20;
-    feedback.add("Reduce sentence length for better readability (break down sentences over 25 words).");
-  } else if (longSentences > 3) {
-    penalty += 10;
-    feedback.add("Some sentences are overly long. Consider breaking them down for clarity.");
+  if (passiveVoiceCount > 2) {
+    suggestions.push("Rewrite passive phrases (e.g., 'Responsible for') with active power verbs.");
   }
 
-  // Penalize if less than 20% of sentences use strong action verbs
-  if (actionVerbRatio < 0.2) {
-    penalty += 15;
-    feedback.add("Use more action-oriented statements (e.g., 'built', 'implemented', 'optimized').");
+  if (powerVerbCount / Math.max(1, sentences.length) < 0.5) {
+    suggestions.push(`Strengthen your bullets using active verbs like: ${relevantVerbs.slice(0, 3).join(", ")}.`);
   }
 
-  // 3. Complexity/Density Detection
-  const totalWords = sentences.reduce((acc, curr) => acc + curr.split(/\s+/).filter(Boolean).length, 0);
-  const avgWordsPerSentence = totalWords / sentences.length;
+  // Calculate score
+  let score = 100;
+  if (sentences.length > 0) {
+     score -= (passiveVoiceCount * 5);
+     const lowVerbDensity = (powerVerbCount / sentences.length) < 0.4;
+     if (lowVerbDensity) score -= 20;
+  }
   
-  if (avgWordsPerSentence > 20) {
-    penalty += 15;
-    feedback.add("Text is very dense. Break large paragraphs into concise bullet points.");
-  }
-
-  let score = Math.max(0, 100 - penalty);
-  
-  if (score >= 90 && feedback.size === 0) {
-    feedback.add("Resume is highly readable with clear, action-driven language.");
-  }
-
   return {
-    score,
+    score: Math.max(0, Math.min(100, Math.round(score))),
     weight,
-    longSentences,
-    avgWordsPerSentence: Math.round(avgWordsPerSentence * 10) / 10,
-    feedback: Array.from(feedback)
+    powerVerbCount,
+    passiveVoiceCount,
+    suggestions,
+    relevantVerbs: relevantVerbs,
+    name: "readabilityMatch"
   };
 }
+
