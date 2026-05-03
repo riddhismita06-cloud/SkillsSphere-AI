@@ -13,7 +13,7 @@ export const skillEvaluator = ({ resumeSkills = [], jobSkills = [] }) => {
       feedback: ["No job skills provided for comparison"],
       matchedSkills: [],
       missingSkills: [],
-      extraSkills: resumeSkills,
+      extraSkills: normResume,
     };
   }
 
