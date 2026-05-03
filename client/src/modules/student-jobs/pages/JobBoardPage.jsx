@@ -5,7 +5,7 @@ import Navbar from "../../../shared/landing/Navbar";
 import LoadingState from "../../../shared/components/LoadingState";
 import ErrorState from "../../../shared/components/ErrorState";
 import EmptyState from "../../../shared/components/EmptyState";
-import JobCard from "../components/JobCard";
+import { JobViewerCard } from "../../../shared/components";
 import JobFilters from "../components/JobFilters";
 import { getJobs } from "../services/jobService";
 
@@ -91,7 +91,7 @@ const JobBoardPage = () => {
             ) : (
               <div className="grid grid-cols-1 gap-5">
                 {jobs.map((job) => (
-                  <JobCard key={job._id} job={job} />
+                  <JobViewerCard key={job._id} job={job} viewerRole="student" />
                 ))}
               </div>
             )}
