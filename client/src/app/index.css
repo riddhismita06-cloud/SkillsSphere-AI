@@ -6,12 +6,17 @@
   --primary: #4F46E5;
   --primary-hover: #4338CA;
   --secondary: #10B981;
-  --background: #0B0F19;
-  --surface: #131B2C;
-  --surface-hover: #1A243A;
-  --text-main: #F3F4F6;
-  --text-muted: #9CA3AF;
-  --border: #1F2937;
+  --accent: #F59E0B;
+  --background: #F7F9FC;
+  --surface: #FFFFFF;
+  --surface-soft: #EEF2FF;
+  --surface-hover: #E7ECF8;
+  --text-main: #111827;
+  --text-muted: #5B6472;
+  --border: #DDE4F0;
+  --nav-bg: rgba(255, 255, 255, 0.82);
+  --shadow-soft: 0 18px 50px -28px rgba(15, 23, 42, 0.38);
+  --hero-grid: rgba(79, 70, 229, 0.11);
   
   --font-heading: 'Outfit', 'Inter', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
@@ -22,6 +27,23 @@
   --radius-xl: 1.5rem;
   
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+:root.dark {
+  --primary: #818CF8;
+  --primary-hover: #6366F1;
+  --secondary: #34D399;
+  --accent: #FBBF24;
+  --background: #0B0F19;
+  --surface: #131B2C;
+  --surface-soft: #1A243A;
+  --surface-hover: #22304A;
+  --text-main: #F3F4F6;
+  --text-muted: #A8B2C3;
+  --border: #253149;
+  --nav-bg: rgba(11, 15, 25, 0.82);
+  --shadow-soft: 0 22px 60px -28px rgba(0, 0, 0, 0.72);
+  --hero-grid: rgba(129, 140, 248, 0.14);
 }
 
 * {
@@ -110,10 +132,24 @@ a {
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, var(--primary) 0%, #A855F7 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, #A855F7 52%, var(--secondary) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.landing-page {
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--text-main);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.hero-demo-grid {
+  background-image:
+    linear-gradient(var(--hero-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hero-grid) 1px, transparent 1px);
+  background-size: 26px 26px;
 }
 
 /* Base Animations */
@@ -150,6 +186,65 @@ a {
   to {
     transform: scaleX(0);
   }
+}
+
+@keyframes floatPanel {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes scanLine {
+  0% {
+    transform: translateY(-110%);
+  }
+  100% {
+    transform: translateY(520%);
+  }
+}
+
+@keyframes flowAcross {
+  0% {
+    transform: translateX(-35%);
+    opacity: 0;
+  }
+  20%, 75% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(130%);
+    opacity: 0;
+  }
+}
+
+@keyframes pulseSoft {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+
+.animate-float-panel {
+  animation: floatPanel 5s ease-in-out infinite;
+}
+
+.animate-scan-line {
+  animation: scanLine 3.4s ease-in-out infinite;
+}
+
+.animate-flow-across {
+  animation: flowAcross 3.2s ease-in-out infinite;
+}
+
+.animate-pulse-soft {
+  animation: pulseSoft 2.8s ease-in-out infinite;
 }
 
 .animate-toast-in {
