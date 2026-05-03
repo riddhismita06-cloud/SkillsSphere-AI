@@ -50,6 +50,18 @@ export function normalizePipelineResult(result = {}) {
       result.readabilityMatch && typeof result.readabilityMatch === "object"
         ? result.readabilityMatch
         : {},
+    impactMatch:
+      result.impactMatch && typeof result.impactMatch === "object"
+        ? result.impactMatch
+        : {},
+    atsOptimization:
+      result.atsOptimization && typeof result.atsOptimization === "object"
+        ? result.atsOptimization
+        : {},
+    techStandard:
+      result.techStandard && typeof result.techStandard === "object"
+        ? result.techStandard
+        : {},
     gapAnalysis:
       result.gapAnalysis && typeof result.gapAnalysis === "object"
         ? result.gapAnalysis
@@ -58,5 +70,7 @@ export function normalizePipelineResult(result = {}) {
       result.classification && typeof result.classification === "object"
         ? result.classification
         : null,
+    isJDProvided: !!result.isJDProvided
   };
 }
+

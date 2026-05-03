@@ -114,6 +114,22 @@ const resumeSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.Mixed,
       default: null,
     },
+    gapAnalysis: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
+    },
+    impactMatch: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
+    },
+    atsOptimization: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
+    },
+    techStandard: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
+    },
   },
   {
     timestamps: true,

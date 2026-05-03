@@ -24,7 +24,7 @@ const analysisHistorySchema = new mongoose.Schema(
       default: [],
     },
     suggestions: {
-      type: [String],
+      type: [mongoose.Schema.Types.Mixed],
       default: [],
     },
   },

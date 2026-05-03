@@ -3,56 +3,81 @@ export default function gapAnalyzer({
   keywordMatch, 
   experienceMatch,
   consistencyMatch,
-  readabilityMatch
+  readabilityMatch,
+  impactMatch,
+  atsOptimization,
+  techStandard
 }) {
-  const suggestions = [];
+  const categorizedSuggestions = {
+    critical: [],
+    strategic: [],
+    optimization: []
+  };
 
-  // 1. 🟢 Skill Gaps (High Priority)
-  if (skillMatch?.missingSkills?.length > 0 && skillMatch.score !== null) {
-    const prioritySkills = skillMatch.missingSkills.slice(0, 4);
-    suggestions.push(`Add projects or experience demonstrating these key skills: ${prioritySkills.join(", ")}`);
-  }
-
-  // 2. 🔵 Experience Gaps (Medium-High Priority)
-  if (experienceMatch && experienceMatch.score !== null) {
-    if (experienceMatch.score < 60) {
-      suggestions.push("Detail your work history to better align with the core job responsibilities.");
+  // 1. 🚨 Critical: Structural & ATS Gaps
+  if (atsOptimization?.score < 80) {
+    const missing = Object.keys(atsOptimization.sectionResults || {})
+      .filter(k => !atsOptimization.sectionResults[k]);
+    if (missing.length > 0) {
+      categorizedSuggestions.critical.push(`Add clear headers for ${missing.join(" and ")} to ensure ATS readability.`);
     }
-
-    const hasMetrics = experienceMatch.feedback?.some(
-      f => f.toLowerCase().includes("metric") || f.toLowerCase().includes("quantifiable")
-    );
     
-    if (!hasMetrics && experienceMatch.score < 90) {
-      suggestions.push("Highlight measurable achievements (e.g., 'improved performance by 30%') to strengthen your profile.");
+    const missingContact = Object.keys(atsOptimization.contactResults || {})
+      .filter(k => !atsOptimization.contactResults[k]);
+    if (missingContact.length > 0) {
+      categorizedSuggestions.critical.push(`Ensure your ${missingContact.join(" and ")} are visible at the top of the document.`);
     }
   }
 
-  // 3. 🟡 Keyword Gaps
-  if (keywordMatch?.missingKeywords?.length > 0 && keywordMatch.score !== null) {
-    const topKeywords = keywordMatch.missingKeywords.slice(0, 3);
-    suggestions.push(`Integrate these missing industry keywords naturally: ${topKeywords.join(", ")}`);
+  // 2. 🎯 Strategic: Skills & Keywords (Only if JD provided)
+  if (skillMatch?.score !== null && skillMatch.score < 70) {
+    const prioritySkills = (skillMatch.missingSkills || []).slice(0, 3);
+    if (prioritySkills.length > 0) {
+      categorizedSuggestions.strategic.push(`Bridge the technical gap by highlighting experience with: ${prioritySkills.join(", ")}.`);
+    }
   }
 
-  // 4. 🟣 Consistency & Readability (Lower Priority but important for polish)
-  if (readabilityMatch?.feedback?.length > 0) {
-    // Pick the most impactful readability tip
-    const readabilityTip = readabilityMatch.feedback.find(f => f.includes("Action") || f.includes("length"));
-    if (readabilityTip) suggestions.push(readabilityTip);
+  if (keywordMatch?.score !== null && keywordMatch.score < 60) {
+    const topKeywords = (keywordMatch.missingKeywords || []).slice(0, 3);
+    if (topKeywords.length > 0) {
+      categorizedSuggestions.strategic.push(`Increase your visibility for this role by integrating industry terms: ${topKeywords.join(", ")}.`);
+    }
   }
 
-  if (consistencyMatch?.feedback?.length > 0) {
-    const consistencyTip = consistencyMatch.feedback.find(f => f.includes("repetitive") || f.includes("Generic"));
-    if (consistencyTip) suggestions.push(consistencyTip);
+  // 3. 📈 Optimization: Impact & Readability
+  if (impactMatch?.score < 50) {
+    categorizedSuggestions.optimization.push("Transform task-based descriptions into result-oriented bullet points using the XYZ formula (Accomplished [X] as measured by [Y], by doing [Z]).");
   }
 
-  // Deduplicate case-insensitively and trim
-  const uniqueSuggestions = Array.from(new Set(suggestions.map(s => s.trim())))
-    .filter((value, index, self) => 
-      index === self.findIndex(t => t.toLowerCase() === value.toLowerCase())
-    );
+  if (readabilityMatch?.passiveVoiceCount > 2) {
+    categorizedSuggestions.optimization.push(`Convert passive phrases into active ones using power verbs like ${readabilityMatch.relevantVerbs?.slice(0, 2).join(" or ")}.`);
+  }
+
+  // 4. 🏛️ Domain Specialization
+  if (techStandard?.score < 60) {
+    techStandard.suggestions.forEach(s => categorizedSuggestions.strategic.push(s));
+  }
+
+  // Flatten and prioritize
+  const allSuggestions = [
+    ...categorizedSuggestions.critical.map(s => ({ priority: "Critical", text: s, icon: "AlertCircle" })),
+    ...categorizedSuggestions.strategic.map(s => ({ priority: "Strategic", text: s, icon: "Zap" })),
+    ...categorizedSuggestions.optimization.map(s => ({ priority: "Optimization", text: s, icon: "Layout" }))
+  ];
+
+  // If still too few, add highly contextual polish tips
+  if (allSuggestions.length < 4) {
+    const wordCount = (atsOptimization?.resumeText || "").split(/\s+/).length;
+    if (wordCount > 1000) {
+      allSuggestions.push({ priority: "Polish", text: "Your resume is quite long (~3+ pages). Aim for a concise 1-2 page format for maximum engagement.", icon: "CheckCircle2" });
+    } else if (wordCount < 200) {
+      allSuggestions.push({ priority: "Polish", text: "Your resume is very brief. Consider detailing your projects or certifications to show more depth.", icon: "CheckCircle2" });
+    }
+  }
 
   return {
-    suggestions: uniqueSuggestions.slice(0, 8)
+    suggestions: allSuggestions.slice(0, 6)
   };
 }
+
+

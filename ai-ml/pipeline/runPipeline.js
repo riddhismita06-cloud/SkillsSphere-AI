@@ -6,6 +6,9 @@ import { classifyResume } from "../utils/resumeClassifier.js";
 import consistencyEvaluator from "../evaluators/consistencyEvaluator.js";
 import gapAnalyzer from "../utils/gapAnalyzer.js";
 import readabilityEvaluator from "../evaluators/readabilityEvaluator.js";
+import { impactEvaluator } from "../evaluators/impactEvaluator.js";
+import { atsOptimizationEvaluator } from "../evaluators/atsOptimizationEvaluator.js";
+import { techStandardEvaluator } from "../evaluators/techStandardEvaluator.js";
 
 export async function runPipeline({
   resumeData,
@@ -42,6 +45,7 @@ export async function runPipeline({
 
   const isJDProvided = !!(jobDescription && jobDescription.trim().length > 0);
   const evaluations = [];
+  const resumeText = resumeData.resumeText || "";
 
   // 🟢 Skill Match
   const skillMatch = isJDProvided 
@@ -51,21 +55,21 @@ export async function runPipeline({
           jobSkills,
         })
       )
-    : { score: null, message: "No job description provided", matchedSkills: [], missingSkills: [] };
+    : { score: null, name: "skillMatch", message: "No job description provided" };
   
-  if (skillMatch.score !== null) evaluations.push({ ...skillMatch, name: "skillMatch" });
+  evaluations.push(skillMatch);
 
   // 🟡 Keyword Match
   const keywordMatch = isJDProvided
     ? safeEval("keywordMatch", () =>
         keywordEvaluator({
-          resumeText: resumeData.resumeText || "",
+          resumeText,
           jobDescription,
         })
       )
-    : { score: null, message: "No job description provided", matchedKeywords: [], missingKeywords: [] };
+    : { score: null, name: "keywordMatch", message: "No job description provided" };
 
-  if (keywordMatch.score !== null) evaluations.push({ ...keywordMatch, name: "keywordMatch" });
+  evaluations.push(keywordMatch);
 
   // 🔵 Experience Match
   const experienceMatch = isJDProvided
@@ -75,14 +79,14 @@ export async function runPipeline({
           jobDescription,
         })
       )
-    : { score: null, message: "No job description provided" };
+    : { score: null, name: "experienceMatch", message: "No job description provided" };
 
-  if (experienceMatch.score !== null) evaluations.push({ ...experienceMatch, name: "experienceMatch" });
+  evaluations.push(experienceMatch);
 
   // 🟣 Consistency Match
   const consistencyMatch = safeEval("consistencyMatch", () =>
     consistencyEvaluator({
-      resumeText: resumeData.resumeText || "",
+      resumeText,
     })
   );
   evaluations.push({ ...consistencyMatch, name: "consistencyMatch" });
@@ -90,13 +94,39 @@ export async function runPipeline({
   // 🟠 Readability Match
   const readabilityMatch = safeEval("readabilityMatch", () =>
     readabilityEvaluator({
-      resumeText: resumeData.resumeText || "",
+      resumeText,
     })
   );
   evaluations.push({ ...readabilityMatch, name: "readabilityMatch" });
 
+  // 🔥 Advanced Evaluators
+  
+  // 💥 Impact Match
+  const impactMatch = safeEval("impactMatch", () =>
+    impactEvaluator({
+      resumeText,
+    })
+  );
+  evaluations.push(impactMatch);
+
+  // 🏗️ ATS Optimization
+  const atsOptimization = safeEval("atsOptimization", () =>
+    atsOptimizationEvaluator({
+      resumeData,
+    })
+  );
+  evaluations.push(atsOptimization);
+
+  // 🏛️ Tech Standard
+  const techStandard = safeEval("techStandard", () =>
+    techStandardEvaluator({
+      resumeText,
+    })
+  );
+  evaluations.push(techStandard);
+
   // 🧠 Aggregate
-  const result = aggregateResults(evaluations);
+  const result = aggregateResults(evaluations, isJDProvided);
   if (!result) throw new Error("[runPipeline] aggregateResults returned empty");
   const { score, breakdown } = result;
 
@@ -106,7 +136,10 @@ export async function runPipeline({
     keywordMatch,
     experienceMatch,
     consistencyMatch,
-    readabilityMatch
+    readabilityMatch,
+    impactMatch,
+    atsOptimization,
+    techStandard
   });
 
   // 🔥 Classification
@@ -124,6 +157,9 @@ export async function runPipeline({
     experienceMatch,
     consistencyMatch,
     readabilityMatch,
+    impactMatch,
+    atsOptimization,
+    techStandard,
     gapAnalysis,
     classification,
     isJDProvided
