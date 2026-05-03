@@ -1,4 +1,11 @@
 export const skillEvaluator = ({ resumeSkills = [], jobSkills = [] }) => {
+  // Normalize: lowercase, trim, unique
+  const normalize = (skills) => 
+    [...new Set(skills.map(s => s.toLowerCase().trim()).filter(Boolean))];
+
+  const normResume = normalize(resumeSkills);
+  const normJob = normalize(jobSkills);
+
   if (jobSkills.length === 0) {
     return {
       score: 0,
@@ -9,13 +16,6 @@ export const skillEvaluator = ({ resumeSkills = [], jobSkills = [] }) => {
       extraSkills: resumeSkills,
     };
   }
-
-  // Normalize: lowercase, trim, unique
-  const normalize = (skills) => 
-    [...new Set(skills.map(s => s.toLowerCase().trim()).filter(Boolean))];
-
-  const normResume = normalize(resumeSkills);
-  const normJob = normalize(jobSkills);
 
   // Matched: intersection
   const matched = normJob.filter(s => normResume.includes(s));
