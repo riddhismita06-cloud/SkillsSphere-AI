@@ -6,7 +6,7 @@ export const skillEvaluator = ({ resumeSkills = [], jobSkills = [] }) => {
   const normResume = normalize(resumeSkills);
   const normJob = normalize(jobSkills);
 
-  if (jobSkills.length === 0) {
+  if (jobSkills.length === 0 || normJob.length === 0) {
     return {
       score: 0,
       weight: 1.0,
