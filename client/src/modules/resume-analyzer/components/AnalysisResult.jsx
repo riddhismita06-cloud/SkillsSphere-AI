@@ -17,13 +17,23 @@ const AnalysisResult = ({ result, file, onReset }) => {
   const suggestions = result.suggestions ?? [
     ...(result.skillMatch?.feedback || []),
     ...(result.keywordMatch?.feedback || []),
-    ...(result.experienceMatch?.feedback || [])
+    ...(result.experienceMatch?.feedback || []),
+    ...(result.consistencyMatch?.feedback || []),
+    ...(result.readabilityMatch?.feedback || []),
+    ...(result.gapAnalysis?.suggestions || [])
   ];
 
-  const missing_keywords = result.missing_keywords ?? [
+  const rawMissing = [
     ...(result.keywordMatch?.missingKeywords || []),
     ...(result.skillMatch?.missingSkills || [])
   ];
+
+  // Deduplicate case-insensitively
+  const missing_keywords = result.missing_keywords ?? rawMissing.filter(
+    (keyword, index, self) =>
+      index === self.findIndex((k) => k.toLowerCase() === keyword.toLowerCase())
+  );
+  
   const [previewUrl, setPreviewUrl] = useState(null);
 
   useEffect(() => {
@@ -38,8 +48,15 @@ const AnalysisResult = ({ result, file, onReset }) => {
     }
   }, [file]);
 
-  // Determine score color/gradient class
+  // Determine score color/gradient class (sync with classification)
   const getScoreStyles = (s) => {
+    const classificationColor = result?.classification?.color;
+    if (classificationColor === "red") return "text-red-400";
+    if (classificationColor === "yellow") return "text-yellow-400";
+    if (classificationColor === "blue") return "text-blue-400";
+    if (classificationColor === "green") return "text-secondary";
+
+    // Fallback if classification is missing
     if (s >= 80) return "text-secondary"; // Emerald
     if (s >= 60) return "text-yellow-400";
     return "text-red-400";
@@ -53,6 +70,16 @@ const AnalysisResult = ({ result, file, onReset }) => {
     if (file?.name.endsWith(".docx")) return "DOCX";
     if (file?.name.endsWith(".pdf")) return "PDF";
     return file?.type?.split("/")[1]?.toUpperCase() || "FILE";
+  };
+
+  const getLevelColor = (color) => {
+    switch (color) {
+      case "red": return "text-red-400";
+      case "yellow": return "text-yellow-400";
+      case "blue": return "text-blue-400";
+      case "green": return "text-secondary";
+      default: return "text-primary";
+    }
   };
 
   return (
@@ -76,11 +103,11 @@ const AnalysisResult = ({ result, file, onReset }) => {
             <Sparkles className="w-10 h-10 animate-pulse" />
           </div>
           <div>
-            <h2 className="text-2xl font-heading font-bold text-text-main">
-              Global Insight Analysis
+            <h2 className={`text-2xl font-heading font-bold ${result?.classification?.color ? getLevelColor(result.classification.color) : 'text-text-main'}`}>
+              {result?.classification?.level || "Global Insight Analysis"}
             </h2>
-            <p className="text-text-muted text-sm mt-1">
-              AI-driven evaluation across 50+ industry parameters.
+            <p className="text-text-muted text-sm mt-1 font-medium">
+              {result?.classification?.label || "AI-driven evaluation across 50+ industry parameters."}
             </p>
           </div>
         </div>

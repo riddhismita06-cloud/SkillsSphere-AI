@@ -1,4 +1,5 @@
 import JobPosting from "../../database/models/JobPosting.js";
+import { getAllJobs, getJobRecommendations } from "./service.js";
 import AppError from "../../utils/AppError.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 
@@ -102,4 +103,36 @@ export const getJobPostingById = asyncHandler(async (req, res) => {
     success: true,
     job,
   });
+});
+
+/**
+ * @desc    Get all open job postings with optional filters
+ * @route   GET /api/jobs
+ * @access  Private (All authenticated users)
+ */
+export const getJobs = asyncHandler(async (req, res) => {
+  const { minSalary, maxSalary, designation, postedWithin } = req.query;
+
+  const jobs = await getAllJobs({
+    minSalary,
+    maxSalary,
+    designation,
+    postedWithin,
+  });
+
+  res.status(200).json({
+    success: true,
+    count: jobs.length,
+    jobs,
+  });
+});
+
+/**
+ * @desc    Get personalized job recommendations for students
+ * @route   GET /api/jobs/recommendations
+ * @access  Private (Students only)
+ */
+export const getRecommendations = asyncHandler(async (req, res) => {
+  const recommendations = await getJobRecommendations(req.user);
+  res.status(200).json(recommendations);
 });

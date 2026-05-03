@@ -1,7 +1,10 @@
+/* 🔥 Tailwind (MOST IMPORTANT) */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+
+/* 🔥 Custom Theme */
 :root {
   --primary: #4F46E5;
   --primary-hover: #4338CA;
@@ -17,16 +20,16 @@
   --nav-bg: rgba(255, 255, 255, 0.82);
   --shadow-soft: 0 18px 50px -28px rgba(15, 23, 42, 0.38);
   --hero-grid: rgba(79, 70, 229, 0.11);
-  
+
   --font-heading: 'Outfit', 'Inter', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
-  
+
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 1rem;
   --radius-xl: 1.5rem;
-  
-  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  --transition: all 0.3s ease;
 }
 
 :root.dark {
@@ -46,40 +49,24 @@
   --hero-grid: rgba(129, 140, 248, 0.14);
 }
 
+/* RESET */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-html {
-  /* Better scrolling on mobile */
-  scroll-behavior: smooth;
-}
-
+/* BODY */
 body {
   font-family: var(--font-body);
-  background-color: var(--background);
+  background: var(--background);
   color: var(--text-main);
-  line-height: 1.6;
+  min-height: 100vh;
   -webkit-font-smoothing: antialiased;
-  /* Prevent zoom on input focus on iOS */
   font-size: 16px;
 }
 
-/* Touch-friendly defaults for mobile */
-@media (max-width: 768px) {
-  body {
-    font-size: 16px; /* Prevents auto-zoom on iOS input focus */
-  }
-
-  /* Improve readability and touch targets on small screens */
-  button, a, input[type="checkbox"], input[type="radio"] {
-    min-height: 44px;
-    min-width: 44px;
-  }
-}
-
+/* HEADINGS */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
   font-weight: 700;
@@ -87,46 +74,20 @@ h1, h2, h3, h4, h5, h6 {
   word-break: break-word;
 }
 
-/* Responsive heading sizes */
-h1 {
-  font-size: clamp(1.5rem, 5vw, 3rem);
-}
-
-h2 {
-  font-size: clamp(1.25rem, 4vw, 2rem);
-}
-
-h3 {
-  font-size: clamp(1.1rem, 3vw, 1.5rem);
-}
-
+/* LINKS */
 a {
   color: inherit;
   text-decoration: none;
-  /* Better touch interaction */
-  -webkit-tap-highlight-color: transparent;
 }
 
-/* Utilities */
+/* CONTAINER */
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 1.5rem;
 }
 
-/* Responsive container padding */
-@media (max-width: 768px) {
-  .container {
-    padding: 0 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .container {
-    padding: 0 0.75rem;
-  }
-}
-
+/* TEXT */
 .text-primary {
   color: var(--primary);
 }
@@ -135,14 +96,12 @@ a {
   background: linear-gradient(135deg, var(--primary) 0%, #A855F7 52%, var(--secondary) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .landing-page {
   min-height: 100vh;
   background: var(--background);
   color: var(--text-main);
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .hero-demo-grid {
@@ -152,189 +111,26 @@ a {
   background-size: 26px 26px;
 }
 
-/* Base Animations */
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* CARD */
+.card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+  border-radius: 1rem;
+  padding: 1.5rem;
 }
 
-.animate-slide-up {
-  animation: slideUp 0.6s ease-out forwards;
+/* BUTTON */
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  padding: 0.6rem 1.4rem;
+  border-radius: 0.5rem;
 }
 
-@keyframes toastIn {
-  from {
-    opacity: 0;
-    transform: translateY(-8px) translateX(12px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) translateX(0) scale(1);
-  }
-}
-
-@keyframes toastProgress {
-  from {
-    transform: scaleX(1);
-  }
-  to {
-    transform: scaleX(0);
-  }
-}
-
-@keyframes floatPanel {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-@keyframes scanLine {
-  0% {
-    transform: translateY(-110%);
-  }
-  100% {
-    transform: translateY(520%);
-  }
-}
-
-@keyframes flowAcross {
-  0% {
-    transform: translateX(-35%);
-    opacity: 0;
-  }
-  20%, 75% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateX(130%);
-    opacity: 0;
-  }
-}
-
-@keyframes pulseSoft {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 0.8;
-  }
-  50% {
-    transform: scale(1.08);
-    opacity: 1;
-  }
-}
-
-.animate-float-panel {
-  animation: floatPanel 5s ease-in-out infinite;
-}
-
-.animate-scan-line {
-  animation: scanLine 3.4s ease-in-out infinite;
-}
-
-.animate-flow-across {
-  animation: flowAcross 3.2s ease-in-out infinite;
-}
-
-.animate-pulse-soft {
-  animation: pulseSoft 2.8s ease-in-out infinite;
-}
-
-.animate-toast-in {
-  animation: toastIn 220ms ease-out forwards;
-}
-
-.animate-toast-progress {
-  animation-name: toastProgress;
-  animation-timing-function: linear;
-  animation-fill-mode: forwards;
-}
-
-/* Generic Layout */
+/* FLEX CENTER */
 .flex-center {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.grid {
-  display: grid;
-}
-
-/* Custom autofill fixes to retain custom component UI variables */
-.autofill-fix:-webkit-autofill,
-.autofill-fix:-webkit-autofill:hover,
-.autofill-fix:-webkit-autofill:focus,
-.autofill-fix:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 1000px var(--autofill-bg, #1e293b) inset !important;
-  -webkit-text-fill-color: var(--autofill-color, white) !important;
-  caret-color: var(--autofill-color, white) !important;
-  transition: background-color 5000s ease-in-out 0s;
-}
-
-/* Remove default browser reveal/eye icons so custom Eye/EyeOff icons remain unobscured */
-input::-ms-reveal,
-input::-webkit-reveal {
-  display: none !important;
-}
-
-/* iOS specific fixes */
-@supports (-webkit-touch-callout: none) {
-  /* iOS Safari */
-  body {
-    /* Prevents the text size from adjusting when orientation changes */
-    -webkit-text-size-adjust: 100%;
-  }
-
-  input, button, select, textarea {
-    font-size: 16px; /* Prevents auto-zoom on iOS */
-  }
-
-  /* Remove default iOS styling on buttons and inputs */
-  button, input, select, textarea {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-  }
-
-  /* Better rounded corners on iOS */
-  button, input {
-    border-radius: max(0.5rem, 4px);
-  }
-}
-
-/* Improve touch targets and spacing on mobile */
-@media (max-width: 640px) {
-  /* Increase spacing between interactive elements */
-  button + button,
-  a + a,
-  .btn + .btn {
-    margin-left: 0.5rem;
-  }
-
-  /* Better tap targets */
-  a, button, input[type="button"], input[type="submit"] {
-    min-height: 44px;
-  }
-
-  /* Prevent text selection on rapid double-tap */
-  body * {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    user-select: none;
-  }
-
-  /* Allow text selection for text content */
-  p, span, a, button, label {
-    -webkit-user-select: auto;
-    -moz-user-select: auto;
-    user-select: auto;
-  }
 }

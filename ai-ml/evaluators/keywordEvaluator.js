@@ -1,132 +1,191 @@
+// --- Stop words (non-technical noise) ---
 const STOP_WORDS = new Set([
-  "the",
-  "and",
-  "or",
-  "with",
-  "for",
-  "in",
-  "on",
-  "at",
-  "a",
-  "an",
-  "to",
-  "of",
-  "is",
-  "are",
-  "be",
-  "this",
-  "that",
-  "by",
-  "from",
-  "as",
-  "it",
-  "will",
-  "using",
-  "required",
-  "preferred",
-  "experience",
-  "looking",
-  "need",
-  "needs",
-  "seeking",
-  "seek",
-  "seeks",
-  "wanted",
-  "want",
-  "wants",
-  "hiring",
-  "hire",
-  "hires",
-  "good",
-  "such",
-  "responsibilities",
-  "understanding",
-  "knowledge",
+  "the","and","or","with","for","in","on","at","a","an","to","of","is","are",
+  "strong","modern","maintain","build","good","collaborate","participate",
+  "understanding","knowledge","experience","familiarity","requirements",
+  "responsibilities","working","ability","skills","developer","team",
+  "existing","replaced","implementation","using","based","system","file","module",
+  "looking","who","can","web","applications","such","work",
+  "develop","application"
 ]);
 
-const normalizeText = (text = "") =>
-  `${text}`
+// --- 1️⃣ Core Tech ---
+const TECH_KEYWORDS = new Set([
+  "react","node","node.js","mongodb","express","javascript","typescript",
+  "docker","aws","api","apis","rest","mysql","git","github","html","css",
+  "tailwind","bootstrap","redux","next","next.js","postgresql","firebase",
+  "graphql","kubernetes","jenkins"
+]);
+
+// --- 2️⃣ Engineering Concepts ---
+const ENGINEERING_KEYWORDS = [
+  "architecture",
+  "system design",
+  "pipeline",
+  "pipelines",
+  "rest",
+  "rest api",
+  "apis",
+  "microservices",
+  "scalable",
+  "backend",
+  "frontend",
+  "fullstack"
+];
+
+// --- 3️⃣ Action / Impact Words ---
+const IMPACT_KEYWORDS = [
+  "implemented",
+  "optimized",
+  "designed",
+  "developed",
+  "built",
+  "improved",
+  "increased",
+  "reduced",
+  "achieved",
+  "enhanced"
+];
+
+// --- Normalize text ---
+function normalizeText(text = "") {
+  return text
     .toLowerCase()
-    .replace(/[^a-z0-9\s+#.]/g, " ")
+    .replace(/[^\w\s.+#]/g, " ") // keep . + # (node.js, c++, c#)
     .replace(/\s+/g, " ")
     .trim();
+}
 
-/**
- * Prefer the casing/spelling as it appears in the job description.
- */
-const keywordDisplayFromJobDescription = (jobDescriptionOriginal, keywordLower) => {
-  const lower = jobDescriptionOriginal.toLowerCase();
-  const idx = lower.indexOf(keywordLower);
-  if (idx === -1) {
-    return keywordLower.charAt(0).toUpperCase() + keywordLower.slice(1);
+// --- Extract keywords ---
+function extractKeywords(text) {
+  if (!text) return [];
+
+  // Handle multi-word keywords
+  let preProcessedText = text
+    .replace(/rest api/gi, "rest_api")
+    .replace(/system design/gi, "system_design")
+    .replace(/micro services/gi, "microservices");
+
+  const words = normalizeText(preProcessedText).split(" ");
+  const uniqueWords = [...new Set(words)];
+
+  return uniqueWords
+    .map(word => word.replace("rest_api", "rest api").replace("system_design", "system design"))
+    .filter(word => {
+      // HARD filters (extra protection)
+      if (
+        word.length < 3 ||
+        STOP_WORDS.has(word) ||
+        word.includes(".") ||   // files
+        word.includes("_")      // code patterns
+      ) {
+        // Exception for node.js and next.js in TECH_KEYWORDS
+        if (!(TECH_KEYWORDS.has(word) && word.includes("."))) {
+           return false;
+        }
+      }
+
+      // STRICT category-based whitelisting only
+      return (
+        TECH_KEYWORDS.has(word) ||
+        ENGINEERING_KEYWORDS.includes(word) ||
+        IMPACT_KEYWORDS.includes(word)
+      );
+    });
+}
+
+// --- Preserve original casing from JD ---
+function keywordDisplayFromJD(jdText, keywords) {
+  const originalWords = jdText.split(/\s+/);
+
+  return keywords.map(k => {
+    if (k.includes(" ")) {
+      return k.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+    }
+    const match = originalWords.find(
+      w => w.toLowerCase().replace(/[^\w.+#]/g, "") === k
+    );
+    return match || k;
+  });
+}
+
+// --- MAIN EVALUATOR ---
+export const keywordEvaluator = ({
+  resumeText = "",
+  jobDescription = "",
+  weight = 0.2
+}) => {
+  // Normalize inputs
+  const cleanResume = normalizeText(resumeText);
+  const cleanJD = normalizeText(jobDescription);
+
+  if (!cleanJD) {
+    return {
+      score: 0,
+      weight,
+      feedback: ["No job description provided for keyword analysis"],
+      matchedKeywords: [],
+      missingKeywords: []
+    };
   }
-  return jobDescriptionOriginal.slice(idx, idx + keywordLower.length);
-};
 
-const stripEdgeNonWordChars = (word) => word.replace(/^[^a-z0-9#]+|[^a-z0-9]+$/g, "");
+  // Extract keywords
+  let jdKeywords = extractKeywords(cleanJD);
 
-const extractKeywords = (text = "") => {
-  const normalizedText = normalizeText(text);
-
-  return [
-    ...new Set(
-      normalizedText
-        .split(" ")
-        .map((word) => stripEdgeNonWordChars(word.trim()))
-        .filter((word) => word.length > 3 && !STOP_WORDS.has(word)),
-    ),
-  ];
-};
-
-export const keywordEvaluator = ({ resumeText = "", jobDescription = "" }) => {
-  const normalizedResume = normalizeText(resumeText);
-  const jdKeywords = extractKeywords(jobDescription);
+  // Deduplicate again (safety)
+  jdKeywords = [...new Set(jdKeywords)];
 
   if (jdKeywords.length === 0) {
     return {
       score: 0,
-      weight: 0.2,
-      feedback: ["No extractable keywords found in the job description"],
+      weight,
+      feedback: ["No meaningful keywords found in job description"],
       matchedKeywords: [],
-      missingKeywords: [],
+      missingKeywords: []
     };
   }
 
-  const matchedKeywords = [];
-  const missingKeywords = [];
+  // Match against resume
+  const matched = [];
+  const missing = [];
 
-  jdKeywords.forEach((keyword) => {
-    const display = keywordDisplayFromJobDescription(jobDescription, keyword);
-    if (normalizedResume.includes(keyword)) {
-      matchedKeywords.push(display);
+  jdKeywords.forEach(keyword => {
+    if (cleanResume.includes(keyword)) {
+      matched.push(keyword);
     } else {
-      missingKeywords.push(display);
+      missing.push(keyword);
     }
   });
 
-  const totalKeywords = jdKeywords.length;
-  const score = Number(
-    Math.min((matchedKeywords.length / totalKeywords) * 100, 100).toFixed(2),
-  );
+  // --- Score ---
+  let score = (matched.length / jdKeywords.length) * 100;
+  score = Math.min(100, Number(score.toFixed(2)));
 
+  // --- Feedback ---
   const feedback = [];
+
   if (score >= 80) {
-    feedback.push("Resume contains most important job description keywords");
+    feedback.push("Resume contains most important technical keywords");
   } else if (score >= 50) {
     feedback.push("Resume contains some important keywords but can be improved");
   } else {
-    feedback.push("Resume is missing many important job description keywords");
+    feedback.push("Resume is missing many important technical keywords");
   }
 
-  missingKeywords.forEach((keyword) => {
-    feedback.push(`Missing keyword: ${keyword}`);
+  // Add limited missing keywords feedback (avoid spam)
+  missing.slice(0, 5).forEach(k => {
+    feedback.push(`Missing keyword: ${k}`);
   });
+
+  // --- Limit output (UX improvement) ---
+  const LIMITED_MATCHED = matched.slice(0, 20);
+  const LIMITED_MISSING = missing.slice(0, 20);
 
   return {
     score,
-    weight: 0.2,
+    weight,
     feedback,
-    matchedKeywords,
-    missingKeywords,
+    matchedKeywords: keywordDisplayFromJD(jobDescription, LIMITED_MATCHED),
+    missingKeywords: keywordDisplayFromJD(jobDescription, LIMITED_MISSING)
   };
 };

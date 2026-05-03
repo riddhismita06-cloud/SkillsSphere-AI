@@ -4,6 +4,10 @@ import Resume from "../../database/models/Resume.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 import AppError from "../../utils/AppError.js";
 import { runPipeline } from "../../../../ai-ml/pipeline/runPipeline.js";
+import {
+  normalizeResumeData,
+  normalizePipelineResult,
+} from "../../utils/normalizeResumeResponse.js";
 import * as resumeService from "./service.js";
 
 
@@ -71,10 +75,14 @@ export const analyzeResume = async (req, res) => {
       jobDescription,
     });
 
+    // 🔥 Normalize everything
+    const safeData = normalizeResumeData(parsedData);
+    const safePipeline = normalizePipelineResult(pipelineResult);
+
     // Save to DB (optional)
     const savedResume = await controllerDependencies.upsertResume(req.user._id, {
-      ...parsedData,
-      ...pipelineResult,
+      ...safeData,
+      ...safePipeline,
       jobSkills,
       jobDescription,
       file: {
@@ -90,8 +98,8 @@ export const analyzeResume = async (req, res) => {
       success: true,
       message: "Resume analyzed successfully",
       resumeId: savedResume._id,
-      data: parsedData,
-      ...pipelineResult, // 🔥 single source of truth
+      data: safeData,
+      ...safePipeline, // 🔥 single source of truth
       file: savedResume.file,
     });
   } catch (error) {
