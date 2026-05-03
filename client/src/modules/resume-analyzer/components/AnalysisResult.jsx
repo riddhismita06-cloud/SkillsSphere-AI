@@ -76,9 +76,23 @@ const AnalysisResult = ({ result, file, onReset }) => {
             <div className={`text-7xl font-black tracking-tighter ${getScoreColor(score)}`}>
               {score}%
             </div>
+            
+            {/* Classification Level and Insights */}
+            {result.classification && (
+              <div className="mt-4 space-y-2">
+                <div className={`inline-block px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-dark-bg border border-border shadow-sm ${getScoreColor(score)}`}>
+                  {result.classification.level}
+                </div>
+                <p className="text-[10px] text-text-muted font-bold px-2 leading-relaxed italic">
+                  {result.classification.label}
+                </p>
+              </div>
+            )}
+
             <p className="text-xs text-text-muted mt-4 font-bold max-w-[150px]">
               {isJDProvided ? "Optimized for Job Description" : "General Quality Baseline"}
             </p>
+
           </div>
         </div>
 
