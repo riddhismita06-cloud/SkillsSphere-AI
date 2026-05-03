@@ -14,14 +14,9 @@ const AnalysisResult = ({ result, file, onReset }) => {
   // Support both legacy mock structure and new backend structure
   const score = result?.score || 0;
 
-  const suggestions = result.suggestions ?? [
-    ...(result.skillMatch?.feedback || []),
-    ...(result.keywordMatch?.feedback || []),
-    ...(result.experienceMatch?.feedback || []),
-    ...(result.consistencyMatch?.feedback || []),
-    ...(result.readabilityMatch?.feedback || []),
-    ...(result.gapAnalysis?.suggestions || [])
-  ];
+  const isJDProvided = result.isJDProvided ?? !!result.keywordMatch;
+
+  const suggestions = (result.gapAnalysis?.suggestions || []).slice(0, 8);
 
   const rawMissing = [
     ...(result.keywordMatch?.missingKeywords || []),
@@ -50,6 +45,7 @@ const AnalysisResult = ({ result, file, onReset }) => {
 
   // Determine score color/gradient class (sync with classification)
   const getScoreStyles = (s) => {
+    if (s === null) return "text-text-muted";
     const classificationColor = result?.classification?.color;
     if (classificationColor === "red") return "text-red-400";
     if (classificationColor === "yellow") return "text-yellow-400";
@@ -95,7 +91,7 @@ const AnalysisResult = ({ result, file, onReset }) => {
       </div>
 
       {/* Header / Score Section */}
-      <div className="bg-surface/80 border border-border rounded-[2rem] p-8 flex flex-col md:row items-center justify-between gap-8 backdrop-blur-sm shadow-2xl relative overflow-hidden group">
+      <div className="bg-surface/80 border border-border rounded-[2rem] p-8 flex flex-col md:flex-row items-center justify-between gap-8 backdrop-blur-sm shadow-2xl relative overflow-hidden group">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
         <div className="relative z-10 flex items-center gap-6">
@@ -107,7 +103,9 @@ const AnalysisResult = ({ result, file, onReset }) => {
               {result?.classification?.level || "Global Insight Analysis"}
             </h2>
             <p className="text-text-muted text-sm mt-1 font-medium">
-              {result?.classification?.label || "AI-driven evaluation across 50+ industry parameters."}
+              {isJDProvided 
+                ? result?.classification?.label || "AI-driven evaluation against job requirements."
+                : "Base resume quality analysis (No Job Description provided)."}
             </p>
           </div>
         </div>
@@ -116,7 +114,7 @@ const AnalysisResult = ({ result, file, onReset }) => {
           <span
             className={`text-6xl font-heading font-black tracking-tighter ${getScoreStyles(score)}`}
           >
-            {score}%
+            {score !== null ? `${score}%` : "N/A"}
           </span>
           <span className="text-[10px] font-black uppercase text-text-muted mt-2 tracking-[0.25em]">
             Trust Score
@@ -128,7 +126,7 @@ const AnalysisResult = ({ result, file, onReset }) => {
         {/* Left Column: Suggestions & Keywords */}
         <div className="lg:col-span-7 space-y-8 flex flex-col">
           {/* Suggestions Section */}
-          <div className="bg-surface/50 border border-border rounded-[2rem] p-8 shadow-xl flex-1 hover:border-border/80 transition-colors">
+          <div className="bg-surface/50 border border-border rounded-[2rem] p-8 shadow-xl flex-1 hover:border-border/80 transition-colors flex flex-col">
             <div className="flex items-center gap-3 mb-8">
               <div className="p-2 bg-secondary/10 rounded-lg">
                 <CheckCircle2 className="w-6 h-6 text-secondary" />
@@ -137,45 +135,56 @@ const AnalysisResult = ({ result, file, onReset }) => {
                 Strategic Improvements
               </h3>
             </div>
-            <ul className="space-y-5">
-              {(suggestions || []).map((suggestion, index) => (
-                <li key={index} className="flex items-start gap-4 group">
-                  <div className="mt-1.5 bg-primary/10 border border-primary/20 rounded-md p-0.5 group-hover:bg-primary/20 transition-all">
-                    <ChevronRight className="w-4 h-4 text-primary transition-transform group-hover:translate-x-1" />
-                  </div>
-                  <p className="text-text-main text-[15px] leading-relaxed group-hover:text-white transition-colors">
-                    {suggestion}
-                  </p>
-                </li>
-              ))}
-            </ul>
+            <div className="max-h-[400px] overflow-y-auto pr-4 custom-scrollbar">
+              <ul className="space-y-5">
+                {(suggestions || []).map((suggestion, index) => (
+                  <li key={index} className="flex items-start gap-4 group">
+                    <div className="mt-1.5 bg-primary/10 border border-primary/20 rounded-md p-0.5 group-hover:bg-primary/20 transition-all">
+                      <ChevronRight className="w-4 h-4 text-primary transition-transform group-hover:translate-x-1" />
+                    </div>
+                    <p className="text-text-main text-[15px] leading-relaxed group-hover:text-white transition-colors">
+                      {suggestion}
+                    </p>
+                  </li>
+                ))}
+                {suggestions.length === 0 && (
+                  <p className="text-text-muted italic text-center py-8">No specific improvements detected. Your resume looks solid!</p>
+                )}
+              </ul>
+            </div>
           </div>
 
-          {/* Missing Keywords Section */}
-          <div className="bg-surface/50 border border-border rounded-[2rem] p-8 shadow-xl">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-yellow-400/10 rounded-lg">
-                <AlertCircle className="w-6 h-6 text-yellow-400" />
+          {/* Missing Keywords Section (Only if JD provided) */}
+          {isJDProvided && (
+            <div className="bg-surface/50 border border-border rounded-[2rem] p-8 shadow-xl animate-in fade-in slide-in-from-left-4 duration-500">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-yellow-400/10 rounded-lg">
+                  <AlertCircle className="w-6 h-6 text-yellow-400" />
+                </div>
+                <h3 className="text-xl font-heading font-bold text-text-main">
+                  Keyword Intelligence
+                </h3>
               </div>
-              <h3 className="text-xl font-heading font-bold text-text-main">
-                Keyword Intelligence
-              </h3>
+              <div className="flex flex-wrap gap-2.5">
+                {missing_keywords.length > 0 ? (
+                  missing_keywords.map((keyword, index) => (
+                    <span
+                      key={index}
+                      className="px-4 py-2 bg-primary/5 border border-primary/20 hover:border-primary/50 text-primary-hover font-bold rounded-xl text-xs transition-all hover:bg-primary/10 cursor-default shadow-sm"
+                    >
+                      {keyword}
+                    </span>
+                  ))
+                ) : (
+                  <p className="text-sm text-secondary font-bold">No missing keywords found! Excellent alignment.</p>
+                )}
+              </div>
+              <p className="text-xs text-text-muted mt-6 italic opacity-80 leading-relaxed">
+                * Integrating these keywords naturally into your experience can
+                boost ATS rankings.
+              </p>
             </div>
-            <div className="flex flex-wrap gap-2.5">
-              {(missing_keywords || []).map((keyword, index) => (
-                <span
-                  key={index}
-                  className="px-4 py-2 bg-primary/5 border border-primary/20 hover:border-primary/50 text-primary-hover font-bold rounded-xl text-xs transition-all hover:bg-primary/10 cursor-default shadow-sm"
-                >
-                  {keyword}
-                </span>
-              ))}
-            </div>
-            <p className="text-xs text-text-muted mt-6 italic opacity-80 leading-relaxed">
-              * Integrating these keywords naturally into your experience can
-              boost ATS rankings.
-            </p>
-          </div>
+          )}
         </div>
 
         {/* Right Column: Document Preview */}

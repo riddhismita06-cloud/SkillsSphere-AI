@@ -39,49 +39,60 @@ export async function runPipeline({
       return "";
     }).join("\n");
   }
+
+  const isJDProvided = !!(jobDescription && jobDescription.trim().length > 0);
   const evaluations = [];
 
   // 🟢 Skill Match
-  const skillMatch = safeEval("skillMatch", () =>
-  skillEvaluator({
-    resumeSkills: resumeData.skills || [],
-    jobSkills,
-  })
-);
-  evaluations.push({ ...skillMatch, name: "skillMatch" });
+  const skillMatch = isJDProvided 
+    ? safeEval("skillMatch", () =>
+        skillEvaluator({
+          resumeSkills: resumeData.skills || [],
+          jobSkills,
+        })
+      )
+    : { score: null, message: "No job description provided", matchedSkills: [], missingSkills: [] };
+  
+  if (skillMatch.score !== null) evaluations.push({ ...skillMatch, name: "skillMatch" });
 
   // 🟡 Keyword Match
-  const keywordMatch = safeEval("keywordMatch", () =>
-  keywordEvaluator({
-    resumeText: resumeData.resumeText || "",
-    jobDescription,
-  })
-);
-  evaluations.push({ ...keywordMatch, name: "keywordMatch" });
+  const keywordMatch = isJDProvided
+    ? safeEval("keywordMatch", () =>
+        keywordEvaluator({
+          resumeText: resumeData.resumeText || "",
+          jobDescription,
+        })
+      )
+    : { score: null, message: "No job description provided", matchedKeywords: [], missingKeywords: [] };
+
+  if (keywordMatch.score !== null) evaluations.push({ ...keywordMatch, name: "keywordMatch" });
 
   // 🔵 Experience Match
-  const experienceMatch = safeEval("experienceMatch", () =>
-  experienceEvaluator({
-    candidateExperienceText: parseExperience(resumeData.experience),
-    jobDescription,
-  })
-);
-  evaluations.push({ ...experienceMatch, name: "experienceMatch" });
+  const experienceMatch = isJDProvided
+    ? safeEval("experienceMatch", () =>
+        experienceEvaluator({
+          candidateExperienceText: parseExperience(resumeData.experience),
+          jobDescription,
+        })
+      )
+    : { score: null, message: "No job description provided" };
+
+  if (experienceMatch.score !== null) evaluations.push({ ...experienceMatch, name: "experienceMatch" });
 
   // 🟣 Consistency Match
   const consistencyMatch = safeEval("consistencyMatch", () =>
-  consistencyEvaluator({
-    resumeText: resumeData.resumeText || "",
-  })
-);
+    consistencyEvaluator({
+      resumeText: resumeData.resumeText || "",
+    })
+  );
   evaluations.push({ ...consistencyMatch, name: "consistencyMatch" });
 
   // 🟠 Readability Match
   const readabilityMatch = safeEval("readabilityMatch", () =>
-  readabilityEvaluator({
-    resumeText: resumeData.resumeText || "",
-  })
-);
+    readabilityEvaluator({
+      resumeText: resumeData.resumeText || "",
+    })
+  );
   evaluations.push({ ...readabilityMatch, name: "readabilityMatch" });
 
   // 🧠 Aggregate
@@ -93,7 +104,9 @@ export async function runPipeline({
   const gapAnalysis = gapAnalyzer({
     skillMatch,
     keywordMatch,
-    experienceMatch
+    experienceMatch,
+    consistencyMatch,
+    readabilityMatch
   });
 
   // 🔥 Classification
@@ -113,5 +126,6 @@ export async function runPipeline({
     readabilityMatch,
     gapAnalysis,
     classification,
+    isJDProvided
   };
 }
