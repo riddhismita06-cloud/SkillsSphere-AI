@@ -12,10 +12,15 @@ export const createJobPosting = asyncHandler(async (req, res) => {
   const {
     title,
     description,
+    requirements,
+    responsibilities,
     skills,
+    experienceRequired,
+    jobLevel,
     status,
     location,
     salary,
+    keywords,
   } = req.body;
 
   // Validate required fields with detailed errors
@@ -30,7 +35,6 @@ export const createJobPosting = asyncHandler(async (req, res) => {
   } else {
     if (!location.city) validationErrors["location.city"] = "City is required";
     if (!location.state) validationErrors["location.state"] = "State is required";
-    // Country is optional here as it has a default value in the Mongoose model
   }
   if (!salary) {
     validationErrors.salary = "Salary information is required";
@@ -56,10 +60,15 @@ export const createJobPosting = asyncHandler(async (req, res) => {
   const jobPosting = await JobPosting.create({
     title,
     description,
+    requirements,
+    responsibilities,
     skills,
+    experienceRequired,
+    jobLevel,
     status: status || "draft",
     location,
     salary,
+    keywords,
     recruiter: req.user._id,
   });
 
