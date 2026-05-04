@@ -9,12 +9,12 @@ export async function runPipeline({
   jobDescription = "",
 }) {
     // ADD — safe wrapper for all evaluator calls
-  function safeEval(name, fn, fallback = { score: 0, error: true }) {
+  async function safeEval(name, fn, fallback = { score: 0, error: true  }) {
     try {
-      return fn();
+      return await fn();
     } catch (err) {
       console.error(`[runPipeline] Evaluator "${name}" failed:`, err);
-      return fallback;
+      return { ...fallback, name };
     }
   }
 
@@ -71,9 +71,13 @@ evaluations.push({ ...experienceMatch, name: "experienceMatch" });
   if (!result) throw new Error("[runPipeline] aggregateResults returned empty");
   const { score, breakdown } = result;
 
+  const failedEvaluators = evaluations.filter(e => e.error).map(e => e.name);
+
   return {
     score,
     breakdown,
+    degraded: failedEvaluators.length > 0,
+    failedEvaluators,
     skillMatch,
     keywordMatch,
     experienceMatch,
