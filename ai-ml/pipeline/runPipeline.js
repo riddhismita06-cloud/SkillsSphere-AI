@@ -36,33 +36,35 @@ export async function runPipeline({
     }).join("\n");
   }
   const evaluations = [];
-
+  const [skillMatch, keywordMatch, experienceMatch] = await Promise.all([
   // 🟢 Skill Match
-  const skillMatch = safeEval("skillMatch", () =>
-  skillEvaluator({
-    resumeSkills: resumeData.skills || [],
-    jobSkills,
-  })
-);
-  evaluations.push({ ...skillMatch, name: "skillMatch" });
+  safeEval("skillMatch", () =>
+    skillEvaluator({
+      resumeSkills: resumeData.skills || [],
+      jobSkills,
+    })
+  ),
 
   // 🟡 Keyword Match
-  const keywordMatch = safeEval("keywordMatch", () =>
-  keywordEvaluator({
-    resumeText: resumeData.resumeText || "",
-    jobDescription,
-  })
-);
-  evaluations.push({ ...keywordMatch, name: "keywordMatch" });
+  safeEval("keywordMatch", () =>
+    keywordEvaluator({
+      resumeText: resumeData.resumeText || "",
+      jobDescription,
+    })
+  ),
 
   // 🔵 Experience Match
-  const experienceMatch = safeEval("experienceMatch", () =>
-  experienceEvaluator({
-    candidateExperienceText: parseExperience(resumeData.experience),
-    jobDescription,
-  })
-);
-  evaluations.push({ ...experienceMatch, name: "experienceMatch" });
+  safeEval("experienceMatch", () =>
+    experienceEvaluator({
+      candidateExperienceText: parseExperience(resumeData.experience),
+      jobDescription,
+    })
+  ),
+]);
+
+evaluations.push({ ...skillMatch, name: "skillMatch" });
+evaluations.push({ ...keywordMatch, name: "keywordMatch" });
+evaluations.push({ ...experienceMatch, name: "experienceMatch" });
 
   // 🧠 Aggregate
   const result = aggregateResults(evaluations);
