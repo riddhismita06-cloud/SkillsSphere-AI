@@ -138,5 +138,8 @@ Scaffolded placeholders:
 
 ## Notes
 
-- Empty directories intentionally use `.gitkeep` so module structure remains versioned.
-- As each placeholder module is implemented, add module-level documentation under `docs/features` or inside module folders.
+- Empty folders intentionally contain `.gitkeep` so structure is versioned.
+- As implementation begins, add module-level README files where needed.
+
+
+- `job-matcher/` module now includes the Resume-First Job Recommendation UI with components for resume selection, match score, missing skills, and recommended jobs, following a modular and scalable structure.

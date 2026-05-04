@@ -2,6 +2,13 @@ import { aggregateResults } from "./aggregator.js";
 import { skillEvaluator } from "../evaluators/skillEvaluator.js";
 import { keywordEvaluator } from "../evaluators/keywordEvaluator.js";
 import { experienceEvaluator } from "../evaluators/experienceEvaluator.js";
+import { classifyResume } from "../utils/resumeClassifier.js";
+import consistencyEvaluator from "../evaluators/consistencyEvaluator.js";
+import gapAnalyzer from "../utils/gapAnalyzer.js";
+import readabilityEvaluator from "../evaluators/readabilityEvaluator.js";
+import { impactEvaluator } from "../evaluators/impactEvaluator.js";
+import { atsOptimizationEvaluator } from "../evaluators/atsOptimizationEvaluator.js";
+import { techStandardEvaluator } from "../evaluators/techStandardEvaluator.js";
 
 export async function runPipeline({
   resumeData,
@@ -35,43 +42,117 @@ export async function runPipeline({
       return "";
     }).join("\n");
   }
+
+  const isJDProvided = !!(jobDescription && jobDescription.trim().length > 0);
   const evaluations = [];
-  const [skillMatch, keywordMatch, experienceMatch] = await Promise.all([
+
+  const resumeText = resumeData.resumeText || "";
+
   // 🟢 Skill Match
-  safeEval("skillMatch", () =>
-    skillEvaluator({
-      resumeSkills: resumeData.skills || [],
-      jobSkills,
-    })
-  ),
+  const skillMatch = isJDProvided 
+    ? safeEval("skillMatch", () =>
+        skillEvaluator({
+          resumeSkills: resumeData.skills || [],
+          jobSkills,
+        })
+      )
+    : { score: null, name: "skillMatch", message: "No job description provided" };
+  
+  evaluations.push(skillMatch);
 
   // 🟡 Keyword Match
-  safeEval("keywordMatch", () =>
-    keywordEvaluator({
-      resumeText: resumeData.resumeText || "",
-      jobDescription,
-    })
-  ),
+  const keywordMatch = isJDProvided
+    ? safeEval("keywordMatch", () =>
+        keywordEvaluator({
+          resumeText,
+          jobDescription,
+        })
+      )
+    : { score: null, name: "keywordMatch", message: "No job description provided" };
+
+  evaluations.push(keywordMatch);
 
   // 🔵 Experience Match
-  safeEval("experienceMatch", () =>
-    experienceEvaluator({
-      candidateExperienceText: parseExperience(resumeData.experience),
-      jobDescription,
-    })
-  ),
-]);
+  const experienceMatch = isJDProvided
+    ? safeEval("experienceMatch", () =>
+        experienceEvaluator({
+          candidateExperienceText: parseExperience(resumeData.experience),
+          jobDescription,
+        })
+      )
+    : { score: null, name: "experienceMatch", message: "No job description provided" };
 
-evaluations.push({ ...skillMatch, name: "skillMatch" });
-evaluations.push({ ...keywordMatch, name: "keywordMatch" });
-evaluations.push({ ...experienceMatch, name: "experienceMatch" });
+  evaluations.push(experienceMatch);
+
+  // 🟣 Consistency Match
+  const consistencyMatch = safeEval("consistencyMatch", () =>
+    consistencyEvaluator({
+      resumeText,
+    })
+  );
+  evaluations.push({ ...consistencyMatch, name: "consistencyMatch" });
+
+  // 🟠 Readability Match
+  const readabilityMatch = safeEval("readabilityMatch", () =>
+    readabilityEvaluator({
+      resumeText,
+    })
+  );
+  evaluations.push({ ...readabilityMatch, name: "readabilityMatch" });
+
+  // 🔥 Advanced Evaluators
+  
+  // 💥 Impact Match
+  const impactMatch = safeEval("impactMatch", () =>
+    impactEvaluator({
+      resumeText,
+    })
+  );
+  evaluations.push(impactMatch);
+
+  // 🏗️ ATS Optimization
+  const atsOptimization = safeEval("atsOptimization", () =>
+    atsOptimizationEvaluator({
+      resumeData,
+    })
+  );
+  evaluations.push(atsOptimization);
+
+  // 🏛️ Tech Standard
+  const techStandard = safeEval("techStandard", () =>
+    techStandardEvaluator({
+      resumeText,
+    })
+  );
+  evaluations.push(techStandard);
+
 
   // 🧠 Aggregate
-  const result = aggregateResults(evaluations);
+  const result = aggregateResults(evaluations, isJDProvided);
   if (!result) throw new Error("[runPipeline] aggregateResults returned empty");
   const { score, breakdown } = result;
 
   const failedEvaluators = evaluations.filter(e => e.error).map(e => e.name);
+
+  // 🎯 Gap Analysis
+  const gapAnalysis = gapAnalyzer({
+    skillMatch,
+    keywordMatch,
+    experienceMatch,
+    consistencyMatch,
+    readabilityMatch,
+    impactMatch,
+    atsOptimization,
+    techStandard
+  });
+
+  // 🔥 Classification
+  const classification = classifyResume({
+    score,
+    skillMatch,
+    experienceMatch,
+  });
+
 
   return {
     score,
@@ -81,5 +162,13 @@ evaluations.push({ ...experienceMatch, name: "experienceMatch" });
     skillMatch,
     keywordMatch,
     experienceMatch,
+    consistencyMatch,
+    readabilityMatch,
+    impactMatch,
+    atsOptimization,
+    techStandard,
+    gapAnalysis,
+    classification,
+    isJDProvided
   };
 }

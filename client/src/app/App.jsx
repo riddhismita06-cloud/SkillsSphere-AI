@@ -1,11 +1,12 @@
 import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { Routes, Route } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { fetchCurrentUser } from "../features/auth/authSlice";
 import ChatWidget from "../modules/ai-assistant/components/ChatWidget";
 import LandingPage from "../modules/landing/LandingPage";
 import DashboardPage from "../modules/dashboard/DashboardPage";
 import ResumeAnalyzerPage from "../modules/resume-analyzer/pages/ResumeAnalyzerPage";
+import JobMatcherPage from "../modules/job-matcher/pages/JobMatcherPage";
 import ComponentDemo from "../modules/auth/components/ComponentDemo";
 import Login from "../modules/auth/Login";
 import Register from "../modules/auth/Register";
@@ -15,6 +16,7 @@ import VerifyEmail from "../modules/auth/VerifyEmail";
 import ProfilePage from "../modules/profile/ProfilePage";
 import RecruiterJobsPage from "../modules/recruiter-jobs/pages/RecruiterJobsPage";
 import CreateJobPostingPage from "../modules/recruiter-jobs/pages/CreateJobPostingPage";
+import JobBoardPage from "../modules/student-jobs/pages/JobBoardPage";
 import ProtectedRoute from "../shared/components/ProtectedRoute";
 
 function App() {
@@ -28,9 +30,10 @@ function App() {
   }, [dispatch, token]);
 
   return (
-    <div>
+    <div className="min-h-screen bg-[#020617] text-white">
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/job-matcher" element={<JobMatcherPage />} />
         {import.meta.env.DEV && <Route path="/demo" element={<ComponentDemo />} />}
         <Route 
           path="/resume-analyzer" 
@@ -66,6 +69,14 @@ function App() {
           element={
             <ProtectedRoute requiredRole="recruiter">
               <CreateJobPostingPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/jobs"
+          element={
+            <ProtectedRoute>
+              <JobBoardPage />
             </ProtectedRoute>
           }
         />
